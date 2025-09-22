@@ -1,3 +1,4 @@
+// EntrenadorView.tsx
 import React, { useState } from "react";
 import { View, TextInput, Text, TouchableOpacity, Image } from "react-native";
 import { EntrenadorStyles as styles } from "./styles/EntrenadorStyles";
@@ -35,14 +36,14 @@ export default function EntrenadorView() {
   const [equipo, setEquipo] = useState<"A" | "B">("A");
   const [setActual, setSetActual] = useState<number>(1);
 
-  // 🔹 Ahora solo guardamos las posiciones directamente (sin sets)
+  // Ahora guardamos las posiciones directamente (sin sets)
   const [valores, setValores] = useState<{ [pos: string]: string }>({});
   const navigation = useNavigation<NavigationProp>();
 
   const TOTAL_SETS = modo === "6x6" ? 5 : 3;
 
   const generarQR = () => {
-    // 🔹 QR limpio: solo posiciones y valores
+    // QR limpio: solo posiciones y valores
     const datos = {
       modo,
       codigoEquipo,
@@ -52,10 +53,50 @@ export default function EntrenadorView() {
   };
 
   const toggleModo = () => {
+    setModo((m) => (m === "6x6" ? "4x4" : "6x4" as any)); // preserva tipo; luego limpiamos
+    // correction: set proper mode
     setModo((m) => (m === "6x6" ? "4x4" : "6x6"));
     setValores({});
     setSetActual(1);
   };
+
+  // --- Rotaciones ---
+  const getOrden = (): string[] => {
+    return modo === "6x6"
+      ? ["I", "VI", "V", "IV", "III", "II"]
+      : ["I", "IV", "III", "II"];
+  };
+
+  const rotateClockwise = () => {
+    const orden = getOrden();
+    const old = { ...valores };
+    const nuevo: { [pos: string]: string } = { ...valores };
+
+    const n = orden.length;
+    for (let i = 0; i < n; i++) {
+      const from = orden[i];
+      const to = orden[(i + 1) % n]; // el destino es la siguiente posición en el array
+      nuevo[to] = old[from] ?? "";
+    }
+
+    setValores(nuevo);
+  };
+
+  const rotateCounterclockwise = () => {
+    const orden = getOrden();
+    const old = { ...valores };
+    const nuevo: { [pos: string]: string } = { ...valores };
+
+    const n = orden.length;
+    for (let i = 0; i < n; i++) {
+      const from = orden[i];
+      const to = orden[(i - 1 + n) % n]; // destino es la anterior
+      nuevo[to] = old[from] ?? "";
+    }
+
+    setValores(nuevo);
+  };
+  // --- fin rotaciones ---
 
   const renderPosicion = (pos: string) => (
     <View key={pos} style={styles.posicion}>
@@ -141,7 +182,7 @@ export default function EntrenadorView() {
 
         {/* Botones de acciones */}
         <View style={styles.botonesContainer}>
-          <TouchableOpacity onPress={() => {}} style={styles.botonFlotante}>
+          <TouchableOpacity onPress={rotateClockwise} style={styles.botonFlotante}>
             <Image source={icons.rotateRight} style={{ width: 26, height: 26, tintColor: "#fff" }} />
           </TouchableOpacity>
           <TouchableOpacity
@@ -150,7 +191,7 @@ export default function EntrenadorView() {
           >
             <Image source={icons.trash} style={{ width: 24, height: 24, tintColor: "#fff" }} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => {}} style={styles.botonFlotante}>
+          <TouchableOpacity onPress={rotateCounterclockwise} style={styles.botonFlotante}>
             <Image source={icons.rotateLeft} style={{ width: 26, height: 26, tintColor: "#fff" }} />
           </TouchableOpacity>
         </View>

@@ -44,7 +44,7 @@ export default function ArbitroView({
   const TOTAL_SETS = modo === "6x6" ? 5 : 3;
   const [setActualLocal, setSetActualLocal] = useState<number>(1);
   const setActual = setActualProp ?? setActualLocal;
-  const setSetActual = setSetActualProp ?? setSetActualLocal; // ✅ aquí estaba el bug
+  const setSetActual = setSetActualProp ?? setSetActualLocal; // setter (prop o local)
 
   const posiciones6x6 = {
     delanteras: ["IV", "III", "II"],
@@ -55,15 +55,11 @@ export default function ArbitroView({
     traseras: ["I"],
   };
 
-  const getPosiciones = (equipo: "A" | "B") => {
-    if (modo === "6x6")
-      return equipo === "A"
-        ? posiciones6x6
-        : { delanteras: ["II", "III", "IV"], traseras: ["I", "VI", "V"] };
-    return equipo === "A"
-      ? posiciones4x4
-      : { delanteras: ["II", "III", "IV"], traseras: ["I"] };
+  // ---- CAMBIO: posiciones fijas, independientemente del equipo o del set ----
+  const getPosiciones = () => {
+    return modo === "6x6" ? posiciones6x6 : posiciones4x4;
   };
+  // ------------------------------------------------------------------------
 
   const equipoIzq = setActual % 2 === 1 ? "A" : "B";
   const equipoDer = setActual % 2 === 1 ? "B" : "A";
@@ -84,7 +80,7 @@ export default function ArbitroView({
   const avanzarSet = () =>
     setSetActual(setActual < TOTAL_SETS ? setActual + 1 : TOTAL_SETS);
 
-  // 🔹 Obtener datos de equipos
+  // Obtener datos de equipos (código y nombre si vienen)
   const codigoIzq =
     valoresEquipos?.[setActual]?.[equipoIzq]?.codigo?.toUpperCase() ?? "---";
   const codigoDer =
@@ -173,7 +169,7 @@ export default function ArbitroView({
           <Text
             style={{
               marginLeft: 6,
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: "bold",
               color: "#000",
               backgroundColor: "#fff176",
@@ -204,7 +200,7 @@ export default function ArbitroView({
           <Text
             style={{
               marginRight: 6,
-              fontSize: 14,
+              fontSize: 16,
               fontWeight: "bold",
               color: "#000",
               backgroundColor: "#fff176",
@@ -241,23 +237,23 @@ export default function ArbitroView({
         <View style={styles.campo}>
           <View style={styles.fila}>
             <View style={styles.columna}>
-              {getPosiciones(equipoIzq).traseras.map((pos) =>
+              {getPosiciones().traseras.map((pos) =>
                 renderPosicion(pos, equipoIzq)
               )}
             </View>
             <View style={styles.columna}>
-              {getPosiciones(equipoIzq).delanteras.map((pos) =>
+              {getPosiciones().delanteras.map((pos) =>
                 renderPosicion(pos, equipoIzq)
               )}
             </View>
             <View style={styles.red}></View>
             <View style={styles.columna}>
-              {getPosiciones(equipoDer).delanteras.map((pos) =>
+              {getPosiciones().delanteras.map((pos) =>
                 renderPosicion(pos, equipoDer)
               )}
             </View>
             <View style={styles.columna}>
-              {getPosiciones(equipoDer).traseras.map((pos) =>
+              {getPosiciones().traseras.map((pos) =>
                 renderPosicion(pos, equipoDer)
               )}
             </View>
