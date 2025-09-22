@@ -1,9 +1,15 @@
+// QRView.tsx
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
 import type { RootStackParamList } from "./types/Navigation";
 import { QRViewStyles as styles } from "./styles/QRViewStyles";
+
+// Iconos locales
+const icons = {
+  back: require("./assets/icons/left.png"), // usa tu icono de flecha aquí
+};
 
 type QRViewRouteProp = RouteProp<RootStackParamList, "QRView">;
 
@@ -18,13 +24,15 @@ export default function QRView() {
       <QRCode value={data} size={250} />
       <Text style={styles.subtitle}>Muestra este código al árbitro</Text>
 
-      {/* Botón Volver abajo */}
+      {/* Botón Volver con icono local */}
       <TouchableOpacity
         style={styles.volverButton}
         onPress={() => navigation.goBack()}
       >
-        {/* Reemplazo del icono con emoji/flecha */}
-        <Text style={{ fontSize: 22, color: "#fff", marginRight: 6 }}>⬅️</Text>
+        <Image
+          source={icons.back}
+          style={{ width: 22, height: 22, tintColor: "#fff", marginRight: 6 }}
+        />
         <Text style={styles.volverButtonText}>Volver</Text>
       </TouchableOpacity>
     </View>
