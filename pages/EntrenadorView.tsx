@@ -8,11 +8,13 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
+  Alert,
 } from "react-native";
 import { EntrenadorStyles as styles } from "../styles/EntrenadorStyles";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import type { RootStackParamList } from "../types/Navigation";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "Entrenador">;
 
@@ -45,6 +47,7 @@ export default function EntrenadorView() {
   const [setActual, setSetActual] = useState<number>(1);
   const [valores, setValores] = useState<{ [pos: string]: string }>({});
   const navigation = useNavigation<NavigationProp>();
+  const insets = useSafeAreaInsets();
 
   const TOTAL_SETS = modo === "6x6" ? 5 : 3;
 
@@ -95,20 +98,61 @@ export default function EntrenadorView() {
   };
   // --- fin rotaciones ---
 
-  const renderPosicion = (pos: string) => (
-    <View key={pos} style={styles.posicion}>
-      <Text style={styles.label}>{pos}</Text>
-      <TextInput
-        style={styles.input}
-        keyboardType="numeric"
-        maxLength={2}
-        value={valores[pos] || ""}
-        onChangeText={(text) =>
-          setValores((prev) => ({ ...prev, [pos]: text }))
-        }
-      />
-    </View>
-  );
+const renderPosicion = (pos: string) => (
+  <View key={pos} style={styles.posicion}>
+    <Text style={styles.label}>{pos}</Text>
+    <TextInput
+      style={styles.input}
+      keyboardType="numeric"
+      maxLength={2}
+      value={valores[pos] || ""}
+      onChangeText={(text) => {
+        setValores((prev) => {
+          // Si el usuario todavía está escribiendo (menos de 2 dígitos), 
+          // solo actualizamos temporalmente sin validar para evitar falsas alertas.
+          if (text.length < 2) {
+            return { ...prev, [pos]: text };
+          }
+
+          // Si ya tiene 2 dígitos, validamos y rechazamos si hay duplicado.
+          const isDuplicate = Object.entries(prev).some(
+            ([key, value]) => key !== pos && value === text
+          );
+          if (isDuplicate) {
+            Alert.alert(
+              "Número repetido",
+              `El número ${text} ya está asignado en otra posición.`
+            );
+            return prev; // no guardar el valor duplicado
+          }
+
+          return { ...prev, [pos]: text };
+        });
+      }}
+      onEndEditing={(e) => {
+        // Si el usuario terminó de editar (útil cuando el número final es 1 dígito),
+        // comprobamos duplicados y revertimos/limpiamos si hace falta.
+        const text = e.nativeEvent.text ?? "";
+        if (text === "") return;
+
+        setValores((prev) => {
+          const isDuplicate = Object.entries(prev).some(
+            ([key, value]) => key !== pos && value === text
+          );
+          if (isDuplicate) {
+            Alert.alert(
+              "Número repetido",
+              `El número ${text} ya está asignado en otra posición.`
+            );
+            return { ...prev, [pos]: "" }; // limpiamos para forzar corrección
+          }
+          return prev;
+        });
+      }}
+    />
+  </View>
+);
+
 
   const posiciones = modo === "6x6" ? posiciones6x6 : posiciones4x4;
 
@@ -118,32 +162,37 @@ export default function EntrenadorView() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
       keyboardVerticalOffset={0}
     >
+      {/* Botón Home */}
+          {/* Botón Home */}
+        <TouchableOpacity
+          style={[styles.homeButton, { top: insets.top + 10 }]} // 👈 notch seguro
+          onPress={() => navigation.navigate("Home")}
+        >
+          <Image
+            source={icons.home}
+            style={{ width: 28, height: 28, tintColor: "#fff" }}
+          />
+        </TouchableOpacity>
+
+        {/* Botón Modo */}
+        <TouchableOpacity
+          style={[styles.modoButton, { top: insets.top + 10 }]} // 👈 notch seguro
+          onPress={toggleModo}
+        >
+          <Image
+            source={icons.swap}
+            style={{ width: 22, height: 22, tintColor: "#fff", marginRight: 5 }}
+          />
+          <Text style={styles.modoText}>
+            {modo === "6x6" ? "Voley 6x6" : "MiniVoley 4x4"}
+          </Text>
+        </TouchableOpacity>
       <View style={styles.container}>
         <ScrollView
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-        >
-          {/* Botón Home */}
-          <TouchableOpacity
-            style={styles.homeButton}
-            onPress={() => navigation.navigate("Home")}
-          >
-            <Image
-              source={icons.home}
-              style={{ width: 28, height: 28, tintColor: "#fff" }}
-            />
-          </TouchableOpacity>
-
-          {/* Botón Modo */}
-          <TouchableOpacity style={styles.modoButton} onPress={toggleModo}>
-            <Image
-              source={icons.swap}
-              style={{ width: 22, height: 22, tintColor: "#fff", marginRight: 5 }}
-            />
-            <Text style={styles.modoText}>
-              {modo === "6x6" ? "Voley 6x6" : "MiniVoley 4x4"}
-            </Text>
-          </TouchableOpacity>
+        >          
+          
 
           {/* Barra superior */}
           <View style={styles.barraControl}>
@@ -247,7 +296,7 @@ export default function EntrenadorView() {
               source={icons.qr}
               style={{ width: 32, height: 32, tintColor: "#fff", marginBottom: 6 }}
             />
-            <Text style={styles.qrButtonText}>Generar{`\n`}Código QR</Text>
+            <Text style={styles.qrButtonText}>Generar Código QR</Text>
           </TouchableOpacity>
         </ScrollView>
       </View>

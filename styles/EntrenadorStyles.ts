@@ -2,111 +2,100 @@ import { StyleSheet, Dimensions, Platform } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
-// Proporciones adaptables
-const campoSize = width * 0.9;
-const posicionSize = campoSize * 0.28;
+// 🔹 Escalado moderado
+const campoSize = Math.min(width * 0.85, height * 0.5, 460);
+const posicionSize = campoSize * 0.26;
 
-// Estilo base de caja (para vistas como el selector A/B)
-const cajaEquipoBaseView = {
-  flex: 1,
-  minWidth: width * 0.18,
-  maxWidth: width * 0.28,
-  height: height * 0.05,
-  borderRadius: 8,
-  borderWidth: 1,
-  borderColor: "#d97706",
-  backgroundColor: "#fde047",
-  justifyContent: "center" as const,
-  alignItems: "center" as const,
-};
-
-// Estilo base de texto (para TextInput)
-const cajaEquipoBaseText = {
-  flex: 1,
-  minWidth: width * 0.18,
-  maxWidth: width * 0.28,
-  height: height * 0.05,
-  borderRadius: 8,
-  borderWidth: 1,
-  borderColor: "#d97706",
-  backgroundColor: "#fde047",
-};
 export const EntrenadorStyles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f9fafc",
+    backgroundColor: "#f9fafb",
+    marginTop:height*0.08 // gris neutro suave
   },
 
   scrollContent: {
+    flexGrow: 1,
     alignItems: "center",
-    paddingTop: height * 0.1,
-    paddingHorizontal: width * 0.04,
-    paddingBottom: height * 0.08,
+    justifyContent: "flex-start",
+    padding: width * 0.035,
   },
 
+  // 🎯 Cancha
   campo: {
     width: campoSize,
     aspectRatio: 1,
-    backgroundColor: "#ffedd5",
+    backgroundColor: "#fff7ed", // beige cancha
     borderRadius: 16,
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: "#fb923c",
     justifyContent: "space-around",
-    paddingVertical: 10,
-    marginVertical: height * 0.02,
+    paddingVertical: 8,
+    marginVertical: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
 
   fila: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "space-evenly",
     alignItems: "center",
     flex: 1,
     width: "100%",
   },
 
   lineaSeparadora: {
-    height: 2,
+    height: 1.5,
     backgroundColor: "#fb923c",
-    width: "90%",
+    width: "85%",
     alignSelf: "center",
+    marginVertical: 3,
   },
 
+  // 🏐 Posiciones
   posicion: {
     width: posicionSize,
     height: posicionSize,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: "#fb923c",
     borderRadius: 12,
     backgroundColor: "#fff",
-    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
 
   input: {
-    width: "80%",
-    height: "60%",
+    width: "75%",
+    height: "55%",
     borderWidth: 1,
     borderColor: "#d1d5db",
     borderRadius: 8,
     textAlign: "center",
-    fontSize: posicionSize * 0.22,
+    fontSize: Math.min(posicionSize * 0.22, 20),
     padding: 0,
-    color: "#111",
+    color: "#111827",
     backgroundColor: "#f9fafb",
-    marginBottom: 4,
+    marginBottom: 3,
   },
 
   label: {
-    fontSize: posicionSize * 0.2,
+    fontSize: Math.min(posicionSize * 0.18, 16),
     fontWeight: "600",
-    marginBottom: 5,
+    marginBottom: 4,
     color: "#374151",
   },
 
+  // 🔄 Botones de rotación
   botonesContainer: {
     position: "absolute",
-    bottom: -campoSize * 0.08,
+    bottom: -campoSize * 0.1,
     width: "100%",
     flexDirection: "row",
     justifyContent: "space-around",
@@ -115,19 +104,24 @@ export const EntrenadorStyles = StyleSheet.create({
 
   botonFlotante: {
     backgroundColor: "#3b82f6",
-    width: campoSize * 0.18,
-    height: campoSize * 0.18,
-    borderRadius: campoSize * 0.09,
+    width: campoSize * 0.16,
+    height: campoSize * 0.16,
+    borderRadius: campoSize * 0.08,
     justifyContent: "center",
     alignItems: "center",
-    elevation: 6,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+    elevation: 2,
   },
 
   botonCentral: {
     backgroundColor: "#ef4444",
   },
 
-    barraControl: {
+  // 📝 Barra superior
+  barraControl: {
     width: campoSize,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -136,27 +130,36 @@ export const EntrenadorStyles = StyleSheet.create({
     borderRadius: 12,
     padding: 10,
     marginBottom: 12,
-    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
   },
 
   controlItem: {
-    flex: 1,           // 🔹 que cada item se reparta bien
+    flex: 1,
     alignItems: "center",
+    minWidth: width * 0.22,
   },
 
   controlLabel: {
-    fontSize: width * 0.035,
-    fontWeight: "600",
+    fontSize: Math.min(width * 0.038, 16),
+    fontWeight: "500",
     color: "#374151",
-    marginBottom: 4,
+    marginBottom: 3,
     textAlign: "center",
   },
 
-    codigoEquipo: {
-    ...cajaEquipoBaseText,
+  codigoEquipo: {
+    flex: 1,
+    height: Math.min(height * 0.06, 55),
+    borderRadius: 8,
+    borderWidth: 1.2,
+    borderColor: "#f59e0b",
+    backgroundColor: "#fef9c3",
     textAlign: "center",
-    textAlignVertical: "center",
-    fontSize: width * 0.045,
+    fontSize: Math.min(width * 0.055, 24),
     fontWeight: "bold",
     color: "#78350f",
     paddingVertical: 0,
@@ -164,32 +167,45 @@ export const EntrenadorStyles = StyleSheet.create({
   },
 
   equipoSelector: {
-    ...cajaEquipoBaseView,
+    flex: 1,
+    height: Math.min(height * 0.06, 55),
+    borderRadius: 8,
+    borderWidth: 1.2,
+    borderColor: "#f59e0b",
+    backgroundColor: "#fef9c3",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: width * 0.015,
   },
 
   equipoText: {
     fontWeight: "bold",
-    fontSize: width * 0.045,
+    fontSize: Math.min(width * 0.045, 22),
     color: "#78350f",
     textAlign: "center",
   },
 
+  // 🎯 Sets
   filaSets: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     width: campoSize,
-    height: height * 0.065,
+    height: Math.min(height * 0.06, 55),
     backgroundColor: "#fff",
     borderRadius: 10,
-    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
     paddingHorizontal: 6,
-    marginBottom: 12,
+    marginBottom: 10,
   },
 
   setButton: {
-    width: height * 0.05,
-    height: height * 0.05,
+    width: Math.min(height * 0.045, 45),
+    height: Math.min(height * 0.045, 45),
     borderRadius: 8,
     backgroundColor: "#3b82f6",
     justifyContent: "center",
@@ -199,7 +215,7 @@ export const EntrenadorStyles = StyleSheet.create({
   setDisplay: {
     flex: 1,
     height: "85%",
-    marginHorizontal: 6,
+    marginHorizontal: 5,
     borderRadius: 8,
     backgroundColor: "#3b82f6",
     justifyContent: "center",
@@ -208,39 +224,48 @@ export const EntrenadorStyles = StyleSheet.create({
 
   setText: {
     color: "#fff",
-    fontWeight: "bold",
-    fontSize: width * 0.045,
+    fontWeight: "600",
+    fontSize: Math.min(width * 0.042, 18),
     textAlign: "center",
   },
 
+  // 🏠 Home → posición segura con insets en el componente
   homeButton: {
     position: "absolute",
-    top: height * 0.02,
-    left: 20,
-    zIndex: 10,
+    left: 18,
+    zIndex: 20,
     padding: 8,
     backgroundColor: "#fb923c",
-    borderRadius: 20,
-    elevation: 3,
+    borderRadius: 40,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    elevation: 2,
   },
 
+  // 🔄 Modo → posición segura con insets en el componente
   modoButton: {
     position: "absolute",
-    top: height * 0.02,
-    right: 20,
+    right: 18,
+    zIndex: 20,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fb923c",
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 10,
-    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    elevation: 2,
   },
 
   modoText: {
     color: "#fff",
-    fontWeight: "bold",
-    fontSize: width * 0.035,
+    fontWeight: "600",
+    fontSize: Math.min(width * 0.042, 16),
   },
 
   filaUnica: {
@@ -250,22 +275,26 @@ export const EntrenadorStyles = StyleSheet.create({
     flex: 1,
   },
 
+  // 📱 QR → margen inferior seguro en el componente
   qrButton: {
-    marginTop: height * 0.08,
-    marginBottom: height * 0.04,
-    width: "92%",
+    marginTop: 40,
+    width: campoSize,
     backgroundColor: "#fb923c",
-    paddingVertical: height * 0.02,
+    paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 12,
-    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
+    elevation: 2,
   },
 
   qrButtonText: {
     color: "#fff",
-    fontSize: width * 0.045,
-    fontWeight: "bold",
+    fontSize: Math.min(width * 0.05, 20),
+    fontWeight: "600",
     textAlign: "center",
   },
 });
