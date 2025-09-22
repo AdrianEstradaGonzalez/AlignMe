@@ -17,6 +17,14 @@ export const ArbitroStyles = StyleSheet.create({
     paddingTop: height * 0.08,
   },
 
+  // 🔥 Nuevo contenedor scrollable
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: "center",
+    paddingBottom: 60, // espacio para SwipeIndicatorNav
+    
+  },
+
   campo: {
     width: campoSize,
     aspectRatio: 1,
@@ -27,7 +35,6 @@ export const ArbitroStyles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     padding: 8,
-    marginBottom: 20,
   },
 
   fila: {
@@ -159,23 +166,33 @@ export const ArbitroStyles = StyleSheet.create({
     textAlign: "center",
   },
 
-  // Botones QR
-  qrRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "92%",
-    marginTop: 20,
-  },
 
-  qrButton: {
+qrButton: {
   flex: 1,
   backgroundColor: "#fb923c",
   paddingVertical: 14,
   alignItems: "center",
   justifyContent: "center",
   borderRadius: 12,
-  flexDirection: "column", // 👈 antes era "row"
+  flexDirection: "column",
   elevation: 4,
+},
+
+// Botones QR
+qrRow: {
+  flexDirection: "row",
+  justifyContent: "center",
+  alignContent: "center",
+  width: "100%",
+},
+
+// SwipeIndicator siempre al fondo
+swipeNavWrapper: {
+  position: "absolute",
+  bottom: 0,
+  left: 0,
+  right: 0,
+  alignItems: "center",
 },
 
 
@@ -192,89 +209,47 @@ export const ArbitroStyles = StyleSheet.create({
     fontSize: width * 0.042,
     fontWeight: "bold",
     flexShrink: 1, // 🔥 evita que el texto se salga
+    textAlign: "center", // 👈 mejora en pantallas pequeñas
   },
 
   // Indicadores de equipo
-  equipoAIndicativo: {
+  codigoEquipoBoxIzq: {
     position: "absolute",
-    top: 5,
-    left: 5,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: "#fb923c",
+    top: 8,
+    left: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 8,
     backgroundColor: "#fff",
-    zIndex: 10,
-  },
-
-  equipoBIndicativo: {
-    position: "absolute",
-    top: 5,
-    right: 5,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: "#fb923c",
+    elevation: 3,
+    maxWidth: width * 0.35, // 🔥 evita cortes en pantallas chicas
+  },
+  codigoEquipoBoxDer: {
+    position: "absolute",
+    top: 8,
+    right: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 8,
     backgroundColor: "#fff",
-    zIndex: 10,
+    borderWidth: 2,
+    borderColor: "#fb923c",
+    elevation: 3,
+    maxWidth: width * 0.35, // 🔥 evita cortes en pantallas chicas
   },
-
-  equipoLabel: {
-    fontSize: width * 0.035,
+  codigoEquipoText: {
     fontWeight: "bold",
-    color: "#374151",
+    fontSize: width * 0.045,
+    color: "#111",
+    letterSpacing: 1,
   },
 
-  codigoEquipoBox: {
-    position: "absolute",
-    top: 5,
-    alignSelf: "center",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: "#fb923c",
-    borderRadius: 6,
-    backgroundColor: "#fff",
+  qrIcon: {
+    width: 28,
+    height: 28,
+    tintColor: "#fff",
+    marginBottom: 6,
   },
-
-  // Añadir estilos nuevos para los códigos
-codigoEquipoBoxIzq: {
-  position: "absolute",
-  top: 8,
-  left: 12,
-  paddingHorizontal: 10,
-  paddingVertical: 6,
-  borderRadius: 8,
-  backgroundColor: "#fff",
-  borderWidth: 2,
-  borderColor: "#fb923c",
-  elevation: 3,
-},
-codigoEquipoBoxDer: {
-  position: "absolute",
-  top: 8,
-  right: 12,
-  paddingHorizontal: 10,
-  paddingVertical: 6,
-  borderRadius: 8,
-  backgroundColor: "#fff",
-  borderWidth: 2,
-  borderColor: "#fb923c",
-  elevation: 3,
-},
-codigoEquipoText: {
-  fontWeight: "bold",
-  fontSize: width * 0.045,
-  color: "#111",
-  letterSpacing: 1,
-},
-qrIcon: {
-  width: 28,
-  height: 28,
-  tintColor: "#fff",
-  marginBottom: 6,
-},
-
 });

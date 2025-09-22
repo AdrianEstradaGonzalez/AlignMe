@@ -3,12 +3,12 @@ import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { RouteProp, useRoute, useNavigation } from "@react-navigation/native";
-import type { RootStackParamList } from "./types/Navigation";
-import { QRViewStyles as styles } from "./styles/QRViewStyles";
+import type { RootStackParamList } from "../types/Navigation";
+import { QRViewStyles as styles } from "../styles/QRViewStyles";
 
 // Iconos locales
 const icons = {
-  back: require("./assets/icons/left.png"), // usa tu icono de flecha aquí
+  back: require("../assets/icons/left.png"), // usa tu icono de flecha aquí
 };
 
 type QRViewRouteProp = RouteProp<RootStackParamList, "QRView">;

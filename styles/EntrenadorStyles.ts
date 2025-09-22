@@ -1,4 +1,4 @@
-import { StyleSheet, Dimensions } from "react-native";
+import { StyleSheet, Dimensions, Platform } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
@@ -6,14 +6,42 @@ const { width, height } = Dimensions.get("window");
 const campoSize = width * 0.9;
 const posicionSize = campoSize * 0.28;
 
+// Estilo base de caja (para vistas como el selector A/B)
+const cajaEquipoBaseView = {
+  flex: 1,
+  minWidth: width * 0.18,
+  maxWidth: width * 0.28,
+  height: height * 0.05,
+  borderRadius: 8,
+  borderWidth: 1,
+  borderColor: "#d97706",
+  backgroundColor: "#fde047",
+  justifyContent: "center" as const,
+  alignItems: "center" as const,
+};
+
+// Estilo base de texto (para TextInput)
+const cajaEquipoBaseText = {
+  flex: 1,
+  minWidth: width * 0.18,
+  maxWidth: width * 0.28,
+  height: height * 0.05,
+  borderRadius: 8,
+  borderWidth: 1,
+  borderColor: "#d97706",
+  backgroundColor: "#fde047",
+};
 export const EntrenadorStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f9fafc",
+  },
+
+  scrollContent: {
     alignItems: "center",
-    justifyContent: "flex-start",
     paddingTop: height * 0.1,
-    paddingBottom: height * 0.04,
+    paddingHorizontal: width * 0.04,
+    paddingBottom: height * 0.08,
   },
 
   campo: {
@@ -78,7 +106,7 @@ export const EntrenadorStyles = StyleSheet.create({
 
   botonesContainer: {
     position: "absolute",
-    bottom: -campoSize * 0.2,
+    bottom: -campoSize * 0.08,
     width: "100%",
     flexDirection: "row",
     justifyContent: "space-around",
@@ -99,7 +127,7 @@ export const EntrenadorStyles = StyleSheet.create({
     backgroundColor: "#ef4444",
   },
 
-  barraControl: {
+    barraControl: {
     width: campoSize,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -112,8 +140,8 @@ export const EntrenadorStyles = StyleSheet.create({
   },
 
   controlItem: {
+    flex: 1,           // 🔹 que cada item se reparta bien
     alignItems: "center",
-    flex: 1,
   },
 
   controlLabel: {
@@ -124,33 +152,26 @@ export const EntrenadorStyles = StyleSheet.create({
     textAlign: "center",
   },
 
-  codigoEquipo: {
-    width: width * 0.25,
-    height: height * 0.05,
-    borderWidth: 1,
-    borderColor: "#d1d5db",
-    borderRadius: 8,
+    codigoEquipo: {
+    ...cajaEquipoBaseText,
     textAlign: "center",
-    fontSize: width * 0.035,
-    backgroundColor: "#f9fafb",
-    color: "#111",
+    textAlignVertical: "center",
+    fontSize: width * 0.045,
+    fontWeight: "bold",
+    color: "#78350f",
+    paddingVertical: 0,
+    paddingTop: Platform.OS === "ios" ? 0 : 2,
   },
 
   equipoSelector: {
-    width: width * 0.15,
-    height: height * 0.05,
-    borderRadius: 8,
-    backgroundColor: "#fde047",
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#d97706",
+    ...cajaEquipoBaseView,
   },
 
   equipoText: {
     fontWeight: "bold",
     fontSize: width * 0.045,
     color: "#78350f",
+    textAlign: "center",
   },
 
   filaSets: {
@@ -230,14 +251,14 @@ export const EntrenadorStyles = StyleSheet.create({
   },
 
   qrButton: {
-    marginTop: height * 0.12,
+    marginTop: height * 0.08,
+    marginBottom: height * 0.04,
     width: "92%",
     backgroundColor: "#fb923c",
     paddingVertical: height * 0.02,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 12,
-    flexDirection: "row",
     elevation: 4,
   },
 
@@ -245,5 +266,6 @@ export const EntrenadorStyles = StyleSheet.create({
     color: "#fff",
     fontSize: width * 0.045,
     fontWeight: "bold",
+    textAlign: "center",
   },
 });

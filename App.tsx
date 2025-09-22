@@ -3,10 +3,10 @@ import { View, ImageBackground } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Button, Text, Provider as PaperProvider, Card } from "react-native-paper";
-import EntrenadorView from "./EntrenadorView";
+import EntrenadorView from "./pages/EntrenadorView";
 import { AppStyles as styles } from "./styles/AppStyles";  // 👈 import estilos
-import QRView from "./QRView";
-import ArbitroPager from "./ArbitroPager";
+import QRView from "./pages/QRView";
+import ArbitroPager from "./pages/ArbitroPager";
 
 type RootStackParamList = {
   Home: undefined;

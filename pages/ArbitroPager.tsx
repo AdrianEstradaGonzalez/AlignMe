@@ -8,6 +8,8 @@ import {
   Alert,
   Text,
   TouchableOpacity,
+  Animated,
+  Easing,
 } from "react-native";
 import { Camera, CameraType } from "react-native-camera-kit";
 
@@ -96,6 +98,7 @@ export default function ArbitroPager() {
   // 🔹 Determinar qué equipo va en cada lado (siempre fijo por set)
   const equipoIzq = setActual % 2 === 1 ? "A" : "B";
   const equipoDer = setActual % 2 === 1 ? "B" : "A";
+
 
   return (
     <>
