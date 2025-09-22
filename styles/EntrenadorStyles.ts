@@ -57,7 +57,7 @@ export const EntrenadorStyles = StyleSheet.create({
 
   input: {
     width: "80%",
-    height: "40%",
+    height: "60%",
     borderWidth: 1,
     borderColor: "#d1d5db",
     borderRadius: 8,
@@ -66,6 +66,7 @@ export const EntrenadorStyles = StyleSheet.create({
     padding: 0,
     color: "#111",
     backgroundColor: "#f9fafb",
+    marginBottom: 4,
   },
 
   label: {

@@ -1,5 +1,5 @@
-import React, { useState, useRef } from "react";
-import { View, TextInput, Text, TouchableOpacity, Image, Alert } from "react-native";
+import React, { useState } from "react";
+import { View, TextInput, Text, TouchableOpacity, Image } from "react-native";
 import { EntrenadorStyles as styles } from "./styles/EntrenadorStyles";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
@@ -22,37 +22,39 @@ const icons = {
 const posiciones6x6 = {
   delanteras: ["IV", "III", "II"],
   traseras: ["V", "VI", "I"],
-  orden: ["I", "VI", "V", "IV", "III", "II"],
 };
 
 const posiciones4x4 = {
   delanteras: ["IV", "III", "II"],
   traseras: ["I"],
-  orden: ["I", "IV", "III", "II"],
 };
 
 export default function EntrenadorView() {
   const [modo, setModo] = useState<"6x6" | "4x4">("6x6");
-  const TOTAL_SETS = modo === "6x6" ? 5 : 3;
-
-  const [valoresPorSet, setValoresPorSet] = useState<{ [set: number]: { [pos: string]: string } }>({ 1: {} });
   const [codigoEquipo, setCodigoEquipo] = useState<string>("");
   const [equipo, setEquipo] = useState<"A" | "B">("A");
   const [setActual, setSetActual] = useState<number>(1);
 
-  const prevValuesRef = useRef<{ [pos: string]: string }>({});
-  const valores = valoresPorSet[setActual] || {};
+  // 🔹 Ahora solo guardamos las posiciones directamente (sin sets)
+  const [valores, setValores] = useState<{ [pos: string]: string }>({});
   const navigation = useNavigation<NavigationProp>();
 
+  const TOTAL_SETS = modo === "6x6" ? 5 : 3;
+
   const generarQR = () => {
-    const datos = { modo, codigoEquipo, equipo, setActual, valores: valoresPorSet };
+    // 🔹 QR limpio: solo posiciones y valores
+    const datos = {
+      modo,
+      codigoEquipo,
+      valores,
+    };
     navigation.navigate("QRView", { data: JSON.stringify(datos) });
   };
 
   const toggleModo = () => {
     setModo((m) => (m === "6x6" ? "4x4" : "6x6"));
+    setValores({});
     setSetActual(1);
-    setValoresPorSet({ 1: {} });
   };
 
   const renderPosicion = (pos: string) => (
@@ -64,10 +66,7 @@ export default function EntrenadorView() {
         maxLength={2}
         value={valores[pos] || ""}
         onChangeText={(text) =>
-          setValoresPorSet((prev) => ({
-            ...prev,
-            [setActual]: { ...(prev[setActual] || {}), [pos]: text },
-          }))
+          setValores((prev) => ({ ...prev, [pos]: text }))
         }
       />
     </View>
@@ -146,7 +145,7 @@ export default function EntrenadorView() {
             <Image source={icons.rotateRight} style={{ width: 26, height: 26, tintColor: "#fff" }} />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={() => setValoresPorSet((prev) => ({ ...prev, [setActual]: {} }))}
+            onPress={() => setValores({})}
             style={[styles.botonFlotante, styles.botonCentral]}
           >
             <Image source={icons.trash} style={{ width: 24, height: 24, tintColor: "#fff" }} />

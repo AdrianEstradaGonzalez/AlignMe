@@ -28,7 +28,12 @@ export default function ArbitroView({
   setModoProp?: (m: "6x6" | "4x4") => void;
   setActualProp?: number;
   setSetActualProp?: (n: number) => void;
-  valoresEquipos?: { [set: number]: { A?: { [pos: string]: string }; B?: { [pos: string]: string } } };
+  valoresEquipos?: {
+    [set: number]: {
+      A?: { codigo?: string; equipo?: string } & { [pos: string]: string };
+      B?: { codigo?: string; equipo?: string } & { [pos: string]: string };
+    };
+  };
   onEscanear?: (eq: "A" | "B") => void;
 }) {
   const navigation = useNavigation<NavigationProp>();
@@ -39,10 +44,16 @@ export default function ArbitroView({
   const TOTAL_SETS = modo === "6x6" ? 5 : 3;
   const [setActualLocal, setSetActualLocal] = useState<number>(1);
   const setActual = setActualProp ?? setActualLocal;
-  const setSetActual = setSetActualProp ?? setSetActualLocal;
+  const setSetActual = setSetActualProp ?? setSetActualLocal; // ✅ aquí estaba el bug
 
-  const posiciones6x6 = { delanteras: ["IV", "III", "II"], traseras: ["V", "VI", "I"] };
-  const posiciones4x4 = { delanteras: ["IV", "III", "II"], traseras: ["I"] };
+  const posiciones6x6 = {
+    delanteras: ["IV", "III", "II"],
+    traseras: ["V", "VI", "I"],
+  };
+  const posiciones4x4 = {
+    delanteras: ["IV", "III", "II"],
+    traseras: ["I"],
+  };
 
   const getPosiciones = (equipo: "A" | "B") => {
     if (modo === "6x6")
@@ -70,7 +81,19 @@ export default function ArbitroView({
   };
 
   const retrocederSet = () => setSetActual(setActual > 1 ? setActual - 1 : 1);
-  const avanzarSet = () => setSetActual(setActual < TOTAL_SETS ? setActual + 1 : TOTAL_SETS);
+  const avanzarSet = () =>
+    setSetActual(setActual < TOTAL_SETS ? setActual + 1 : TOTAL_SETS);
+
+  // 🔹 Obtener datos de equipos
+  const codigoIzq =
+    valoresEquipos?.[setActual]?.[equipoIzq]?.codigo?.toUpperCase() ?? "---";
+  const codigoDer =
+    valoresEquipos?.[setActual]?.[equipoDer]?.codigo?.toUpperCase() ?? "---";
+
+  const nombreIzq =
+    valoresEquipos?.[setActual]?.[equipoIzq]?.equipo ?? `${equipoIzq}`;
+  const nombreDer =
+    valoresEquipos?.[setActual]?.[equipoDer]?.equipo ?? `${equipoDer}`;
 
   return (
     <View style={styles.container}>
@@ -79,7 +102,10 @@ export default function ArbitroView({
         style={styles.homeButton}
         onPress={() => navigation.navigate("Home")}
       >
-        <Image source={icons.home} style={{ width: 26, height: 26, tintColor: "#fff" }} />
+        <Image
+          source={icons.home}
+          style={{ width: 26, height: 26, tintColor: "#fff" }}
+        />
       </TouchableOpacity>
 
       {/* Botón Modo */}
@@ -87,7 +113,10 @@ export default function ArbitroView({
         style={styles.modoButton}
         onPress={() => setModo(modo === "6x6" ? "4x4" : "6x6")}
       >
-        <Image source={icons.swap} style={{ width: 22, height: 22, tintColor: "#fff", marginRight: 6 }} />
+        <Image
+          source={icons.swap}
+          style={{ width: 22, height: 22, tintColor: "#fff", marginRight: 6 }}
+        />
         <Text style={styles.modoText}>
           {modo === "6x6" ? "Voley 6x6" : "MiniVoley 4x4"}
         </Text>
@@ -96,69 +125,164 @@ export default function ArbitroView({
       {/* Fila de sets */}
       <View style={styles.filaSets}>
         <TouchableOpacity onPress={retrocederSet} style={styles.setButton}>
-          <Image source={icons.left} style={{ width: 20, height: 20, tintColor: "#fff" }} />
+          <Image
+            source={icons.left}
+            style={{ width: 20, height: 20, tintColor: "#fff" }}
+          />
         </TouchableOpacity>
         <View style={styles.setDisplay}>
           <Text style={styles.setText}>{`Set ${setActual}`}</Text>
         </View>
         <TouchableOpacity onPress={avanzarSet} style={styles.setButton}>
-          <Image source={icons.right} style={{ width: 20, height: 20, tintColor: "#fff" }} />
+          <Image
+            source={icons.right}
+            style={{ width: 20, height: 20, tintColor: "#fff" }}
+          />
         </TouchableOpacity>
       </View>
 
       {/* Campo */}
-      <View style={styles.campo}>
-        <View style={styles.fila}>
-          <View style={styles.columna}>
-            {getPosiciones(equipoIzq).traseras.map((pos) =>
-              renderPosicion(pos, equipoIzq)
-            )}
-          </View>
-          <View style={styles.columna}>
-            {getPosiciones(equipoIzq).delanteras.map((pos) =>
-              renderPosicion(pos, equipoIzq)
-            )}
-          </View>
-          <View style={styles.red}></View>
-          <View style={styles.columna}>
-            {getPosiciones(equipoDer).delanteras.map((pos) =>
-              renderPosicion(pos, equipoDer)
-            )}
-          </View>
-          <View style={styles.columna}>
-            {getPosiciones(equipoDer).traseras.map((pos) =>
-              renderPosicion(pos, equipoDer)
-            )}
+      <View style={{ marginBottom: 20 }}>
+        {/* Etiqueta izquierda + código */}
+        <View
+          style={{
+            position: "absolute",
+            top: -18,
+            left: 12,
+            flexDirection: "row",
+            alignItems: "center",
+            zIndex: 20,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: "bold",
+              color: "#000",
+              backgroundColor: "#fde047",
+              paddingHorizontal: 10,
+              paddingVertical: 4,
+              borderRadius: 8,
+              borderWidth: 1,
+              borderColor: "#d97706",
+            }}
+            numberOfLines={1}
+          >
+            {nombreIzq}
+          </Text>
+          <Text
+            style={{
+              marginLeft: 6,
+              fontSize: 14,
+              fontWeight: "bold",
+              color: "#000",
+              backgroundColor: "#fff176",
+              paddingHorizontal: 8,
+              paddingVertical: 3,
+              borderRadius: 6,
+              borderWidth: 1,
+              borderColor: "#d97706",
+              minWidth: 40,
+              textAlign: "center",
+            }}
+          >
+            {codigoIzq || "---"}
+          </Text>
+        </View>
+
+        {/* Etiqueta derecha + código */}
+        <View
+          style={{
+            position: "absolute",
+            top: -18,
+            right: 12,
+            flexDirection: "row",
+            alignItems: "center",
+            zIndex: 20,
+          }}
+        >
+          <Text
+            style={{
+              marginRight: 6,
+              fontSize: 14,
+              fontWeight: "bold",
+              color: "#000",
+              backgroundColor: "#fff176",
+              paddingHorizontal: 8,
+              paddingVertical: 3,
+              borderRadius: 6,
+              borderWidth: 1,
+              borderColor: "#d97706",
+              minWidth: 40,
+              textAlign: "center",
+            }}
+          >
+            {codigoDer || "---"}
+          </Text>
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: "bold",
+              color: "#000",
+              backgroundColor: "#fde047",
+              paddingHorizontal: 10,
+              paddingVertical: 4,
+              borderRadius: 8,
+              borderWidth: 1,
+              borderColor: "#d97706",
+            }}
+            numberOfLines={1}
+          >
+            {nombreDer}
+          </Text>
+        </View>
+
+        {/* Grid del campo */}
+        <View style={styles.campo}>
+          <View style={styles.fila}>
+            <View style={styles.columna}>
+              {getPosiciones(equipoIzq).traseras.map((pos) =>
+                renderPosicion(pos, equipoIzq)
+              )}
+            </View>
+            <View style={styles.columna}>
+              {getPosiciones(equipoIzq).delanteras.map((pos) =>
+                renderPosicion(pos, equipoIzq)
+              )}
+            </View>
+            <View style={styles.red}></View>
+            <View style={styles.columna}>
+              {getPosiciones(equipoDer).delanteras.map((pos) =>
+                renderPosicion(pos, equipoDer)
+              )}
+            </View>
+            <View style={styles.columna}>
+              {getPosiciones(equipoDer).traseras.map((pos) =>
+                renderPosicion(pos, equipoDer)
+              )}
+            </View>
           </View>
         </View>
       </View>
 
       {/* Botones QR */}
-      {/* Botones QR */}
-<View style={styles.qrRow}>
-  <TouchableOpacity
-    style={[styles.qrButton, styles.qrButtonLeft]}
-    onPress={() => onEscanear?.(equipoIzq)}
-  >
-    <Image
-          source={icons.qr}
-          style={{ width: 28, height: 28, tintColor: "#fff", marginBottom: 6 }}
-        />
-        <Text style={styles.qrButtonText}>{`Escanear\nEquipo ${equipoIzq}`}</Text>
-      </TouchableOpacity>
+      <View style={styles.qrRow}>
+        <TouchableOpacity
+          style={[styles.qrButton, styles.qrButtonLeft]}
+          onPress={() => onEscanear?.(equipoIzq)}
+        >
+          <Image source={icons.qr} style={styles.qrIcon} />
+          <Text style={styles.qrButtonText}>{`Escanear\nEquipo ${equipoIzq}`}</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        style={[styles.qrButton, styles.qrButtonRight]}
-        onPress={() => onEscanear?.(equipoDer)}
-      >
-        <Image
-          source={icons.qr}
-          style={{ width: 28, height: 28, tintColor: "#fff", marginBottom: 6 }}
-        />
-        <Text style={styles.qrButtonText}>{`Escanear\nEquipo ${equipoDer}`}</Text>
-      </TouchableOpacity>
-    </View>
-
+        <TouchableOpacity
+          style={[styles.qrButton, styles.qrButtonRight]}
+          onPress={() => onEscanear?.(equipoDer)}
+        >
+          <Image source={icons.qr} style={styles.qrIcon} />
+          <Text style={styles.qrButtonText}>{`Escanear\nEquipo ${equipoDer}`}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }

@@ -1,6 +1,16 @@
-import React, { useState, useRef } from "react";
-import { ScrollView, View, Dimensions, Modal, Alert, Text, TouchableOpacity } from "react-native";
-import CameraScreen from "react-native-camera-kit";
+// ArbitroPager.tsx
+import React, { useState, useRef, useEffect } from "react";
+import {
+  ScrollView,
+  View,
+  Dimensions,
+  Modal,
+  Alert,
+  Text,
+  TouchableOpacity,
+} from "react-native";
+import { Camera, CameraType } from "react-native-camera-kit";
+
 import ArbitroView from "./ArbitroView";
 import MedioCampoView from "./MedioCampoView";
 
@@ -9,21 +19,38 @@ const { width } = Dimensions.get("window");
 export default function ArbitroPager() {
   const [modo, setModo] = useState<"6x6" | "4x4">("6x6");
   const [setActual, setSetActual] = useState<number>(1);
-  const [valoresEquipos, setValoresEquipos] = useState<{ [set: number]: { A?: { [pos: string]: string }; B?: { [pos: string]: string } } }>({});
+
+  // 🔹 valoresEquipos[set][A|B] = { pos: numero, codigo?: string }
+  const [valoresEquipos, setValoresEquipos] = useState<{
+    [set: number]: {
+      A?: { [pos: string]: string } & { codigo?: string };
+      B?: { [pos: string]: string } & { codigo?: string };
+    };
+  }>({});
+
   const scrollRef = useRef<ScrollView>(null);
 
   const [scannerVisible, setScannerVisible] = useState(false);
   const [equipoEscanear, setEquipoEscanear] = useState<"A" | "B">("A");
+
+  useEffect(() => {
+    // Siempre arrancamos mostrando al árbitro (pantalla central)
+    setTimeout(() => {
+      scrollRef.current?.scrollTo({ x: width, animated: false });
+    }, 0);
+  }, []);
 
   const openScanner = (eq: "A" | "B") => {
     setEquipoEscanear(eq);
     setScannerVisible(true);
   };
 
-  const handleBarCodeRead = (event: { nativeEvent: { codeStringValue: string } }) => {
+  const handleBarCodeRead = (event: {
+    nativeEvent: { codeStringValue: string };
+  }) => {
     setScannerVisible(false);
 
-    let datosQR: { [pos: string]: string } = {};
+    let datosQR: any = {};
     try {
       datosQR = JSON.parse(event.nativeEvent.codeStringValue);
     } catch {
@@ -31,17 +58,44 @@ export default function ArbitroPager() {
       return;
     }
 
-    setValoresEquipos(prev => ({
+    // 🔹 Guardar modo si viene en el QR
+    if (datosQR.modo && (datosQR.modo === "6x6" || datosQR.modo === "4x4")) {
+      setModo(datosQR.modo);
+    }
+
+    // 🔹 Alineación directamente en datosQR.valores
+    const alineacion: { [pos: string]: string } =
+      datosQR.valores && typeof datosQR.valores === "object"
+        ? datosQR.valores
+        : {};
+
+    const codigo = datosQR.codigoEquipo || null;
+
+    // 🔹 Guardar SIEMPRE en el set actual
+    setValoresEquipos((prev) => ({
       ...prev,
       [setActual]: {
         ...(prev[setActual] || {}),
-        [equipoEscanear]: datosQR,
+        [equipoEscanear]: {
+          ...(alineacion || {}),
+          codigo,
+        },
       },
     }));
 
-    const xPos = equipoEscanear === "A" ? 0 : width * 2;
+    // 🔹 Scroll automático al lado correcto
+    const isAOnLeft = setActual % 2 === 1;
+    const xPos =
+      (equipoEscanear === "A" && isAOnLeft) ||
+      (equipoEscanear === "B" && !isAOnLeft)
+        ? 0
+        : width * 2;
     scrollRef.current?.scrollTo({ x: xPos, animated: true });
   };
+
+  // 🔹 Determinar qué equipo va en cada lado (siempre fijo por set)
+  const equipoIzq = setActual % 2 === 1 ? "A" : "B";
+  const equipoDer = setActual % 2 === 1 ? "B" : "A";
 
   return (
     <>
@@ -52,16 +106,18 @@ export default function ArbitroPager() {
         showsHorizontalScrollIndicator={false}
         style={{ flex: 1 }}
       >
+        {/* Lado Izquierdo */}
         <View style={{ width }}>
           <MedioCampoView
             modo={modo}
             lado="izq"
             setActual={setActual}
             onEscanear={openScanner}
-            valoresQR={valoresEquipos[setActual]?.A}
+            valoresQR={valoresEquipos[setActual]?.[equipoIzq]}
           />
         </View>
 
+        {/* Árbitro (central) */}
         <View style={{ width }}>
           <ArbitroView
             modoProp={modo}
@@ -73,40 +129,67 @@ export default function ArbitroPager() {
           />
         </View>
 
+        {/* Lado Derecho */}
         <View style={{ width }}>
           <MedioCampoView
             modo={modo}
             lado="der"
             setActual={setActual}
             onEscanear={openScanner}
-            valoresQR={valoresEquipos[setActual]?.B}
+            valoresQR={valoresEquipos[setActual]?.[equipoDer]}
           />
         </View>
       </ScrollView>
 
+      {/* Scanner */}
       <Modal visible={scannerVisible} animationType="slide">
-        <CameraScreen
-          scanBarcode={true}
-          onReadCode={handleBarCodeRead}
-          showFrame={true}
-          laserColor="red"
-          frameColor="white"
-          hideControls={true}
-        />
+        <View style={{ flex: 1, backgroundColor: "black" }}>
+          <Camera
+            style={{ flex: 1 }}
+            cameraType={CameraType.Back}
+            scanBarcode={true}
+            showFrame={false}
+            onReadCode={handleBarCodeRead}
+          />
 
-        <TouchableOpacity
-          style={{
-            position: "absolute",
-            bottom: 50,
-            alignSelf: "center",
-            padding: 10,
-            backgroundColor: "orange",
-            borderRadius: 8,
-          }}
-          onPress={() => setScannerVisible(false)}
-        >
-          <Text style={{ color: "#fff" }}>Cancelar</Text>
-        </TouchableOpacity>
+          {/* Overlay cuadrado centrado */}
+          <View
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <View
+              style={{
+                width: 250,
+                height: 250,
+                borderColor: "white",
+                borderWidth: 2,
+                backgroundColor: "transparent",
+              }}
+            />
+          </View>
+
+          <TouchableOpacity
+            style={{
+              position: "absolute",
+              bottom: 50,
+              alignSelf: "center",
+              paddingVertical: 12,
+              paddingHorizontal: 24,
+              backgroundColor: "orange",
+              borderRadius: 8,
+            }}
+            onPress={() => setScannerVisible(false)}
+          >
+            <Text style={{ color: "#fff", fontSize: 18 }}>Cancelar</Text>
+          </TouchableOpacity>
+        </View>
       </Modal>
     </>
   );

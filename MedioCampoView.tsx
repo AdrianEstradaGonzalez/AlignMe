@@ -24,10 +24,11 @@ export default function MedioCampoView({
   valoresQR?: { [pos: string]: string };
 }) {
   const posiciones = modo === "6x6" ? posiciones6x6 : posiciones4x4;
-  const equipo =
-    (setActual % 2 === 1 && lado === "izq") || (setActual % 2 === 0 && lado === "der")
-      ? "A"
-      : "B";
+const equipo = (lado === "izq")
+  ? (setActual % 2 === 1 ? "A" : "B")
+  : (setActual % 2 === 1 ? "B" : "A");
+
+
 
   const renderPosicion = (pos: string) => (
     <View key={pos} style={styles.posicion}>

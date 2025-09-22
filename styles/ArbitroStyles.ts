@@ -130,7 +130,7 @@ export const ArbitroStyles = StyleSheet.create({
     borderRadius: 10,
     elevation: 2,
     paddingHorizontal: 6,
-    marginBottom: 12,
+    marginBottom: 24,
   },
 
   setButton: {
@@ -239,9 +239,42 @@ export const ArbitroStyles = StyleSheet.create({
     backgroundColor: "#fff",
   },
 
-  codigoEquipoText: {
-    fontWeight: "bold",
-    fontSize: width * 0.04,
-    color: "#111",
-  },
+  // Añadir estilos nuevos para los códigos
+codigoEquipoBoxIzq: {
+  position: "absolute",
+  top: 8,
+  left: 12,
+  paddingHorizontal: 10,
+  paddingVertical: 6,
+  borderRadius: 8,
+  backgroundColor: "#fff",
+  borderWidth: 2,
+  borderColor: "#fb923c",
+  elevation: 3,
+},
+codigoEquipoBoxDer: {
+  position: "absolute",
+  top: 8,
+  right: 12,
+  paddingHorizontal: 10,
+  paddingVertical: 6,
+  borderRadius: 8,
+  backgroundColor: "#fff",
+  borderWidth: 2,
+  borderColor: "#fb923c",
+  elevation: 3,
+},
+codigoEquipoText: {
+  fontWeight: "bold",
+  fontSize: width * 0.045,
+  color: "#111",
+  letterSpacing: 1,
+},
+qrIcon: {
+  width: 28,
+  height: 28,
+  tintColor: "#fff",
+  marginBottom: 6,
+},
+
 });
