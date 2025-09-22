@@ -1,6 +1,11 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 import { EntrenadorStyles as styles } from "./styles/EntrenadorStyles";
+
+// Icono local
+const icons = {
+  qr: require("./assets/icons/qr.png"),
+};
 
 const posiciones6x6 = { delanteras: ["IV", "III", "II"], traseras: ["V", "VI", "I"] };
 const posiciones4x4 = { delanteras: ["IV", "III", "II"], traseras: ["I"] };
@@ -64,12 +69,14 @@ export default function MedioCampoView({
       </View>
 
       <TouchableOpacity
-        style={[styles.qrButton, { marginTop: 20 }]}
+        style={[styles.qrButton, { marginTop: 20, flexDirection: "column", alignItems: "center" }]}
         onPress={() => onEscanear(equipo)}
       >
-        {/* Reemplazo del ícono: Unicode QR emoji */}
-        <Text style={{ fontSize: 20, color: "#fff", marginRight: 8 }}>📷</Text>
-        <Text style={styles.qrButtonText}>Escanear Equipo {equipo}</Text>
+        <Image
+          source={icons.qr}
+          style={{ width: 32, height: 32, tintColor: "#fff", marginBottom: 6 }}
+        />
+        <Text style={styles.qrButtonText}>Escanear{`\n`}Equipo {equipo}</Text>
       </TouchableOpacity>
     </View>
   );

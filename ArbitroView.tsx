@@ -1,11 +1,20 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 import { ArbitroStyles as styles } from "./styles/ArbitroStyles";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import type { RootStackParamList } from "./types/Navigation";
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "Arbitro">;
+
+// Iconos locales
+const icons = {
+  home: require("./assets/icons/home.png"),
+  swap: require("./assets/icons/swap.png"),
+  left: require("./assets/icons/left.png"),
+  right: require("./assets/icons/right.png"),
+  qr: require("./assets/icons/qr.png"),
+};
 
 export default function ArbitroView({
   modoProp,
@@ -70,7 +79,7 @@ export default function ArbitroView({
         style={styles.homeButton}
         onPress={() => navigation.navigate("Home")}
       >
-        <Text style={{ fontSize: 24, color: "#fff" }}>🏠</Text>
+        <Image source={icons.home} style={{ width: 26, height: 26, tintColor: "#fff" }} />
       </TouchableOpacity>
 
       {/* Botón Modo */}
@@ -78,22 +87,22 @@ export default function ArbitroView({
         style={styles.modoButton}
         onPress={() => setModo(modo === "6x6" ? "4x4" : "6x6")}
       >
-        <Text style={{ fontSize: 18, color: "#fff", marginRight: 5 }}>🔄</Text>
+        <Image source={icons.swap} style={{ width: 22, height: 22, tintColor: "#fff", marginRight: 6 }} />
         <Text style={styles.modoText}>
-          {modo === "6x6" ? "Modo: Voley 6x6" : "Modo: MiniVoley 4x4"}
+          {modo === "6x6" ? "Voley 6x6" : "MiniVoley 4x4"}
         </Text>
       </TouchableOpacity>
 
       {/* Fila de sets */}
       <View style={styles.filaSets}>
         <TouchableOpacity onPress={retrocederSet} style={styles.setButton}>
-          <Text style={{ fontSize: 20, color: "#fff" }}>⬅️</Text>
+          <Image source={icons.left} style={{ width: 20, height: 20, tintColor: "#fff" }} />
         </TouchableOpacity>
         <View style={styles.setDisplay}>
           <Text style={styles.setText}>{`Set ${setActual}`}</Text>
         </View>
         <TouchableOpacity onPress={avanzarSet} style={styles.setButton}>
-          <Text style={{ fontSize: 20, color: "#fff" }}>➡️</Text>
+          <Image source={icons.right} style={{ width: 20, height: 20, tintColor: "#fff" }} />
         </TouchableOpacity>
       </View>
 
@@ -124,23 +133,32 @@ export default function ArbitroView({
         </View>
       </View>
 
-      {/* Botones QR debajo */}
-      <View style={styles.qrRow}>
-        <TouchableOpacity
-          style={[styles.qrButton, styles.qrButtonLeft]}
-          onPress={() => onEscanear?.(equipoIzq)}
-        >
-          <Text style={{ fontSize: 20, color: "#fff", marginRight: 6 }}>📷</Text>
-          <Text style={styles.qrButtonText}>{`Escanear Equipo ${equipoIzq}`}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.qrButton, styles.qrButtonRight]}
-          onPress={() => onEscanear?.(equipoDer)}
-        >
-          <Text style={{ fontSize: 20, color: "#fff", marginRight: 6 }}>📷</Text>
-          <Text style={styles.qrButtonText}>{`Escanear Equipo ${equipoDer}`}</Text>
-        </TouchableOpacity>
-      </View>
+      {/* Botones QR */}
+      {/* Botones QR */}
+<View style={styles.qrRow}>
+  <TouchableOpacity
+    style={[styles.qrButton, styles.qrButtonLeft]}
+    onPress={() => onEscanear?.(equipoIzq)}
+  >
+    <Image
+          source={icons.qr}
+          style={{ width: 28, height: 28, tintColor: "#fff", marginBottom: 6 }}
+        />
+        <Text style={styles.qrButtonText}>{`Escanear\nEquipo ${equipoIzq}`}</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.qrButton, styles.qrButtonRight]}
+        onPress={() => onEscanear?.(equipoDer)}
+      >
+        <Image
+          source={icons.qr}
+          style={{ width: 28, height: 28, tintColor: "#fff", marginBottom: 6 }}
+        />
+        <Text style={styles.qrButtonText}>{`Escanear\nEquipo ${equipoDer}`}</Text>
+      </TouchableOpacity>
+    </View>
+
     </View>
   );
 }

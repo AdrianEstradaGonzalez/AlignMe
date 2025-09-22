@@ -1,235 +1,247 @@
 import { StyleSheet, Dimensions } from "react-native";
 
-const { width } = Dimensions.get("window");
-const campoSize = width * 0.9; // campo ocupa 90% del ancho pantalla
-const posicionSize = campoSize / 6; // cada posición será proporcional al campo
+const { width, height } = Dimensions.get("window");
+
+// Campo ocupa 90% del ancho de pantalla
+const campoSize = width * 0.9;
+// Cada lado tiene 2 columnas (delanteras + traseras), más la red
+// Restamos márgenes para que no se solape
+const posicionSize = (campoSize - 40) / 4; 
 
 export const ArbitroStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#f9fafc",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: height * 0.08,
+  },
+
   campo: {
     width: campoSize,
     aspectRatio: 1,
-    backgroundColor: "#F5A62380",
-    borderRadius: 12,
+    backgroundColor: "#ffedd5",
+    borderRadius: 16,
     borderWidth: 2,
-    borderColor: "#D17F1A",
-    justifyContent: "space-around",
+    borderColor: "#fb923c",
+    justifyContent: "center",
     alignItems: "center",
-    padding: 10,
+    padding: 8,
+    marginBottom: 20,
   },
+
   fila: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    justifyContent: "center",
+    alignItems: "stretch",
     flex: 1,
     width: "100%",
   },
+
   columna: {
     flex: 1,
     justifyContent: "space-evenly",
     alignItems: "center",
-  },
- 
-  label: {
-    fontSize: posicionSize * 0.35, // fuente proporcional al tamaño
-    fontWeight: "bold",
-  },
-  red: {
-    width: 4, // solo una línea
-    alignSelf: "stretch",
-    backgroundColor: "#FF0000",
-    marginHorizontal: 5,
-  },
-  homeButton: {
-    position: "absolute",
-    top: 50,
-    left: 20,
-    zIndex: 10,
-    padding: 5,
-    backgroundColor: "#ff6600",
-    borderRadius: 20,
-    elevation: 3,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  homeText: {
-    marginLeft: 5,
-    fontWeight: "bold",
-    fontSize: 16,
-    color: "#fff",
-  },
-  modoButton: {
-    position: "absolute",
-    top: 50,
-    right: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#ff6600",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: "#000",
-  },
-  modoText: {
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#fff",
+    paddingHorizontal: 4,
   },
 
-      posicion: {
-    width: 70,         // más grande
-    height: 70,        // más grande
-    margin: 6,
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 10,
+  red: {
+    width: 3,
+    alignSelf: "stretch",
+    backgroundColor: "#ef4444",
+    marginHorizontal: 4,
+  },
+
+  posicion: {
+    width: posicionSize,
+    height: posicionSize,
+    marginVertical: 4,
+    borderWidth: 2,
+    borderColor: "#fb923c",
+    borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#fdfdfd",
+    backgroundColor: "#fff",
+    elevation: 2,
     paddingVertical: 6,
   },
+
   posLabel: {
-    fontSize: 14,
-    color: "#444",
-    marginBottom: 4,
+    fontSize: posicionSize * 0.22,
+    fontWeight: "600",
+    color: "#374151",
+    marginBottom: 2,
   },
+
   divisor: {
     width: "80%",
     height: 1,
-    backgroundColor: "#ccc",
+    backgroundColor: "#d1d5db",
     marginVertical: 2,
   },
+
   numLabel: {
-    fontSize: 20,
+    fontSize: posicionSize * 0.26,
     fontWeight: "bold",
-    color: "#000",
+    color: "#111",
     marginTop: 2,
   },
+
+  // Botón Home
+  homeButton: {
+    position: "absolute",
+    top: height * 0.02,
+    left: 20,
+    zIndex: 10,
+    padding: 8,
+    backgroundColor: "#fb923c",
+    borderRadius: 20,
+    elevation: 3,
+  },
+
+  // Botón cambiar modo
+  modoButton: {
+    position: "absolute",
+    top: height * 0.02,
+    right: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fb923c",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 10,
+    elevation: 3,
+  },
+
+  modoText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: width * 0.035,
+  },
+
+  // Fila de sets
+  filaSets: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: campoSize,
+    height: height * 0.065,
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    elevation: 2,
+    paddingHorizontal: 6,
+    marginBottom: 12,
+  },
+
+  setButton: {
+    width: height * 0.05,
+    height: height * 0.05,
+    borderRadius: 8,
+    backgroundColor: "#3b82f6",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  setDisplay: {
+    flex: 1,
+    height: "85%",
+    marginHorizontal: 6,
+    borderRadius: 8,
+    backgroundColor: "#3b82f6",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+
+  setText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: width * 0.045,
+    textAlign: "center",
+  },
+
+  // Botones QR
   qrRow: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  width: "90%", // mismo ancho que el campo
-  marginTop: 20,
-},
-qrButton: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    width: "92%",
+    marginTop: 20,
+  },
+
+  qrButton: {
   flex: 1,
-  backgroundColor: "#2196F3",
-  paddingVertical: 15,
+  backgroundColor: "#fb923c",
+  paddingVertical: 14,
   alignItems: "center",
-  borderRadius: 8,
-},
-qrButtonLeft: {
-  marginRight: 10, // espacio entre los botones
-},
-qrButtonRight: {
-  marginLeft: 10, // espacio entre los botones
-},
-qrButtonText: {
-  color: "#fff",
-  fontSize: 16,
-  fontWeight: "bold",
-  marginTop: 5,
-},
-
-equiposRow: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  width: "90%", // mismo ancho que el campo
-  marginBottom: 10,
-  paddingHorizontal: 5,
-},
-equipoAIndicativo: {
-  position: "absolute",
-  top: 5,
-  left: 5,
-  paddingHorizontal: 8,
-  paddingVertical: 4,
-  borderWidth: 2,
-  borderColor: "#D17F1A",
-  borderRadius: 8,
-  backgroundColor: "#FFF",
-  zIndex: 10,
-},
-equipoBIndicativo: {
-  position: "absolute",
-  top: 5,
-  right: 5,
-  paddingHorizontal: 8,
-  paddingVertical: 4,
-  borderWidth: 2,
-  borderColor: "#D17F1A",
-  borderRadius: 8,
-  backgroundColor: "#FFF",
-  zIndex: 10,
-},
-equipoLabel: {
-  fontSize: 14,
-  fontWeight: "bold",
-  textAlign: "center",
-},
-
-container: {
-  flex: 1,
-  backgroundColor: "#f0f0f0",
-  alignItems: "center",
-  justifyContent: "center", // centra el campo verticalmente
-  paddingTop: 80, // mantiene espacio para botones de home y modo
-},
-filaSets: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  alignItems: "center",
-  width: campoSize,          // ancho exacto del campo
-  height: 50,                // altura de la barra
-  backgroundColor: "#F5A62380", // mismo naranja que el campo
-  borderWidth: 2,
-  borderColor: "#000",       // borde negro
-  borderRadius: 8,
-  paddingHorizontal: 5,
-},
-setButton: {
-  width: 40,
-  height: 40,
-  borderRadius: 6,
-  backgroundColor: "#2196F3", // mismo naranja
   justifyContent: "center",
-  alignItems: "center",
-},
-setDisplay: {
-  flex: 1,                    // ocupa todo el espacio entre flechas
-  height: 40,
-  marginHorizontal: 5,
-  borderRadius: 6,
-  backgroundColor: "#2196F3", // mismo naranja
-  justifyContent: "center",
-  alignItems: "center",
-},
-setText: {
-  color: "#fff",
-  fontWeight: "bold",
-  fontSize: 18,
-  textAlign: "center",
-},
-
-codigoEquipoBox: {
-  position: "absolute",
-  top: 5,
-  paddingHorizontal: 8,
-  paddingVertical: 4,
-  borderWidth: 2,
-  borderColor: "#000",
-  borderRadius: 6,
-  backgroundColor: "#fff",
-},
-codigoEquipoText: {
-  fontWeight: "bold",
-  fontSize: 16,
-  color: "#000",
+  borderRadius: 12,
+  flexDirection: "column", // 👈 antes era "row"
+  elevation: 4,
 },
 
 
+  qrButtonLeft: {
+    marginRight: 8,
+  },
 
+  qrButtonRight: {
+    marginLeft: 8,
+  },
 
+  qrButtonText: {
+    color: "#fff",
+    fontSize: width * 0.042,
+    fontWeight: "bold",
+    flexShrink: 1, // 🔥 evita que el texto se salga
+  },
 
+  // Indicadores de equipo
+  equipoAIndicativo: {
+    position: "absolute",
+    top: 5,
+    left: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: "#fb923c",
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    zIndex: 10,
+  },
 
+  equipoBIndicativo: {
+    position: "absolute",
+    top: 5,
+    right: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: "#fb923c",
+    borderRadius: 8,
+    backgroundColor: "#fff",
+    zIndex: 10,
+  },
+
+  equipoLabel: {
+    fontSize: width * 0.035,
+    fontWeight: "bold",
+    color: "#374151",
+  },
+
+  codigoEquipoBox: {
+    position: "absolute",
+    top: 5,
+    alignSelf: "center",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: "#fb923c",
+    borderRadius: 6,
+    backgroundColor: "#fff",
+  },
+
+  codigoEquipoText: {
+    fontWeight: "bold",
+    fontSize: width * 0.04,
+    color: "#111",
+  },
 });
