@@ -164,19 +164,22 @@ export const EntrenadorStyles = StyleSheet.create({
     color: "#78350f",
     paddingVertical: 0,
     paddingTop: Platform.OS === "ios" ? 0 : 2,
+    minWidth: width * 0.15, // 👈 ancho mínimo igual al del codigoEquipo
   },
 
   equipoSelector: {
-    flex: 1,
-    height: Math.min(height * 0.06, 55),
-    borderRadius: 8,
-    borderWidth: 1.2,
-    borderColor: "#f59e0b",
-    backgroundColor: "#fef9c3",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: width * 0.015,
-  },
+  flex: 1,
+  height: Math.min(height * 0.06, 55),
+  borderRadius: 8,
+  borderWidth: 1.2,
+  borderColor: "#f59e0b",
+  backgroundColor: "#fef9c3",
+  justifyContent: "center",
+  alignItems: "center",
+  paddingHorizontal: width * 0.015,
+  minWidth: width * 0.15, // 👈 ancho mínimo igual al del codigoEquipo
+},
+
 
   equipoText: {
     fontWeight: "bold",
