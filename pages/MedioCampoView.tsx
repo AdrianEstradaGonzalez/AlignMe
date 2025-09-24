@@ -26,7 +26,6 @@ export default function MedioCampoView({
 }) {
   const posiciones = modo === "6x6" ? posiciones6x6 : posiciones4x4;
 
-  // 🔹 Lógica impar/par → A izquierda / B derecha
   const equipo =
     lado === "izq"
       ? setActual % 2 === 1
@@ -46,69 +45,70 @@ export default function MedioCampoView({
   );
 
   return (
-    <View style={styles.container}>
-      {/* Caja superior de título */}
-      <View style={styles.tituloBox}>
-        <Text style={styles.tituloPrincipal}>Hoja de Rotaciones</Text>
-        <Text style={styles.tituloSecundario}>SET {setActual}</Text>
-      </View>
+    <View style={{ flex: 1, backgroundColor: "#f9fafc" }}>
+      {/* Contenido scrollable */}
+      <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 16 }}>
+        <View style={styles.tituloBox}>
+          <Text style={styles.tituloPrincipal}>Hoja de Rotaciones</Text>
+          <Text style={styles.tituloSecundario}>SET {setActual}</Text>
+        </View>
 
-      {/* Campo con etiquetas de equipo */}
-      <View style={{ marginBottom: 20 }}>
-        {/* Letra A/B */}
-        {lado === "izq" && (
-          <View style={[styles.labelEquipo, { left: 12 }]}>
-            <Text style={styles.textoEquipo}>{equipo}</Text>
-          </View>
-        )}
-        {lado === "der" && (
-          <View style={[styles.labelEquipo, { right: 12 }]}>
-            <Text style={styles.textoEquipo}>{equipo}</Text>
-          </View>
-        )}
+        <View style={{ marginBottom: 20 }}>
+          {lado === "izq" && (
+            <View style={[styles.labelEquipo, { left: 12 }]}>
+              <Text style={styles.textoEquipo}>{equipo}</Text>
+            </View>
+          )}
+          {lado === "der" && (
+            <View style={[styles.labelEquipo, { right: 12 }]}>
+              <Text style={styles.textoEquipo}>{equipo}</Text>
+            </View>
+          )}
+          {lado === "izq" && (
+            <View style={[styles.labelCodigo, { right: 12 }]}>
+              <Text style={styles.textoCodigo}>{valoresQR.codigo?.toUpperCase() ?? "---"}</Text>
+            </View>
+          )}
+          {lado === "der" && (
+            <View style={[styles.labelCodigo, { left: 12 }]}>
+              <Text style={styles.textoCodigo}>{valoresQR.codigo?.toUpperCase() ?? "---"}</Text>
+            </View>
+          )}
 
-        {/* Código simétrico en la otra esquina */}
-        {lado === "izq" && (
-          <View style={[styles.labelCodigo, { right: 12 }]}>
-            <Text style={styles.textoCodigo}>{valoresQR.codigo?.toUpperCase() ?? "---"}</Text>
-          </View>
-        )}
-        {lado === "der" && (
-          <View style={[styles.labelCodigo, { left: 12 }]}>
-            <Text style={styles.textoCodigo}>{valoresQR.codigo?.toUpperCase() ?? "---"}</Text>
-          </View>
-        )}
-
-        {/* Grid del campo */}
-        <View style={styles.campo}>
-          <View style={styles.fila}>
-            {posiciones.delanteras.map((pos) => renderPosicion(pos))}
-          </View>
-          <View style={styles.lineaSeparadora} />
-          <View style={styles.fila}>
-            {modo === "6x6" ? (
-              posiciones.traseras.map((pos) => renderPosicion(pos))
-            ) : (
-              <View style={styles.filaUnica}>{renderPosicion("I")}</View>
-            )}
+          <View style={styles.campo}>
+            <View style={styles.fila}>
+              {posiciones.delanteras.map((pos) => renderPosicion(pos))}
+            </View>
+            <View style={styles.lineaSeparadora} />
+            <View style={styles.fila}>
+              {modo === "6x6" ? (
+                posiciones.traseras.map((pos) => renderPosicion(pos))
+              ) : (
+                <View style={styles.filaUnica}>{renderPosicion("I")}</View>
+              )}
+            </View>
           </View>
         </View>
       </View>
 
-      {/* Botón QR */}
-      <TouchableOpacity
-        style={[styles.qrButton, { marginTop: 20, flexDirection: "column", alignItems: "center" }]}
-        onPress={() => onEscanear(equipo)}
-      >
-        <Image
-          source={icons.qr}
-          style={{ width: 32, height: 32, tintColor: "#fff", marginBottom: 6 }}
-        />
-        <Text style={styles.qrButtonText}>Escanear{`\n`}Equipo {equipo}</Text>
-      </TouchableOpacity>
+      {/* Botón QR fijo encima del footer */}
+      <View style={{ paddingHorizontal: 16, marginBottom: 60 }}>
+        <TouchableOpacity
+          style={[styles.qrButton, { flexDirection: "column", alignItems: "center" }]}
+          onPress={() => onEscanear(equipo)}
+        >
+          <Image
+            source={icons.qr}
+            style={{ width: 32, height: 32, tintColor: "#fff", marginBottom: 6 }}
+          />
+          <Text style={styles.qrButtonText}>Escanear{`\n`}Equipo {equipo}</Text>
+        </TouchableOpacity>
+      </View>
 
-      {/* 🔹 Indicador de navegación abajo */}
-      <SwipeIndicatorNav active={lado === "izq" ? "left" : "right"} />
+      {/* SwipeIndicatorNav fijo como footer */}
+      <View style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
+        <SwipeIndicatorNav active={lado === "izq" ? "left" : "right"} />
+      </View>
     </View>
   );
 }

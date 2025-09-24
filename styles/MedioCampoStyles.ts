@@ -1,8 +1,11 @@
 import { StyleSheet, Dimensions } from "react-native";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
-const campoSize = width * 0.85;
+// Escalado según pantalla pequeña
+const scale = Math.min(width / 360, height / 640); // referencia: 360x640
+
+const campoSize = width * 0.85 * scale;
 const posicionSize = campoSize * 0.28;
 
 export const MedioCampoStyles = StyleSheet.create({
@@ -11,40 +14,40 @@ export const MedioCampoStyles = StyleSheet.create({
     backgroundColor: "#f9fafc",
     alignItems: "center",
     justifyContent: "center",
-    padding: 16,
+    padding: 12 * scale,
   },
 
   tituloBox: {
     width: campoSize,
-    padding: 12,
-    borderRadius: 12,
+    padding: 8 * scale,
+    borderRadius: 10 * scale,
     backgroundColor: "#F5A623AA",
-    borderWidth: 2,
+    borderWidth: 1.5 * scale,
     borderColor: "#D17F1A",
-    marginBottom: 10,
+    marginBottom: 8 * scale,
     alignItems: "center",
   },
   tituloPrincipal: {
-    fontSize: 20,
+    fontSize: 18 * scale,
     fontWeight: "bold",
     color: "#000",
   },
   tituloSecundario: {
-    fontSize: 16,
+    fontSize: 14 * scale,
     color: "#000",
-    marginTop: 4,
+    marginTop: 4 * scale,
   },
 
   campo: {
     width: campoSize,
     aspectRatio: 1,
     backgroundColor: "#ffedd5",
-    borderRadius: 16,
-    borderWidth: 2,
+    borderRadius: 14 * scale,
+    borderWidth: 2 * scale,
     borderColor: "#fb923c",
     justifyContent: "space-around",
-    paddingVertical: 10,
-    marginVertical: 10,
+    paddingVertical: 8 * scale,
+    marginVertical: 8 * scale,
   },
 
   fila: {
@@ -61,7 +64,7 @@ export const MedioCampoStyles = StyleSheet.create({
   },
 
   lineaSeparadora: {
-    height: 2,
+    height: 2 * scale,
     backgroundColor: "#fb923c",
     width: "90%",
     alignSelf: "center",
@@ -72,22 +75,22 @@ export const MedioCampoStyles = StyleSheet.create({
     height: posicionSize,
     alignItems: "center",
     justifyContent: "center",
-    borderWidth: 2,
+    borderWidth: 2 * scale,
     borderColor: "#fb923c",
-    borderRadius: 12,
+    borderRadius: 10 * scale,
     backgroundColor: "#fff",
     elevation: 2,
   },
 
   input: {
-    fontSize: posicionSize * 0.22,
+    fontSize: posicionSize * 0.18,
     color: "#111",
   },
 
   label: {
-    fontSize: posicionSize * 0.2,
+    fontSize: posicionSize * 0.16,
     fontWeight: "600",
-    marginBottom: 5,
+    marginBottom: 4 * scale,
     color: "#374151",
   },
 
@@ -96,14 +99,14 @@ export const MedioCampoStyles = StyleSheet.create({
     zIndex: 20,
   },
   textoEquipo: {
-    fontSize: 16,
+    fontSize: 14 * scale,
     fontWeight: "bold",
     color: "#000",
     backgroundColor: "#fde047",
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-    borderWidth: 1,
+    paddingHorizontal: 8 * scale,
+    paddingVertical: 3 * scale,
+    borderRadius: 6 * scale,
+    borderWidth: 1 * scale,
     borderColor: "#d97706",
   },
 
@@ -112,32 +115,32 @@ export const MedioCampoStyles = StyleSheet.create({
     zIndex: 20,
   },
   textoCodigo: {
-    fontSize: 16,
+    fontSize: 14 * scale,
     fontWeight: "bold",
     color: "#000",
     backgroundColor: "#fff176",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    borderWidth: 1,
+    paddingHorizontal: 6 * scale,
+    paddingVertical: 2 * scale,
+    borderRadius: 5 * scale,
+    borderWidth: 1 * scale,
     borderColor: "#d97706",
-    minWidth: 40,
+    minWidth: 36 * scale,
     textAlign: "center",
   },
 
   qrButton: {
     backgroundColor: "#fb923c",
-    paddingVertical: 12,
+    paddingVertical: 10 * scale,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 12,
+    borderRadius: 10 * scale,
     elevation: 4,
     width: "90%",
     alignSelf: "center",
   },
   qrButtonText: {
     color: "#fff",
-    fontSize: width * 0.045,
+    fontSize: 14 * scale,
     fontWeight: "bold",
     textAlign: "center",
   },

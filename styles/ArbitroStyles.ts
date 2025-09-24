@@ -2,11 +2,11 @@ import { StyleSheet, Dimensions } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
-// Campo ocupa 90% del ancho de pantalla
-const campoSize = width * 0.9;
-// Cada lado tiene 2 columnas (delanteras + traseras), más la red
-// Restamos márgenes para que no se solape
-const posicionSize = (campoSize - 40) / 4; 
+// Escalado según pantalla pequeña
+const scale = Math.min(width / 360, height / 640); // referencia: 360x640
+
+const campoSize = width * 0.85 * scale; // campo ocupa 85% del ancho
+const posicionSize = (campoSize - 32) / 4; // columnas y red
 
 export const ArbitroStyles = StyleSheet.create({
   container: {
@@ -14,27 +14,25 @@ export const ArbitroStyles = StyleSheet.create({
     backgroundColor: "#f9fafc",
     alignItems: "center",
     justifyContent: "center",
-    paddingTop: height * 0.08,
+    paddingTop: 20 * scale,
   },
 
-  // 🔥 Nuevo contenedor scrollable
   scrollContent: {
     flexGrow: 1,
     justifyContent: "center",
-    paddingBottom: 60, // espacio para SwipeIndicatorNav
-    
+    paddingBottom: 70 * scale, // espacio para footer fijo
   },
 
   campo: {
     width: campoSize,
     aspectRatio: 1,
     backgroundColor: "#ffedd5",
-    borderRadius: 16,
+    borderRadius: 16 * scale,
     borderWidth: 2,
     borderColor: "#fb923c",
     justifyContent: "center",
     alignItems: "center",
-    padding: 8,
+    padding: 4 * scale,
   },
 
   fila: {
@@ -49,101 +47,100 @@ export const ArbitroStyles = StyleSheet.create({
     flex: 1,
     justifyContent: "space-evenly",
     alignItems: "center",
-    paddingHorizontal: 4,
+    paddingHorizontal: 2 * scale,
   },
 
   red: {
-    width: 3,
+    width: 2 * scale,
     alignSelf: "stretch",
     backgroundColor: "#ef4444",
-    marginHorizontal: 4,
+    marginHorizontal: 2 * scale,
   },
 
   posicion: {
     width: posicionSize,
     height: posicionSize,
-    marginVertical: 4,
+    marginVertical: 2 * scale,
     borderWidth: 2,
     borderColor: "#fb923c",
-    borderRadius: 12,
+    borderRadius: 8 * scale,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fff",
     elevation: 2,
-    paddingVertical: 6,
+    paddingVertical: 4 * scale,
   },
 
   posLabel: {
-    fontSize: posicionSize * 0.22,
+    fontSize: posicionSize * 0.18,
     fontWeight: "600",
     color: "#374151",
-    marginBottom: 2,
+    marginBottom: 1 * scale,
   },
 
   divisor: {
     width: "80%",
     height: 1,
     backgroundColor: "#d1d5db",
-    marginVertical: 2,
+    marginVertical: 1,
   },
 
   numLabel: {
-    fontSize: posicionSize * 0.26,
+    fontSize: posicionSize * 0.22,
     fontWeight: "bold",
     color: "#111",
-    marginTop: 2,
+    marginTop: 1,
   },
 
   // Botón Home
   homeButton: {
     position: "absolute",
-    top: height * 0.02,
-    left: 20,
+    top: 10 * scale,
+    left: 12 * scale,
     zIndex: 10,
-    padding: 8,
+    padding: 6 * scale,
     backgroundColor: "#fb923c",
-    borderRadius: 20,
+    borderRadius: 16 * scale,
     elevation: 3,
   },
 
   // Botón cambiar modo
   modoButton: {
     position: "absolute",
-    top: height * 0.02,
-    right: 20,
+    top: 10 * scale,
+    right: 12 * scale,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fb923c",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 10,
+    paddingHorizontal: 10 * scale,
+    paddingVertical: 6 * scale,
+    borderRadius: 8 * scale,
     elevation: 3,
   },
 
   modoText: {
     color: "#fff",
     fontWeight: "bold",
-    fontSize: width * 0.035,
+    fontSize: 12 * scale,
   },
 
-  // Fila de sets
   filaSets: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     width: campoSize,
-    height: height * 0.065,
+    height: 40 * scale,
     backgroundColor: "#fff",
-    borderRadius: 10,
+    borderRadius: 8 * scale,
     elevation: 2,
-    paddingHorizontal: 6,
-    marginBottom: 24,
+    paddingHorizontal: 4 * scale,
+    marginBottom: 25 * scale,
   },
 
   setButton: {
-    width: height * 0.05,
-    height: height * 0.05,
-    borderRadius: 8,
+    width: 30 * scale,
+    height: 30 * scale,
+    borderRadius: 6 * scale,
     backgroundColor: "#3b82f6",
     justifyContent: "center",
     alignItems: "center",
@@ -152,8 +149,8 @@ export const ArbitroStyles = StyleSheet.create({
   setDisplay: {
     flex: 1,
     height: "85%",
-    marginHorizontal: 6,
-    borderRadius: 8,
+    marginHorizontal: 4 * scale,
+    borderRadius: 6 * scale,
     backgroundColor: "#3b82f6",
     justifyContent: "center",
     alignItems: "center",
@@ -162,94 +159,57 @@ export const ArbitroStyles = StyleSheet.create({
   setText: {
     color: "#fff",
     fontWeight: "bold",
-    fontSize: width * 0.045,
+    fontSize: 14 * scale,
     textAlign: "center",
   },
 
+  qrButton: {
+    flex: 1,
+    backgroundColor: "#fb923c",
+    paddingVertical: 10 * scale,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 10 * scale,
+    flexDirection: "column",
+    elevation: 4,
+  },
 
-qrButton: {
-  flex: 1,
-  backgroundColor: "#fb923c",
-  paddingVertical: 14,
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: 12,
-  flexDirection: "column",
-  elevation: 4,
-},
+  qrRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignContent: "center",
+    width: "100%",
+  },
 
-// Botones QR
-qrRow: {
-  flexDirection: "row",
-  justifyContent: "center",
-  alignContent: "center",
-  width: "100%",
-},
-
-// SwipeIndicator siempre al fondo
-swipeNavWrapper: {
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  right: 0,
-  alignItems: "center",
-},
-
+  swipeNavWrapper: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    alignItems: "center",
+    height: 50 * scale,
+  },
 
   qrButtonLeft: {
-    marginRight: 8,
+    marginRight: 4 * scale,
   },
 
   qrButtonRight: {
-    marginLeft: 8,
+    marginLeft: 4 * scale,
   },
 
   qrButtonText: {
     color: "#fff",
-    fontSize: width * 0.042,
+    fontSize: 12 * scale,
     fontWeight: "bold",
-    flexShrink: 1, // 🔥 evita que el texto se salga
-    textAlign: "center", // 👈 mejora en pantallas pequeñas
-  },
-
-  // Indicadores de equipo
-  codigoEquipoBoxIzq: {
-    position: "absolute",
-    top: 8,
-    left: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: "#fff",
-    borderWidth: 2,
-    borderColor: "#fb923c",
-    elevation: 3,
-    maxWidth: width * 0.35, // 🔥 evita cortes en pantallas chicas
-  },
-  codigoEquipoBoxDer: {
-    position: "absolute",
-    top: 8,
-    right: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    backgroundColor: "#fff",
-    borderWidth: 2,
-    borderColor: "#fb923c",
-    elevation: 3,
-    maxWidth: width * 0.35, // 🔥 evita cortes en pantallas chicas
-  },
-  codigoEquipoText: {
-    fontWeight: "bold",
-    fontSize: width * 0.045,
-    color: "#111",
-    letterSpacing: 1,
+    textAlign: "center",
+    flexShrink: 1,
   },
 
   qrIcon: {
-    width: 28,
-    height: 28,
+    width: 24 * scale,
+    height: 24 * scale,
     tintColor: "#fff",
-    marginBottom: 6,
+    marginBottom: 4 * scale,
   },
 });

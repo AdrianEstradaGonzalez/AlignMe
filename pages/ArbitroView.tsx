@@ -307,10 +307,19 @@ export default function ArbitroView({
       </View>
       </ScrollView>
 
-      {/* SwipeIndicator fijo al bottom */}
-    <View style={styles.swipeNavWrapper}>
-      <SwipeIndicatorNav active="center" />
-    </View>
+     {/* Footer fijo */}
+<View
+  style={{
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 60, // altura del footer
+    backgroundColor: "transparent", // o color de fondo si quieres
+  }}
+>
+  <SwipeIndicatorNav active="center" />
+</View>
     </View>
   );
 }

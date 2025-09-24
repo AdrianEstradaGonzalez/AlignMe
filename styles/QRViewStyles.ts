@@ -1,61 +1,51 @@
-import { StyleSheet } from "react-native";
+// QRViewStyles.ts
+import { StyleSheet, Dimensions, Platform } from "react-native";
+
+const { width, height } = Dimensions.get("window");
 
 export const QRViewStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
-    padding: 20,
     justifyContent: "center",
+    paddingHorizontal: width * 0.05,
+    paddingVertical: height * 0.05,
   },
   title: {
-    fontSize: 22,
-    marginBottom: 20,
+    fontSize: Math.min(width * 0.06, 24),
     fontWeight: "bold",
+    marginBottom: height * 0.03,
     textAlign: "center",
   },
   subtitle: {
-    marginTop: 20,
-    fontSize: 16,
+    fontSize: Math.min(width * 0.045, 16),
     color: "#555",
+    marginTop: height * 0.03,
     textAlign: "center",
   },
-  qrButton: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "#ff6600", // naranja
-    paddingVertical: 50,
-    alignItems: "center",
-    justifyContent: "center",
-    borderTopWidth: 2,
-    borderTopColor: "#000", // borde negro arriba
-    flexDirection: "row",
-  },
-  qrButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-    marginLeft: 8,
-  },
   volverButton: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "#007AFF", // azul
-    paddingVertical: 60,
-    alignItems: "center",
-    justifyContent: "center",
-    borderTopWidth: 2,
-    borderTopColor: "#000",
-    flexDirection: "row",
-  },
-  volverButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
-    marginLeft: 8,
-  },
+  position: "absolute",
+  bottom: height * 0.03,   // margen inferior adaptativo
+  left: width * 0.05,      // margen lateral adaptativo
+  right: width * 0.05,
+  backgroundColor: "#007AFF",
+  paddingVertical: height * 0.05,  // más alto que antes
+  paddingHorizontal: width * 0.05,  // un poco más ancho
+  alignItems: "center",
+  justifyContent: "center",
+  borderRadius: 16,       // un poco más redondeado
+  flexDirection: "row",
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.15,
+  shadowRadius: 2,
+  elevation: 3,
+},
+
+volverButtonText: {
+  color: "#fff",
+  fontWeight: "bold",
+  fontSize: Math.min(width * 0.055, 22), // más grande
+},
 });
