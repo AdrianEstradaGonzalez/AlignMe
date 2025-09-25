@@ -2,23 +2,30 @@ import { StyleSheet, Dimensions, Platform } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
-// 🔹 Escalado relativo según pantalla
-const scale = Math.min(width / 360, height / 640); // referencia 360x640
-const campoSize = Math.min(width * 0.85, height * 0.5, 460) * scale;
-const posicionSize = campoSize * 0.26;
+// 🔹 Base de referencia
+const BASE_WIDTH = 360;
+const BASE_HEIGHT = 640;
+const rawScale = Math.min(width / BASE_WIDTH, height / BASE_HEIGHT);
+
+// 🔹 Límites de escala
+const MIN_SCALE = 0.75; // más agresivo en móviles chicos
+const MAX_SCALE = 1.2;    // nunca más grande que el diseño base
+const scale = Math.min(Math.max(rawScale, MIN_SCALE), MAX_SCALE);
+
+// 🔹 Factores de pantalla
+const isSmallScreen = width < 360 || height < 640; // móviles pequeños
+const isLargeScreen = width > 600;                 // tablets
+
+// 🔹 Tamaños principales (con máximos)
+const campoSize = Math.min(width * 0.82, height * 0.45, 420) * scale;
+const posicionSize = campoSize * 0.26 * scale;
 
 export const EntrenadorStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f9fafb",
-    marginTop: height * 0.08 * scale,
-  },
-
-  scrollContent: {
-    flexGrow: 1,
     alignItems: "center",
-    justifyContent: "flex-start",
-    padding: width * 0.035 * scale,
+    justifyContent: "center",
   },
 
   campo: {
@@ -30,7 +37,7 @@ export const EntrenadorStyles = StyleSheet.create({
     borderColor: "#fb923c",
     justifyContent: "space-around",
     paddingVertical: 8 * scale,
-    marginVertical: 12 * scale,
+    marginVertical: 8 * scale,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
@@ -51,7 +58,7 @@ export const EntrenadorStyles = StyleSheet.create({
     backgroundColor: "#fb923c",
     width: "85%",
     alignSelf: "center",
-    marginVertical: 3 * scale,
+    marginVertical: 2 * scale,
   },
 
   posicion: {
@@ -77,27 +84,25 @@ export const EntrenadorStyles = StyleSheet.create({
     borderColor: "#d1d5db",
     borderRadius: 8 * scale,
     textAlign: "center",
-    fontSize: Math.min(posicionSize * 0.22, 20) * scale,
+    fontSize: Math.min(posicionSize * 0.22, 18),
     padding: 0,
     color: "#111827",
     backgroundColor: "#f9fafb",
-    marginBottom: 3 * scale,
+    marginBottom: 2 * scale,
   },
 
   label: {
-    fontSize: Math.min(posicionSize * 0.18, 16) * scale,
+    fontSize: Math.min(posicionSize * 0.18, 14),
     fontWeight: "600",
-    marginBottom: 4 * scale,
+    marginBottom: 3 * scale,
     color: "#374151",
   },
 
   botonesContainer: {
-    position: "absolute",
-    bottom: -campoSize * 0.1,
-    width: "100%",
     flexDirection: "row",
     justifyContent: "space-around",
     alignItems: "center",
+    marginTop: 6 * scale,
   },
 
   botonFlotante: {
@@ -125,8 +130,8 @@ export const EntrenadorStyles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "#fff",
     borderRadius: 12 * scale,
-    padding: 10 * scale,
-    marginBottom: 12 * scale,
+    padding: 20 * scale,
+    marginBottom: 8 * scale,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.05,
@@ -137,48 +142,46 @@ export const EntrenadorStyles = StyleSheet.create({
   controlItem: {
     flex: 1,
     alignItems: "center",
-    minWidth: width * 0.22 * scale,
+    minWidth: width * 0.2 * scale,
   },
 
   controlLabel: {
-    fontSize: Math.min(width * 0.038, 16) * scale,
+    fontSize: Math.min(width * 0.038, 14),
     fontWeight: "500",
     color: "#374151",
-    marginBottom: 3 * scale,
+    marginBottom: 2 * scale,
     textAlign: "center",
   },
 
   codigoEquipo: {
-    flex: 1,
-    height: Math.min(height * 0.06, 55) * scale,
+    height: Math.min(height * 0.055, 50) * scale,
     borderRadius: 8 * scale,
     borderWidth: 1.2 * scale,
     borderColor: "#f59e0b",
     backgroundColor: "#fef9c3",
     textAlign: "center",
-    fontSize: Math.min(width * 0.055, 24) * scale,
+    fontSize: Math.min(width * 0.055, 20),
     fontWeight: "bold",
     color: "#78350f",
     paddingVertical: Platform.OS === "ios" ? 0 : 2 * scale,
-    minWidth: width * 0.15 * scale,
+    minWidth: width * 0.14 * scale,
   },
 
   equipoSelector: {
-    flex: 1,
-    height: Math.min(height * 0.06, 55) * scale,
+    height: Math.min(height * 0.055, 50) * scale,
     borderRadius: 8 * scale,
     borderWidth: 1.2 * scale,
     borderColor: "#f59e0b",
     backgroundColor: "#fef9c3",
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: width * 0.015 * scale,
-    minWidth: width * 0.15 * scale,
+    paddingHorizontal: width * 0.012 * scale,
+    minWidth: width * 0.14 * scale,
   },
 
   equipoText: {
     fontWeight: "bold",
-    fontSize: Math.min(width * 0.045, 22) * scale,
+    fontSize: Math.min(width * 0.045, 18),
     color: "#78350f",
     textAlign: "center",
   },
@@ -188,7 +191,7 @@ export const EntrenadorStyles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     width: campoSize,
-    height: Math.min(height * 0.06, 55) * scale,
+    height: Math.min(height * 0.055, 50) * scale,
     backgroundColor: "#fff",
     borderRadius: 10 * scale,
     shadowColor: "#000",
@@ -196,13 +199,13 @@ export const EntrenadorStyles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 2,
     elevation: 1,
-    paddingHorizontal: 6 * scale,
-    marginBottom: 10 * scale,
+    paddingHorizontal: 5 * scale,
+    marginBottom: 8 * scale,
   },
 
   setButton: {
-    width: Math.min(height * 0.045, 45) * scale,
-    height: Math.min(height * 0.045, 45) * scale,
+    width: Math.min(height * 0.045, 40) * scale,
+    height: Math.min(height * 0.045, 40) * scale,
     borderRadius: 8 * scale,
     backgroundColor: "#3b82f6",
     justifyContent: "center",
@@ -212,7 +215,7 @@ export const EntrenadorStyles = StyleSheet.create({
   setDisplay: {
     flex: 1,
     height: "85%",
-    marginHorizontal: 5 * scale,
+    marginHorizontal: 4 * scale,
     borderRadius: 8 * scale,
     backgroundColor: "#3b82f6",
     justifyContent: "center",
@@ -222,18 +225,18 @@ export const EntrenadorStyles = StyleSheet.create({
   setText: {
     color: "#fff",
     fontWeight: "600",
-    fontSize: Math.min(width * 0.042, 18) * scale,
+    fontSize: Math.min(width * 0.042, 16),
     textAlign: "center",
   },
 
   homeButton: {
     position: "absolute",
-    left: width * 0.08 * scale,
-    top: height * 0.02 * scale,
+    left: width * 0.1 * scale,
+    top: height * 0.015 * scale,
     zIndex: 20,
-    padding: campoSize * 0.02,
+    padding: campoSize * 0.018,
     backgroundColor: "#fb923c",
-    borderRadius: campoSize * 0.08,
+    borderRadius: campoSize * 0.06,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.15,
@@ -243,14 +246,14 @@ export const EntrenadorStyles = StyleSheet.create({
 
   modoButton: {
     position: "absolute",
-    top: height * 0.02 * scale,
-    right: width * 0.08 * scale,
+    top: height * 0.015 * scale,
+    right: width * 0.1 * scale,
     zIndex: 20,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fb923c",
-    paddingHorizontal: width * 0.03 * scale,
-    paddingVertical: height * 0.01 * scale,
+    paddingHorizontal: width * 0.025 * scale,
+    paddingVertical: height * 0.008 * scale,
     borderRadius: 10 * scale,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -262,7 +265,7 @@ export const EntrenadorStyles = StyleSheet.create({
   modoText: {
     color: "#fff",
     fontWeight: "600",
-    fontSize: Math.min(width * 0.042, 16) * scale,
+    fontSize: Math.min(width * 0.042, 14),
   },
 
   filaUnica: {
@@ -273,13 +276,13 @@ export const EntrenadorStyles = StyleSheet.create({
   },
 
   qrButton: {
-    marginTop: 24 * scale,
     width: campoSize,
     backgroundColor: "#fb923c",
-    paddingVertical: 12 * scale,
+    paddingVertical: 10 * scale,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 12 * scale,
+    marginTop: 10 * scale,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
@@ -289,7 +292,7 @@ export const EntrenadorStyles = StyleSheet.create({
 
   qrButtonText: {
     color: "#fff",
-    fontSize: Math.min(width * 0.05, 20) * scale,
+    fontSize: Math.min(width * 0.05, 18),
     fontWeight: "600",
     textAlign: "center",
   },

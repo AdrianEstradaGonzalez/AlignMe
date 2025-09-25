@@ -92,7 +92,7 @@ export default function MedioCampoView({
       </View>
 
       {/* Botón QR fijo encima del footer */}
-      <View style={{ paddingHorizontal: 16, marginBottom: 60 }}>
+      <View style={{ paddingHorizontal: 16, marginBottom: 100 }}>
         <TouchableOpacity
           style={[styles.qrButton, { flexDirection: "column", alignItems: "center" }]}
           onPress={() => onEscanear(equipo)}

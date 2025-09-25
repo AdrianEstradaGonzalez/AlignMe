@@ -2,25 +2,46 @@ import { StyleSheet, Dimensions } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
-// Escalado según pantalla pequeña
-const scale = Math.min(width / 360, height / 640); // referencia: 360x640
+// 🔹 Escala base según pantalla de referencia 360x640
+const BASE_WIDTH = 360;
+const BASE_HEIGHT = 640;
+const rawScale = Math.min(width / BASE_WIDTH, height / BASE_HEIGHT);
 
-const campoSize = width * 0.85 * scale; // campo ocupa 85% del ancho
-const posicionSize = (campoSize - 32) / 4; // columnas y red
+// 🔹 Limitar escala (ni muy chico ni gigante)
+const MIN_SCALE = 0.8;
+const MAX_SCALE = 1.1;
+let scale = Math.min(Math.max(rawScale, MIN_SCALE), MAX_SCALE);
+
+// 🔹 Detectar pantallas pequeñas (<360px ancho)
+const isSmallScreen = width < 360;
+const smallFactor = isSmallScreen ? 0.75 : 1; // reduce 25% en pantallas chicas
+
+// 🔹 Detectar tablets/grandes
+const isTablet = width >= 700 || height >= 700;
+const bigFactor = isTablet ? 0.8 : 1; // reduce 15% en tablets
+
+// 🔹 Escala final ajustada
+scale = scale * bigFactor;
+
+// 🔹 Medidas principales
+const campoSize = width * 0.85 * scale;
+const posicionSize = (campoSize - 32) / 4;
 
 export const ArbitroStyles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: "#f9fafc",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingTop: 20 * scale,
-  },
+  flex: 1,
+  backgroundColor: "#f9fafc",
+  alignItems: "center",
+  justifyContent: "center",
+  paddingTop: 20 * scale,
+  paddingHorizontal: isTablet ? 40 : 16, // 👉 margen lateral en tablets
+},
+
 
   scrollContent: {
     flexGrow: 1,
     justifyContent: "center",
-    paddingBottom: 70 * scale, // espacio para footer fijo
+    paddingBottom: 70 * scale,
   },
 
   campo: {
@@ -92,36 +113,43 @@ export const ArbitroStyles = StyleSheet.create({
     marginTop: 1,
   },
 
-  // Botón Home
   homeButton: {
     position: "absolute",
-    top: 10 * scale,
-    left: 12 * scale,
-    zIndex: 10,
-    padding: 6 * scale,
+    left: width * 0.1 * scale,
+    top: height * 0.015 * scale,
+    zIndex: 20,
+    padding: campoSize * 0.018,
     backgroundColor: "#fb923c",
-    borderRadius: 16 * scale,
-    elevation: 3,
+    borderRadius: campoSize * 0.06,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    elevation: 2,
   },
 
-  // Botón cambiar modo
   modoButton: {
     position: "absolute",
-    top: 10 * scale,
-    right: 12 * scale,
+    top: height * 0.015 * scale,
+    right: width * 0.1 * scale,
+    zIndex: 20,
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fb923c",
-    paddingHorizontal: 10 * scale,
-    paddingVertical: 6 * scale,
-    borderRadius: 8 * scale,
-    elevation: 3,
+    paddingHorizontal: width * 0.025 * scale,
+    paddingVertical: height * 0.008 * scale,
+    borderRadius: 10 * scale,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    elevation: 2,
   },
 
   modoText: {
     color: "#fff",
     fontWeight: "bold",
-    fontSize: 12 * scale,
+    fontSize: 12 * scale * smallFactor,
   },
 
   filaSets: {
