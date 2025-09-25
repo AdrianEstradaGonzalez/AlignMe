@@ -57,7 +57,7 @@ function HomeScreen({ navigation }: any) {
           alignSelf: "center",
           fontSize: 12,
           color: "white",
-          opacity: 0.7
+          opacity: 0.8
         }}>
           Copyright © 2025 - Adrián Estrada González
         </Text>
