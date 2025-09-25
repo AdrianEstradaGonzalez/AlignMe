@@ -8,15 +8,21 @@ const BASE_HEIGHT = 640;
 const rawScale = Math.min(width / BASE_WIDTH, height / BASE_HEIGHT);
 
 // 🔹 Límites de escala
-const MIN_SCALE = 0.75; // más agresivo en móviles chicos
-const MAX_SCALE = 1.2;    // nunca más grande que el diseño base
-const scale = Math.min(Math.max(rawScale, MIN_SCALE), MAX_SCALE);
+const MIN_SCALE = 0.75;
+const MAX_SCALE = 1.2;
+
+// 🔹 Detectar tablet (similar a ArbitroStyles)
+const isTablet = width >= 700 || height >= 1000;
+
+// 🔹 Escala base con ajuste para tablet
+let scale = Math.min(Math.max(rawScale, MIN_SCALE), MAX_SCALE);
+scale = isTablet ? scale * 1.15 : scale; // 👉 en tablets todo se ve 15% más grande
 
 // 🔹 Factores de pantalla
-const isSmallScreen = width < 360 || height < 640; // móviles pequeños
-const isLargeScreen = width > 600;                 // tablets
+const isSmallScreen = width < 360 || height < 640;
+const isLargeScreen = width > 600; // lo dejamos por si lo usas en otros cálculos
 
-// 🔹 Tamaños principales (con máximos)
+// 🔹 Tamaños principales (con máximos y ajuste)
 const campoSize = Math.min(width * 0.82, height * 0.45, 420) * scale;
 const posicionSize = campoSize * 0.26 * scale;
 
@@ -29,29 +35,40 @@ export const EntrenadorStyles = StyleSheet.create({
   },
 
   campo: {
-    width: campoSize,
-    aspectRatio: 1,
-    backgroundColor: "#fff7ed",
-    borderRadius: 16 * scale,
-    borderWidth: 1.5 * scale,
-    borderColor: "#fb923c",
-    justifyContent: "space-around",
-    paddingVertical: 8 * scale,
-    marginVertical: 8 * scale,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 3,
-    elevation: 2,
-  },
+  width: campoSize,
+  aspectRatio: 1,
+  backgroundColor: "#fff7ed",
+  borderRadius: 16 * scale,
+  borderWidth: 1.5 * scale,
+  borderColor: "#fb923c",
+  justifyContent: "space-between",
+  padding: 6 * scale,
+  marginVertical: 8 * scale,
+},
 
-  fila: {
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    alignItems: "center",
-    flex: 1,
-    width: "100%",
-  },
+fila: {
+  flex: 1,
+  flexDirection: "row",
+  justifyContent: "space-between",
+  alignItems: "center",
+},
+
+posicion: {
+  flex: 1,                         // 🔹 que se reparta dentro de la fila
+  aspectRatio: 1,                  // 🔹 siempre cuadrada
+  marginHorizontal: 3 * scale,     // 🔹 espacio entre cajas
+  alignItems: "center",
+  justifyContent: "center",
+  borderWidth: 1.5 * scale,
+  borderColor: "#fb923c",
+  borderRadius: 12 * scale,
+  backgroundColor: "#fff",
+  shadowColor: "#000",
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.05,
+  shadowRadius: 2,
+  elevation: 1,
+},
 
   lineaSeparadora: {
     height: 1.5 * scale,
@@ -61,36 +78,20 @@ export const EntrenadorStyles = StyleSheet.create({
     marginVertical: 2 * scale,
   },
 
-  posicion: {
-    width: posicionSize,
-    height: posicionSize,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1.5 * scale,
-    borderColor: "#fb923c",
-    borderRadius: 12 * scale,
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
-    elevation: 1,
-  },
-
-  input: {
+    input: {
     width: "75%",
     height: "55%",
     borderWidth: 1 * scale,
     borderColor: "#d1d5db",
     borderRadius: 8 * scale,
     textAlign: "center",
-    fontSize: Math.min(posicionSize * 0.22, 18),
+    fontSize: Math.min(posicionSize * 0.22, 18) * (isLargeScreen ? 1.2 : 1), // 📱 +20% en tablets
+    fontWeight: "bold", // 🔹 negrita para los números
     padding: 0,
     color: "#111827",
     backgroundColor: "#f9fafb",
     marginBottom: 2 * scale,
   },
-
   label: {
     fontSize: Math.min(posicionSize * 0.18, 14),
     fontWeight: "600",

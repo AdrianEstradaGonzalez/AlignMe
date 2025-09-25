@@ -9,7 +9,7 @@ const rawScale = Math.min(width / BASE_WIDTH, height / BASE_HEIGHT);
 
 // 🔹 Limitar escala (ni muy chico ni gigante)
 const MIN_SCALE = 0.8;
-const MAX_SCALE = 1.1;
+const MAX_SCALE = 1.2;
 let scale = Math.min(Math.max(rawScale, MIN_SCALE), MAX_SCALE);
 
 // 🔹 Detectar pantallas pequeñas (<360px ancho)
@@ -17,7 +17,7 @@ const isSmallScreen = width < 360;
 const smallFactor = isSmallScreen ? 0.75 : 1; // reduce 25% en pantallas chicas
 
 // 🔹 Detectar tablets/grandes
-const isTablet = width >= 700 || height >= 700;
+const isTablet = width >= 700 || height >= 1000;
 const bigFactor = isTablet ? 0.8 : 1; // reduce 15% en tablets
 
 // 🔹 Escala final ajustada

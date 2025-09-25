@@ -215,42 +215,45 @@ export default function EntrenadorView() {
         </View>
 
         {/* Campo */}
-        <View style={styles.campo}>
-          <View style={styles.fila}>
-            {posiciones.delanteras.map((pos) => renderPosicion(pos))}
-          </View>
-          <View style={styles.lineaSeparadora} />
-          <View style={styles.fila}>
-            {modo === "6x6"
-              ? posiciones.traseras.map((pos) => renderPosicion(pos))
-              : renderPosicion("I")}
-          </View>
-
-          {/* Botones de acciones */}
-          <View style={styles.botonesContainer}>
-            <TouchableOpacity onPress={rotateClockwise} style={styles.botonFlotante}>
-              <Image
-                source={icons.rotateRight}
-                style={{ width: 26, height: 26, tintColor: "#fff" }}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={() => setValores({})}
-              style={[styles.botonFlotante, styles.botonCentral]}
-            >
-              <Image
-                source={icons.trash}
-                style={{ width: 24, height: 24, tintColor: "#fff" }}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={rotateCounterclockwise} style={styles.botonFlotante}>
-              <Image
-                source={icons.rotateLeft}
-                style={{ width: 26, height: 26, tintColor: "#fff" }}
-              />
-            </TouchableOpacity>
-          </View>
+       <View style={styles.campo}>
+        <View style={styles.fila}>
+          {posiciones.delanteras.map((pos) => renderPosicion(pos))}
         </View>
+
+        <View style={styles.lineaSeparadora} />
+
+        {modo === "6x6" ? (
+        <View style={styles.fila}>
+          {posiciones.traseras.map((pos) => renderPosicion(pos))}
+        </View>
+      ) : (
+        <View style={styles.fila}>
+          <View style={{ flex: 1 }} /> 
+          {renderPosicion("I")}   {/* 👈 directamente, ya tiene flex:1 y aspectRatio:1 */}
+          <View style={{ flex: 1 }} /> 
+        </View>
+      )}
+
+
+        {/* Botones de acciones */}
+        <View style={styles.botonesContainer}>
+          <TouchableOpacity onPress={rotateClockwise} style={styles.botonFlotante}>
+            <Image source={icons.rotateRight} style={{ width: 26, height: 26, tintColor: "#fff" }} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            onPress={() => setValores({})}
+            style={[styles.botonFlotante, styles.botonCentral]}
+          >
+            <Image source={icons.trash} style={{ width: 24, height: 24, tintColor: "#fff" }} />
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={rotateCounterclockwise} style={styles.botonFlotante}>
+            <Image source={icons.rotateLeft} style={{ width: 26, height: 26, tintColor: "#fff" }} />
+          </TouchableOpacity>
+        </View>
+      </View>
+
 
         {/* Botón QR */}
         <TouchableOpacity style={styles.qrButton} onPress={generarQR}>

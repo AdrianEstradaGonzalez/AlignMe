@@ -49,10 +49,23 @@ function HomeScreen({ navigation }: any) {
             </Button>
           </Card.Content>
         </Card>
+
+        {/* 🔹 Marca de CopyRight */}
+        <Text style={{ 
+          position: "absolute",
+          bottom: 10,
+          alignSelf: "center",
+          fontSize: 12,
+          color: "white",
+          opacity: 0.7
+        }}>
+          Copyright © 2025 - Adrián Estrada González
+        </Text>
       </View>
     </ImageBackground>
   );
 }
+
 
 export default function App() {
   return (
