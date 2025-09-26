@@ -46,6 +46,7 @@ export default function MedioCampoView({
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f9fafc" }}>
+      
       {/* Contenido scrollable */}
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 16 }}>
         <View style={styles.tituloBox}>

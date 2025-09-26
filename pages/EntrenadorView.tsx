@@ -14,6 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import type { RootStackParamList } from "../types/Navigation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import NavBar from "./NavBar";
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "Entrenador">;
 
@@ -144,27 +145,7 @@ export default function EntrenadorView() {
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      {/* Botón Home */}
-      <TouchableOpacity
-        style={[styles.homeButton, { top: insets.top + 10 }]}
-        onPress={() => navigation.navigate("Home")}
-      >
-        <Image source={icons.home} style={{ width: 28, height: 28, tintColor: "#fff" }} />
-      </TouchableOpacity>
-
-      {/* Botón Modo */}
-      <TouchableOpacity
-        style={[styles.modoButton, { top: insets.top + 10 }]}
-        onPress={toggleModo}
-      >
-        <Image
-          source={icons.swap}
-          style={{ width: 22, height: 22, tintColor: "#fff", marginRight: 5 }}
-        />
-        <Text style={styles.modoText}>
-          {modo === "6x6" ? "Voley 6x6" : "MiniVoley 4x4"}
-        </Text>
-      </TouchableOpacity>
+      <NavBar modo={modo} toggleModo={toggleModo} />
 
       <View style={styles.container}>
         {/* Barra superior */}

@@ -7,16 +7,24 @@ import {
   ScrollView,
 } from "react-native";
 import { ArbitroStyles as styles } from "../styles/ArbitroStyles";
-import { useNavigation } from "@react-navigation/native";
-import type { StackNavigationProp } from "@react-navigation/stack";
-import type { RootStackParamList } from "../types/Navigation";
 import SwipeIndicatorNav from "./SwipeIndicatorNav";
+import NavBar from "./NavBar"; // 👈 usamos la barra reutilizable
 
-type NavigationProp = StackNavigationProp<RootStackParamList, "Arbitro">;
+type Props = {
+  modoProp?: "6x6" | "4x4";
+  setModoProp?: (m: "6x6" | "4x4") => void;
+  setActualProp?: number;
+  setSetActualProp?: (n: number) => void;
+  valoresEquipos?: {
+    [set: number]: {
+      A?: { codigo?: string; equipo?: string } & { [pos: string]: string };
+      B?: { codigo?: string; equipo?: string } & { [pos: string]: string };
+    };
+  };
+  onEscanear?: (eq: "A" | "B") => void;
+};
 
 const icons = {
-  home: require("../assets/icons/home.png"),
-  swap: require("../assets/icons/swap.png"),
   left: require("../assets/icons/left.png"),
   right: require("../assets/icons/right.png"),
   qr: require("../assets/icons/qr.png"),
@@ -29,20 +37,7 @@ export default function ArbitroView({
   setSetActualProp,
   valoresEquipos,
   onEscanear,
-}: {
-  modoProp?: "6x6" | "4x4";
-  setModoProp?: (m: "6x6" | "4x4") => void;
-  setActualProp?: number;
-  setSetActualProp?: (n: number) => void;
-  valoresEquipos?: {
-    [set: number]: {
-      A?: { codigo?: string; equipo?: string } & { [pos: string]: string };
-      B?: { codigo?: string; equipo?: string } & { [pos: string]: string };
-    };
-  };
-  onEscanear?: (eq: "A" | "B") => void;
-}) {
-  const navigation = useNavigation<NavigationProp>();
+}: Props) {
   const [modoLocal, setModoLocal] = useState<"6x6" | "4x4">("6x6");
   const modo = modoProp ?? modoLocal;
   const setModo = setModoProp ?? setModoLocal;
@@ -79,26 +74,21 @@ export default function ArbitroView({
   };
 
   const mapPosDerecha = (pos: string, modo: "6x6" | "4x4"): string => {
-  if (modo === "4x4") {
-    // En 4x4 solo intercambiamos II ↔ IV
+    if (modo === "4x4") {
+      switch (pos) {
+        case "IV": return "II";
+        case "II": return "IV";
+        default:   return pos;
+      }
+    }
     switch (pos) {
       case "IV": return "II";
       case "II": return "IV";
-      default:   return pos; // "I" se queda igual
+      case "V":  return "I";
+      case "I":  return "V";
+      default:   return pos;
     }
-  }
-
-  // En 6x6 se mantiene el mapeo completo
-  switch (pos) {
-    case "IV": return "II";
-    case "II": return "IV";
-    case "V":  return "I";
-    case "I":  return "V";
-    default:   return pos; // III y VI se mantienen igual
-  }
-};
-
-
+  };
 
   const retrocederSet = () => setSetActual(setActual > 1 ? setActual - 1 : 1);
   const avanzarSet = () =>
@@ -116,30 +106,12 @@ export default function ArbitroView({
 
   return (
     <View style={styles.container}>
-      {/* Botón Home */}
-        <TouchableOpacity
-          style={styles.homeButton}
-          onPress={() => navigation.navigate("Home")}
-        >
-          <Image
-            source={icons.home}
-            style={{ width: 26, height: 26, tintColor: "#fff" }}
-          />
-        </TouchableOpacity>
+      {/* 🔹 Barra de navegación arriba */}
+      <NavBar
+        modo={modo}
+        toggleModo={() => setModo(modo === "6x6" ? "4x4" : "6x6")}
+      />
 
-        {/* Botón Modo */}
-        <TouchableOpacity
-          style={styles.modoButton}
-          onPress={() => setModo(modo === "6x6" ? "4x4" : "6x6")}
-        >
-          <Image
-            source={icons.swap}
-            style={{ width: 22, height: 22, tintColor: "#fff", marginRight: 6 }}
-          />
-          <Text style={styles.modoText}>
-            {modo === "6x6" ? "Voley 6x6" : "MiniVoley 4x4"}
-          </Text>
-        </TouchableOpacity>
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
         showsVerticalScrollIndicator={false}
@@ -288,38 +260,38 @@ export default function ArbitroView({
         </View>
 
         {/* Botones QR debajo del campo */}
-      <View style={styles.qrRow}>
-        <TouchableOpacity
-          style={[styles.qrButton, styles.qrButtonLeft]}
-          onPress={() => onEscanear?.(equipoIzq)}
-        >
-          <Image source={icons.qr} style={styles.qrIcon} />
-          <Text style={styles.qrButtonText}>{`Escanear\nEquipo ${equipoIzq}`}</Text>
-        </TouchableOpacity>
+        <View style={styles.qrRow}>
+          <TouchableOpacity
+            style={[styles.qrButton, styles.qrButtonLeft]}
+            onPress={() => onEscanear?.(equipoIzq)}
+          >
+            <Image source={icons.qr} style={styles.qrIcon} />
+            <Text style={styles.qrButtonText}>{`Escanear\nEquipo ${equipoIzq}`}</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[styles.qrButton, styles.qrButtonRight]}
-          onPress={() => onEscanear?.(equipoDer)}
-        >
-          <Image source={icons.qr} style={styles.qrIcon} />
-          <Text style={styles.qrButtonText}>{`Escanear\nEquipo ${equipoDer}`}</Text>
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity
+            style={[styles.qrButton, styles.qrButtonRight]}
+            onPress={() => onEscanear?.(equipoDer)}
+          >
+            <Image source={icons.qr} style={styles.qrIcon} />
+            <Text style={styles.qrButtonText}>{`Escanear\nEquipo ${equipoDer}`}</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
 
-     {/* Footer fijo */}
-<View
-  style={{
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: 60, // altura del footer
-    backgroundColor: "transparent", // o color de fondo si quieres
-  }}
->
-  <SwipeIndicatorNav active="center" />
-</View>
+      {/* Footer fijo */}
+      <View
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: 60,
+          backgroundColor: "transparent",
+        }}
+      >
+        <SwipeIndicatorNav active="center" />
+      </View>
     </View>
   );
 }

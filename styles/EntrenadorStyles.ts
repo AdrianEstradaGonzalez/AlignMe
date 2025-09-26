@@ -31,7 +31,7 @@ export const EntrenadorStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f9fafb",
     alignItems: "center",
-    justifyContent: "center",
+    marginTop:10
   },
 
   campo: {

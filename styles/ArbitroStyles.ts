@@ -29,13 +29,10 @@ const posicionSize = (campoSize - 32) / 4;
 
 export const ArbitroStyles = StyleSheet.create({
   container: {
-  flex: 1,
-  backgroundColor: "#f9fafc",
-  alignItems: "center",
-  justifyContent: "center",
-  paddingTop: 20 * scale,
-  paddingHorizontal: isTablet ? 40 : 16, // 👉 margen lateral en tablets
-},
+    flex: 1,
+    backgroundColor: "#f9fafb",
+    alignItems: "center",
+  },
 
 
   scrollContent: {
