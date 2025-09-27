@@ -1,7 +1,8 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from "react-native";
 import { MedioCampoStyles as styles } from "../styles/MedioCampoStyles";
 import SwipeIndicatorNav from "./SwipeIndicatorNav";
+import NavBarBack from "./NavBarBack";
 
 // Icono local
 const icons = {
@@ -11,18 +12,22 @@ const icons = {
 const posiciones6x6 = { delanteras: ["IV", "III", "II"], traseras: ["V", "VI", "I"] };
 const posiciones4x4 = { delanteras: ["IV", "III", "II"], traseras: ["I"] };
 
+const { width } = Dimensions.get("window");
+
 export default function MedioCampoView({
   modo,
   lado,
   setActual,
   onEscanear,
   valoresQR = {},
+  scrollRef,
 }: {
   modo: "6x6" | "4x4";
   lado: "izq" | "der";
   setActual: number;
   onEscanear: (eq: "A" | "B") => void;
   valoresQR?: { codigo?: string; equipo?: string } & { [pos: string]: string };
+  scrollRef: React.RefObject<ScrollView | null>;
 }) {
   const posiciones = modo === "6x6" ? posiciones6x6 : posiciones4x4;
 
@@ -46,7 +51,12 @@ export default function MedioCampoView({
 
   return (
     <View style={{ flex: 1, backgroundColor: "#f9fafc" }}>
-      
+      {/* 🔹 Barra superior con flecha */}
+      <NavBarBack
+        onBack={() => scrollRef.current?.scrollTo({ x: width, animated: true })}
+        isLeft={lado === "der"} // flecha hacia izquierda si estamos en el lado derecho
+      />
+
       {/* Contenido scrollable */}
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 16 }}>
         <View style={styles.tituloBox}>

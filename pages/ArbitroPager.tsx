@@ -117,6 +117,7 @@ export default function ArbitroPager() {
             setActual={setActual}
             onEscanear={openScanner}
             valoresQR={valoresEquipos[setActual]?.[equipoIzq]}
+            scrollRef={scrollRef}
           />
         </View>
 
@@ -140,6 +141,7 @@ export default function ArbitroPager() {
             setActual={setActual}
             onEscanear={openScanner}
             valoresQR={valoresEquipos[setActual]?.[equipoDer]}
+            scrollRef={scrollRef}
           />
         </View>
       </ScrollView>
