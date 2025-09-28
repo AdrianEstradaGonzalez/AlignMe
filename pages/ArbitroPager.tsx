@@ -21,6 +21,7 @@ const { width } = Dimensions.get("window");
 export default function ArbitroPager() {
   const [modo, setModo] = useState<"6x6" | "4x4">("6x6");
   const [setActual, setSetActual] = useState<number>(1);
+  const [swapLados, setSwapLados] = useState(false); 
 
   // 🔹 valoresEquipos[set][A|B] = { pos: numero, codigo?: string }
   const [valoresEquipos, setValoresEquipos] = useState<{
@@ -95,9 +96,16 @@ export default function ArbitroPager() {
     scrollRef.current?.scrollTo({ x: xPos, animated: true });
   };
 
-  // 🔹 Determinar qué equipo va en cada lado (siempre fijo por set)
-  const equipoIzq = setActual % 2 === 1 ? "A" : "B";
-  const equipoDer = setActual % 2 === 1 ? "B" : "A";
+  // 🔹 Determinar qué equipo va en cada lado (con swap en set 5 ó set 3 según modo)
+let equipoIzq = setActual % 2 === 1 ? "A" : "B";
+let equipoDer = setActual % 2 === 1 ? "B" : "A";
+
+if ((modo === "6x6" && setActual === 5) || (modo === "4x4" && setActual === 3)) {
+  if (swapLados) {
+    [equipoIzq, equipoDer] = [equipoDer, equipoIzq];
+  }
+}
+
 
 
   return (
@@ -116,8 +124,9 @@ export default function ArbitroPager() {
             lado="izq"
             setActual={setActual}
             onEscanear={openScanner}
-            valoresQR={valoresEquipos[setActual]?.[equipoIzq]}
+            valoresQR={valoresEquipos[setActual]?.[equipoIzq as "A" | "B"]}
             scrollRef={scrollRef}
+            swapLados={swapLados}   // 👈 se lo pasamos
           />
         </View>
 
@@ -130,6 +139,8 @@ export default function ArbitroPager() {
             setSetActualProp={setSetActual}
             valoresEquipos={valoresEquipos}
             onEscanear={openScanner}
+            swapLados={swapLados}       // 👈 se lo pasamos
+            setSwapLados={setSwapLados} // 👈 para que ArbitroView lo pueda modificar
           />
         </View>
 
@@ -140,8 +151,9 @@ export default function ArbitroPager() {
             lado="der"
             setActual={setActual}
             onEscanear={openScanner}
-            valoresQR={valoresEquipos[setActual]?.[equipoDer]}
+            valoresQR={valoresEquipos[setActual]?.[equipoDer as "A" | "B"]}
             scrollRef={scrollRef}
+            swapLados={swapLados} // 👈 también aquí
           />
         </View>
       </ScrollView>

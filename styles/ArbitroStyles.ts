@@ -61,19 +61,26 @@ export const ArbitroStyles = StyleSheet.create({
     width: "100%",
   },
 
-  columna: {
-    flex: 1,
-    justifyContent: "space-evenly",
-    alignItems: "center",
-    paddingHorizontal: 2 * scale,
-  },
-
   red: {
-    width: 2 * scale,
-    alignSelf: "stretch",
-    backgroundColor: "#ef4444",
-    marginHorizontal: 2 * scale,
-  },
+  width: 6 * scale,               // 👉 más gruesa para consistencia
+  alignSelf: "stretch",
+  backgroundColor: "#000",
+  marginHorizontal: 6 * scale,    // 👉 más separación entre los lados
+  borderRadius: 2 * scale,        // 👉 bordes redondeados para un look más limpio
+  elevation: 3,                   // 👉 pequeña sombra en Android
+  shadowColor: "#000",            // 👉 pequeña sombra en iOS
+  shadowOffset: { width: 0, height: 1 },
+  shadowOpacity: 0.15,
+  shadowRadius: 1.5,
+},
+
+columna: {
+  flex: 1,
+  justifyContent: "space-evenly",
+  alignItems: "center",
+  paddingHorizontal: 4 * scale,   // 👉 un poquito más de aire
+},
+
 
   posicion: {
     width: posicionSize,

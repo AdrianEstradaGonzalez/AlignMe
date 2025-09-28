@@ -8,7 +8,7 @@ import {
 } from "react-native";
 import { ArbitroStyles as styles } from "../styles/ArbitroStyles";
 import SwipeIndicatorNav from "./SwipeIndicatorNav";
-import NavBar from "./NavBar"; // 👈 usamos la barra reutilizable
+import NavBar from "./NavBar";
 
 type Props = {
   modoProp?: "6x6" | "4x4";
@@ -22,12 +22,15 @@ type Props = {
     };
   };
   onEscanear?: (eq: "A" | "B") => void;
+  swapLados?: boolean;
+  setSwapLados?: (s: boolean) => void;
 };
 
 const icons = {
   left: require("../assets/icons/left.png"),
   right: require("../assets/icons/right.png"),
   qr: require("../assets/icons/qr.png"),
+  swap: require("../assets/icons/swap.png"), // 👈 agrega tu icono de swap aquí
 };
 
 export default function ArbitroView({
@@ -37,6 +40,8 @@ export default function ArbitroView({
   setSetActualProp,
   valoresEquipos,
   onEscanear,
+  swapLados = false,
+  setSwapLados,
 }: Props) {
   const [modoLocal, setModoLocal] = useState<"6x6" | "4x4">("6x6");
   const modo = modoProp ?? modoLocal;
@@ -58,8 +63,16 @@ export default function ArbitroView({
 
   const getPosiciones = () => (modo === "6x6" ? posiciones6x6 : posiciones4x4);
 
-  const equipoIzq = setActual % 2 === 1 ? "A" : "B";
-  const equipoDer = setActual % 2 === 1 ? "B" : "A";
+  // 👇 Determinar equipos con swap aplicado solo en set 5 (6x6) o set 3 (4x4)
+let equipoIzq: "A" | "B" = setActual % 2 === 1 ? "A" : "B";
+let equipoDer: "A" | "B" = setActual % 2 === 1 ? "B" : "A";
+
+if ((modo === "6x6" && setActual === 5) || (modo === "4x4" && setActual === 3)) {
+  if (swapLados) {
+    [equipoIzq, equipoDer] = [equipoDer, equipoIzq];
+  }
+}
+
 
   const renderPosicion = (pos: string, equipo: "A" | "B") => {
     const valores = valoresEquipos?.[setActual]?.[equipo] || {};
@@ -95,22 +108,26 @@ export default function ArbitroView({
     setSetActual(setActual < TOTAL_SETS ? setActual + 1 : TOTAL_SETS);
 
   const codigoIzq =
-    valoresEquipos?.[setActual]?.[equipoIzq]?.codigo?.toUpperCase() ?? "---";
+    valoresEquipos?.[setActual]?.[equipoIzq as "A" | "B"]?.codigo?.toUpperCase() ?? "---";
   const codigoDer =
-    valoresEquipos?.[setActual]?.[equipoDer]?.codigo?.toUpperCase() ?? "---";
+    valoresEquipos?.[setActual]?.[equipoDer as "A" | "B"]?.codigo?.toUpperCase() ?? "---";
 
   const nombreIzq =
-    valoresEquipos?.[setActual]?.[equipoIzq]?.equipo ?? `${equipoIzq}`;
+    valoresEquipos?.[setActual]?.[equipoIzq as "A" | "B"]?.equipo ?? `${equipoIzq}`;
   const nombreDer =
-    valoresEquipos?.[setActual]?.[equipoDer]?.equipo ?? `${equipoDer}`;
+    valoresEquipos?.[setActual]?.[equipoDer as "A" | "B"]?.equipo ?? `${equipoDer}`;
 
   return (
     <View style={styles.container}>
       {/* 🔹 Barra de navegación arriba */}
       <NavBar
         modo={modo}
-        toggleModo={() => setModo(modo === "6x6" ? "4x4" : "6x6")}
+        toggleModo={() => {
+          setModo(modo === "6x6" ? "4x4" : "6x6");
+          setSetActual(1); // 👈 Reinicia set al 1 al cambiar de modo
+        }}
       />
+
 
       <ScrollView
         contentContainerStyle={{ flexGrow: 1, justifyContent: "center" }}
@@ -230,6 +247,36 @@ export default function ArbitroView({
               {nombreDer}
             </Text>
           </View>
+
+          {/* 👇 Botón de swap (set 5 en 6x6, set 3 en 4x4) */}
+          {( (modo === "6x6" && setActual === 5) || (modo === "4x4" && setActual === 3) ) && (
+            <View
+              style={{
+                position: "absolute",
+                top: -18,
+                left: 0,
+                right: 0,
+                alignItems: "center",
+                zIndex: 30,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => setSwapLados?.(!swapLados)}
+                style={{
+                  backgroundColor: "#facc15",
+                  padding: 6,
+                  borderRadius: 30,
+                  borderWidth: 1,
+                  borderColor: "#d97706",
+                }}
+              >
+                <Image
+                  source={icons.swap}
+                  style={{ width: 24, height: 24, tintColor: "#000" }}
+                />
+              </TouchableOpacity>
+            </View>
+          )}
 
           {/* Grid */}
           <View style={styles.campo}>

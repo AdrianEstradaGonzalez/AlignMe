@@ -27,7 +27,7 @@ function HomeScreen({ navigation }: any) {
         <Card style={styles.card} mode="elevated">
           <Card.Content>
             <Text variant="headlineLarge" style={styles.title}>
-              VolleyLineUp
+              AlignMe
             </Text>
 
             <Button

@@ -90,53 +90,77 @@ export default function EntrenadorView() {
     setValores(nuevo);
   };
 
-  const renderPosicion = (pos: string) => (
-    <View key={pos} style={styles.posicion}>
-      <Text style={styles.label}>{pos}</Text>
-      <TextInput
-        style={styles.input}
-        keyboardType="numeric"
-        maxLength={2}
-        value={valores[pos] || ""}
-        onChangeText={(text) => {
-          setValores((prev) => {
-            if (text.length < 2) {
-              return { ...prev, [pos]: text };
-            }
-            const isDuplicate = Object.entries(prev).some(
-              ([key, value]) => key !== pos && value === text
-            );
-            if (isDuplicate) {
-              Alert.alert(
-                "Número repetido",
-                `El número ${text} ya está asignado en otra posición.`
-              );
-              return prev;
-            }
-            return { ...prev, [pos]: text };
-          });
-        }}
-        onEndEditing={(e) => {
-          const text = e.nativeEvent.text ?? "";
-          if (!text) return;
+const renderPosicion = (pos: string) => (
+  <View key={pos} style={styles.posicion}>
+    <Text style={styles.label}>{pos}</Text>
+    <TextInput
+      style={styles.input}
+      keyboardType="numeric"
+      maxLength={2}
+      value={valores[pos] || ""}
+      onChangeText={(text) => {
+        // Solo permitir números del 1 al 99
+        const num = parseInt(text, 10);
 
-          setValores((prev) => {
-            const isDuplicate = Object.entries(prev).some(
-              ([key, value]) => key !== pos && value === text
+        if (!text) {
+          // vacío permitido
+          setValores((prev) => ({ ...prev, [pos]: "" }));
+          return;
+        }
+
+        if (!/^\d+$/.test(text)) {
+          // si no son solo dígitos, ignorar
+          return;
+        }
+
+        if (num < 1 || num > 99) {
+          Alert.alert("Número inválido", "Debe ser un número entre 1 y 99.");
+          return;
+        }
+
+        setValores((prev) => {
+          const isDuplicate = Object.entries(prev).some(
+            ([key, value]) => key !== pos && value === text
+          );
+          if (isDuplicate) {
+            Alert.alert(
+              "Número repetido",
+              `El número ${text} ya está asignado en otra posición.`
             );
-            if (isDuplicate) {
-              Alert.alert(
-                "Número repetido",
-                `El número ${text} ya está asignado en otra posición.`
-              );
-              return { ...prev, [pos]: "" };
-            }
             return prev;
-          });
-        }}
-      />
-    </View>
-  );
+          }
+          return { ...prev, [pos]: text };
+        });
+      }}
+      onEndEditing={(e) => {
+        const text = e.nativeEvent.text ?? "";
+        const num = parseInt(text, 10);
+
+        if (!text) return;
+
+        if (num < 1 || num > 99 || isNaN(num)) {
+          Alert.alert("Número inválido", "Debe ser un número entre 1 y 99.");
+          setValores((prev) => ({ ...prev, [pos]: "" }));
+          return;
+        }
+
+        setValores((prev) => {
+          const isDuplicate = Object.entries(prev).some(
+            ([key, value]) => key !== pos && value === text
+          );
+          if (isDuplicate) {
+            Alert.alert(
+              "Número repetido",
+              `El número ${text} ya está asignado en otra posición.`
+            );
+            return { ...prev, [pos]: "" };
+          }
+          return prev;
+        });
+      }}
+    />
+  </View>
+);
 
   const posiciones = modo === "6x6" ? posiciones6x6 : posiciones4x4;
 

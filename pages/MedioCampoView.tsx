@@ -12,6 +12,7 @@ const icons = {
 const posiciones6x6 = { delanteras: ["IV", "III", "II"], traseras: ["V", "VI", "I"] };
 const posiciones4x4 = { delanteras: ["IV", "III", "II"], traseras: ["I"] };
 
+
 const { width } = Dimensions.get("window");
 
 export default function MedioCampoView({
@@ -21,6 +22,7 @@ export default function MedioCampoView({
   onEscanear,
   valoresQR = {},
   scrollRef,
+  swapLados = false,
 }: {
   modo: "6x6" | "4x4";
   lado: "izq" | "der";
@@ -28,10 +30,11 @@ export default function MedioCampoView({
   onEscanear: (eq: "A" | "B") => void;
   valoresQR?: { codigo?: string; equipo?: string } & { [pos: string]: string };
   scrollRef: React.RefObject<ScrollView | null>;
+  swapLados?: boolean;
 }) {
   const posiciones = modo === "6x6" ? posiciones6x6 : posiciones4x4;
 
-  const equipo =
+  let equipo: "A" | "B" =
     lado === "izq"
       ? setActual % 2 === 1
         ? "A"
@@ -39,6 +42,12 @@ export default function MedioCampoView({
       : setActual % 2 === 1
       ? "B"
       : "A";
+  if ((modo === "6x6" && setActual === 5) || (modo === "4x4" && setActual === 3)) {
+  if (swapLados) {
+    equipo = equipo === "A" ? "B" : "A";
+  }
+}
+
 
   const renderPosicion = (pos: string) => (
     <View key={pos} style={styles.posicion}>
