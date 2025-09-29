@@ -85,13 +85,14 @@ export default function ArbitroPager() {
     }));
 
     // 🔹 Scroll automático al lado correcto
-    const isAOnLeft = setActual % 2 === 1;
-    const xPos =
-      (equipoEscanear === "A" && isAOnLeft) ||
-      (equipoEscanear === "B" && !isAOnLeft)
-        ? 0
-        : width * 2;
-    scrollRef.current?.scrollTo({ x: xPos, animated: true });
+const isAOnLeft = setActual % 2 === 1 ? !swapLados : swapLados;
+const xPos =
+  (equipoEscanear === "A" && isAOnLeft) ||
+  (equipoEscanear === "B" && !isAOnLeft)
+    ? 0
+    : width * 2;
+scrollRef.current?.scrollTo({ x: xPos, animated: true });
+
   };
 
   // 🔹 Determinar qué equipo va en cada lado (con swap en set 5 ó set 3 según modo)
