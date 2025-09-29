@@ -1,5 +1,4 @@
-import React from "react";
-import { View, Animated, Easing, Image } from "react-native";
+import { View, Image } from "react-native";
 
 const icons = {
   home: require("../assets/icons/home.png"), // la casita que ya usas

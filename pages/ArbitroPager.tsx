@@ -1,5 +1,5 @@
 // ArbitroPager.tsx
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   ScrollView,
   View,
@@ -8,8 +8,6 @@ import {
   Alert,
   Text,
   TouchableOpacity,
-  Animated,
-  Easing,
 } from "react-native";
 import { Camera, CameraType } from "react-native-camera-kit";
 

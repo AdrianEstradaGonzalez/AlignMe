@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   View,
   TextInput,
@@ -13,7 +13,6 @@ import { EntrenadorStyles as styles } from "../styles/EntrenadorStyles";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import type { RootStackParamList } from "../types/Navigation";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import NavBar from "./NavBar";
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "Entrenador">;
@@ -46,7 +45,6 @@ export default function EntrenadorView() {
   const [setActual, setSetActual] = useState<number>(1);
   const [valores, setValores] = useState<{ [pos: string]: string }>({});
   const navigation = useNavigation<NavigationProp>();
-  const insets = useSafeAreaInsets();
 
   const TOTAL_SETS = modo === "6x6" ? 5 : 3;
 

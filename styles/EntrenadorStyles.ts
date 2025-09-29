@@ -19,7 +19,6 @@ let scale = Math.min(Math.max(rawScale, MIN_SCALE), MAX_SCALE);
 scale = isTablet ? scale * 1.15 : scale; // 👉 en tablets todo se ve 15% más grande
 
 // 🔹 Factores de pantalla
-const isSmallScreen = width < 360 || height < 640;
 const isLargeScreen = width > 600; // lo dejamos por si lo usas en otros cálculos
 
 // 🔹 Tamaños principales (con máximos y ajuste)
