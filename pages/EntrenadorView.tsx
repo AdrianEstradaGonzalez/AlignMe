@@ -99,9 +99,6 @@ const renderPosicion = (pos: string) => (
       maxLength={2}
       value={valores[pos] || ""}
       onChangeText={(text) => {
-        // Solo permitir números del 1 al 99
-        const num = parseInt(text, 10);
-
         if (!text) {
           // vacío permitido
           setValores((prev) => ({ ...prev, [pos]: "" }));
@@ -109,41 +106,30 @@ const renderPosicion = (pos: string) => (
         }
 
         if (!/^\d+$/.test(text)) {
-          // si no son solo dígitos, ignorar
+          // solo dígitos
           return;
         }
 
-        if (num < 1 || num > 99) {
-          Alert.alert("Número inválido", "Debe ser un número entre 1 y 99.");
-          return;
+        const num = parseInt(text, 10);
+        if (isNaN(num) || num < 1 || num > 99) {
+          return; // no actualizamos hasta que sea válido
         }
 
-        setValores((prev) => {
-          const isDuplicate = Object.entries(prev).some(
-            ([key, value]) => key !== pos && value === text
-          );
-          if (isDuplicate) {
-            Alert.alert(
-              "Número repetido",
-              `El número ${text} ya está asignado en otra posición.`
-            );
-            return prev;
-          }
-          return { ...prev, [pos]: text };
-        });
+        // ✅ aquí NO comprobamos duplicados, solo actualizamos
+        setValores((prev) => ({ ...prev, [pos]: text }));
       }}
       onEndEditing={(e) => {
         const text = e.nativeEvent.text ?? "";
-        const num = parseInt(text, 10);
-
         if (!text) return;
 
-        if (num < 1 || num > 99 || isNaN(num)) {
+        const num = parseInt(text, 10);
+        if (isNaN(num) || num < 1 || num > 99) {
           Alert.alert("Número inválido", "Debe ser un número entre 1 y 99.");
           setValores((prev) => ({ ...prev, [pos]: "" }));
           return;
         }
 
+        // ✅ aquí sí comprobamos duplicados
         setValores((prev) => {
           const isDuplicate = Object.entries(prev).some(
             ([key, value]) => key !== pos && value === text
@@ -161,6 +147,7 @@ const renderPosicion = (pos: string) => (
     />
   </View>
 );
+
 
   const posiciones = modo === "6x6" ? posiciones6x6 : posiciones4x4;
 
