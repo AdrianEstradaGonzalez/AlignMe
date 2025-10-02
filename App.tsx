@@ -47,22 +47,24 @@ function HomeScreen({ navigation }: any) {
 
     {/* Botones */}
     <Button
-      mode="contained"
-      onPress={() => navigation.navigate("Entrenador")}
-      style={[AppStyles.button, { marginBottom: 14, alignSelf: "stretch" }]}
-      contentStyle={AppStyles.buttonContent}
-    >
-      Entrenador
-    </Button>
+  mode="contained"
+  onPress={() => navigation.navigate("Entrenador")}
+  style={[AppStyles.button, { marginBottom: 14, alignSelf: "stretch" }]}
+  contentStyle={AppStyles.buttonContent}
+  labelStyle={AppStyles.buttonLabel}
+>
+  Entrenador
+</Button>
 
-    <Button
-      mode="contained"
-      onPress={() => navigation.navigate("Arbitro")}
-      style={[AppStyles.button, { alignSelf: "stretch" }]}
-      contentStyle={AppStyles.buttonContent}
-    >
-      Árbitro
-    </Button>
+<Button
+  mode="contained"
+  onPress={() => navigation.navigate("Arbitro")}
+  style={[AppStyles.button, { alignSelf: "stretch" }]}
+  contentStyle={AppStyles.buttonContent}
+  labelStyle={AppStyles.buttonLabel}
+>
+  Árbitro
+</Button>
   </Card.Content>
 </Card>
 

@@ -1,6 +1,12 @@
-import { StyleSheet, Dimensions, Platform } from "react-native";
+import { StyleSheet, Dimensions, Platform, PixelRatio } from "react-native";
 
 const { width, height } = Dimensions.get("window");
+
+const responsiveFont = (size: number) => {
+  const scale = width / 375; // 375 = ancho base (iPhone X)
+  const newSize = size * scale;
+  return Math.round(PixelRatio.roundToNearestPixel(newSize));
+};
 
 // Escalas dinámicas según altura de pantalla
 const scaleHeight = height / 800; // base 800px de altura de referencia
@@ -64,7 +70,7 @@ export const AppStyles = StyleSheet.create({
       android: "sans-serif-condensed",
     }),
     fontWeight: "700",
-    fontSize: width < 360 ? 22 : 28,
+    fontSize: responsiveFont(28), 
     textAlign: "center",
     marginBottom: 16,
     color: "#0f172a",
@@ -91,6 +97,12 @@ export const AppStyles = StyleSheet.create({
     paddingVertical: 12,
   },
 
+  buttonLabel: {
+    fontSize: responsiveFont(18), 
+    fontWeight: "600",
+    textAlign: "center",
+  },
+
   icon: {
     width: 28,
     height: 28,
@@ -100,7 +112,7 @@ export const AppStyles = StyleSheet.create({
 
   copyright: {
     position: "absolute",
-    bottom: 12,
+    bottom: 20,
     alignSelf: "center",
     fontSize: 11,
     color: "#e2e8f0",
