@@ -121,7 +121,7 @@ export default function MedioCampoView({
             source={icons.qr}
             style={{ width: 32, height: 32, tintColor: "#fff", marginBottom: 6 }}
           />
-          <Text style={styles.qrButtonText}>Escanear{`\n`}Equipo {equipo}</Text>
+          <Text style={styles.qrButtonText}>{`Escanear\nEquipo ${equipo}`}</Text>
         </TouchableOpacity>
       </View>
 

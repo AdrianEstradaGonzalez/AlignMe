@@ -215,17 +215,18 @@ export default function EntrenadorView() {
 
               <View style={styles.lineaSeparadora} />
 
-              {modo === "6x6" ? (
-                <View style={styles.fila}>
-                  {posiciones.traseras.map((pos) => renderPosicion(pos))}
-                </View>
-              ) : (
-                <View style={styles.fila}>
-                  <View style={{ flex: 1 }} />
-                  {renderPosicion("I")}
-                  <View style={{ flex: 1 }} />
-                </View>
-              )}
+        {modo === "6x6" ? (
+          <View style={styles.fila}>
+            {posiciones.traseras.map((pos) => renderPosicion(pos))}
+          </View>
+        ) : (
+          <View style={styles.fila}>
+            <View style={{ flex: 1 }} />
+            {renderPosicion("I")}
+            <View style={{ flex: 1 }} />
+          </View>
+        )}
+
 
               {/* Botones de acciones */}
               <View style={styles.botonesContainer}>
