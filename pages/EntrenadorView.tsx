@@ -213,16 +213,16 @@ const renderPosicion = (pos: string) => (
         <View style={styles.lineaSeparadora} />
 
         {modo === "6x6" ? (
-        <View style={styles.fila}>
-          {posiciones.traseras.map((pos) => renderPosicion(pos))}
-        </View>
-      ) : (
-        <View style={styles.fila}>
-          <View style={{ flex: 1 }} /> 
-          {renderPosicion("I")}   {/* 👈 directamente, ya tiene flex:1 y aspectRatio:1 */}
-          <View style={{ flex: 1 }} /> 
-        </View>
-      )}
+          <View style={styles.fila}>
+            {posiciones.traseras.map((pos) => renderPosicion(pos))}
+          </View>
+        ) : (
+          <View style={styles.fila}>
+            <View style={{ flex: 1 }} />
+            {renderPosicion("I")}
+            <View style={{ flex: 1 }} />
+          </View>
+        )}
 
 
         {/* Botones de acciones */}
