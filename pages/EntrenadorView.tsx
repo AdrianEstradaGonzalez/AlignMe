@@ -50,10 +50,22 @@ export default function EntrenadorView() {
 
   const TOTAL_SETS = modo === "6x6" ? 5 : 3;
 
-  const generarQR = () => {
+    const generarQR = () => {
+    const posicionesRequeridas = modo === "6x6" ? 6 : 4;
+    const posicionesLlenas = Object.values(valores).filter((v) => v && v.trim() !== "").length;
+
+    if (posicionesLlenas < posicionesRequeridas) {
+      Alert.alert(
+        "Alineación incompleta",
+        `Debes ingresar todos los números antes de generar el QR.`
+      );
+      return;
+    }
+
     const datos = { modo, codigoEquipo, valores };
     navigation.navigate("QRView", { data: JSON.stringify(datos) });
   };
+
 
   const toggleModo = () => {
     setModo((m) => (m === "6x6" ? "4x4" : "6x6"));
