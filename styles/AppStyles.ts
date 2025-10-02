@@ -2,12 +2,6 @@ import { StyleSheet, Dimensions, Platform, PixelRatio } from "react-native";
 
 const { width, height } = Dimensions.get("window");
 
-const responsiveFont = (size: number) => {
-  const scale = width / 375; // 375 = ancho base (iPhone X)
-  const newSize = size * scale;
-  return Math.round(PixelRatio.roundToNearestPixel(newSize));
-};
-
 // Escalas dinámicas según altura de pantalla
 const scaleHeight = height / 800; // base 800px de altura de referencia
 
@@ -70,7 +64,7 @@ export const AppStyles = StyleSheet.create({
       android: "sans-serif-condensed",
     }),
     fontWeight: "700",
-    fontSize: responsiveFont(28), 
+    fontSize: 28, 
     textAlign: "center",
     marginBottom: 16,
     color: "#0f172a",
@@ -98,7 +92,7 @@ export const AppStyles = StyleSheet.create({
   },
 
   buttonLabel: {
-    fontSize: responsiveFont(18), 
+    fontSize: 18, 
     fontWeight: "600",
     textAlign: "center",
   },
