@@ -23,7 +23,6 @@ export const AppStyles = StyleSheet.create({
 
   card: {
     width: width * 0.9,
-    maxWidth: 420,
     maxHeight: height * 0.85,
     backgroundColor: "#ffffff",
     borderRadius: 28,
