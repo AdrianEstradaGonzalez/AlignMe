@@ -1,9 +1,7 @@
-import { StyleSheet, Dimensions, Platform, PixelRatio } from "react-native";
+import { StyleSheet, Dimensions, Platform } from "react-native";
 
 const { width, height } = Dimensions.get("window");
-
-// Escalas dinámicas según altura de pantalla
-const scaleHeight = height / 800; // base 800px de altura de referencia
+const scaleHeight = height / 800;
 
 export const AppStyles = StyleSheet.create({
   background: {
@@ -20,6 +18,7 @@ export const AppStyles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: 20,
     backgroundColor: "rgba(15, 23, 42, 0.55)",
+    minHeight: height, 
   },
 
   card: {
@@ -28,13 +27,11 @@ export const AppStyles = StyleSheet.create({
     maxHeight: height * 0.85,
     backgroundColor: "#ffffff",
     borderRadius: 28,
-    paddingVertical: 20 * scaleHeight, // padding dinámico
+    paddingVertical: 20 * scaleHeight,
     paddingHorizontal: 20,
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "center", // 🔹 centra contenido interno
     opacity: 0.95,
-    flexShrink: 1,
-    marginBottom: 40,
 
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 10 },
@@ -46,13 +43,13 @@ export const AppStyles = StyleSheet.create({
   logoHeader: {
     alignSelf: "center",
     width: "100%",
-    height: 60 * scaleHeight, // altura dinámica según pantalla
+    height: 60 * scaleHeight,
     resizeMode: "contain",
     marginBottom: 16,
   },
 
   logo: {
-    width: width * 0.25, // más pequeño para pantallas bajas
+    width: width * 0.25,
     height: width * 0.25,
     resizeMode: "contain",
     marginBottom: 12,
@@ -64,7 +61,7 @@ export const AppStyles = StyleSheet.create({
       android: "sans-serif-condensed",
     }),
     fontWeight: "700",
-    fontSize: 28, 
+    fontSize: 28,
     textAlign: "center",
     marginBottom: 16,
     color: "#0f172a",
@@ -77,7 +74,6 @@ export const AppStyles = StyleSheet.create({
     backgroundColor: "#7c3aed",
     marginVertical: 6,
     minWidth: "100%",
-    flexShrink: 1,
     paddingVertical: 12,
 
     shadowColor: "#7c3aed",
@@ -92,21 +88,14 @@ export const AppStyles = StyleSheet.create({
   },
 
   buttonLabel: {
-    fontSize: 18, 
+    fontSize: 18,
     fontWeight: "600",
     textAlign: "center",
   },
 
-  icon: {
-    width: 28,
-    height: 28,
-    marginRight: 10,
-    resizeMode: "contain",
-  },
-
   copyright: {
     position: "absolute",
-    bottom: 20,
+    bottom: 40,
     alignSelf: "center",
     fontSize: 11,
     color: "#e2e8f0",
