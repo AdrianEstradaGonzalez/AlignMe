@@ -94,7 +94,7 @@ export const AppStyles = StyleSheet.create({
 
   copyright: {
     position: "absolute",
-    bottom: 40,
+    bottom: 30,
     alignSelf: "center",
     fontSize: 11,
     color: "#e2e8f0",
