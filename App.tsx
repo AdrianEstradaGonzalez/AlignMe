@@ -1,12 +1,7 @@
-import { View, ImageBackground, Image } from "react-native";
+import { View, ImageBackground, Image, TouchableOpacity } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import {
-  Button,
-  Text,
-  Provider as PaperProvider,
-  Card,
-} from "react-native-paper";
+import { Text, Provider as PaperProvider, Card } from "react-native-paper";
 import EntrenadorView from "./pages/EntrenadorView";
 import QRView from "./pages/QRView";
 import ArbitroPager from "./pages/ArbitroPager";
@@ -35,7 +30,7 @@ function HomeScreen({ navigation }: any) {
     resizeMode="contain"
   />
 <Card style={AppStyles.card} mode="elevated">
-  <Card.Content style={{ alignItems: "center", width: "100%" }}>
+  <Card.Content style={AppStyles.cardContent}>
     <Image
       source={require("./assets/258.png")}
       style={AppStyles.logo}
@@ -45,26 +40,32 @@ function HomeScreen({ navigation }: any) {
       AlignMe
     </Text>
 
-    {/* Botones */}
-    <Button
-  mode="contained"
-  onPress={() => navigation.navigate("Entrenador")}
-  style={[AppStyles.button, { marginBottom: 14, alignSelf: "stretch" }]}
-  contentStyle={AppStyles.buttonContent}
-  labelStyle={AppStyles.buttonLabel}
->
-  Entrenador
-</Button>
+    {/* Botones con estilo tipo "liga" (sin icono ni subtítulo) - estilizados desde AppStyles */}
+    <TouchableOpacity
+      activeOpacity={0.85}
+      onPress={() => navigation.navigate("Entrenador")}
+      style={AppStyles.actionCard}
+    >
+      <View style={AppStyles.actionLeftBar} />
+      <View style={AppStyles.actionBorder} pointerEvents="none" />
+      <View style={{ flex: 1, alignItems: "center" }}>
+        <Text style={AppStyles.actionText}>Entrenador</Text>
+      </View>
+      <Text style={AppStyles.actionArrow}>›</Text>
+    </TouchableOpacity>
 
-<Button
-  mode="contained"
-  onPress={() => navigation.navigate("Arbitro")}
-  style={[AppStyles.button, { alignSelf: "stretch" }]}
-  contentStyle={AppStyles.buttonContent}
-  labelStyle={AppStyles.buttonLabel}
->
-  Árbitro
-</Button>
+    <TouchableOpacity
+      activeOpacity={0.85}
+      onPress={() => navigation.navigate("Arbitro")}
+      style={AppStyles.actionCard}
+    >
+      <View style={AppStyles.actionLeftBar} />
+      <View style={AppStyles.actionBorder} pointerEvents="none" />
+      <View style={{ flex: 1, alignItems: "center" }}>
+        <Text style={AppStyles.actionText}>Árbitro</Text>
+      </View>
+      <Text style={AppStyles.actionArrow}>›</Text>
+    </TouchableOpacity>
   </Card.Content>
 </Card>
 

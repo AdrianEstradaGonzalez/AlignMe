@@ -168,7 +168,7 @@ export default function EntrenadorView() {
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
           <NavBar modo={modo} toggleModo={toggleModo} />
 
           <View style={styles.container}>

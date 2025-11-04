@@ -101,4 +101,65 @@ export const AppStyles = StyleSheet.create({
     opacity: 0.85,
     letterSpacing: 0.5,
   },
+
+  /* New reusable styles for Home action buttons */
+  cardContent: {
+    // keep a single source of truth: the Card defines the inner padding
+    alignItems: "center",
+    width: "100%",
+  },
+
+  actionCard: {
+    backgroundColor: "#1d2841",
+    borderRadius: 16,
+    overflow: "hidden",
+    marginVertical: 8,
+    width: "100%",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    // shadow
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+
+  actionLeftBar: {
+    position: "absolute",
+    left: 0,
+    top: 0,
+    bottom: 0,
+    width: 6,
+    backgroundColor: "#3b82f6",
+    borderTopLeftRadius: 16,
+    borderBottomLeftRadius: 16,
+  },
+
+  actionBorder: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(59,130,246,0.12)",
+  },
+
+  actionText: {
+    color: "#ffffff",
+    fontWeight: "800",
+    fontSize: 18,
+    
+  },
+
+  actionArrow: {
+    color: "#3b82f6",
+    fontSize: 26,
+    fontWeight: "600",
+  },
 });
