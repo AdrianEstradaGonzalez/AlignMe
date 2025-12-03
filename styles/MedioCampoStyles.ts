@@ -87,7 +87,8 @@ export const createMedioCampoStyles = (theme: Theme) => StyleSheet.create({
     width: posicionSize,
     height: posicionSize,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "flex-start",
+    paddingTop: 6 * smallFactor,
     borderWidth: 2,
     borderColor: theme.fieldBorder,
     borderRadius: 10 * smallFactor,
@@ -96,14 +97,17 @@ export const createMedioCampoStyles = (theme: Theme) => StyleSheet.create({
   },
 
   input: {
-    fontSize: Math.min(posicionSize * 0.18, 18) * smallFactor,
+    fontSize: Math.min(posicionSize * 0.32, 28) * smallFactor,
     color: "#111",
+    fontWeight: "900",
+    flex: 1,
+    textAlignVertical: "center",
   },
 
   label: {
-    fontSize: Math.min(posicionSize * 0.16, 16) * smallFactor,
+    fontSize: Math.min(posicionSize * 0.15, 14) * smallFactor,
     fontWeight: "600",
-    marginBottom: 4 * smallFactor,
+    marginBottom: 6 * smallFactor,
     color: "#374151",
   },
 

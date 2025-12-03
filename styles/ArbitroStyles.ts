@@ -103,24 +103,27 @@ columna: {
   },
 
   posLabel: {
-    fontSize: posicionSize * 0.18,
+    fontSize: posicionSize * 0.16,
     fontWeight: "600",
     color: "#374151",
-    marginBottom: 1 * scale,
+    marginBottom: 2 * scale,
+    marginTop: -2 * scale,
   },
 
   divisor: {
     width: "80%",
     height: 1,
     backgroundColor: "#d1d5db",
-    marginVertical: 1,
+    marginVertical: 2,
   },
 
   numLabel: {
-    fontSize: posicionSize * 0.22,
-    fontWeight: "bold",
+    fontSize: posicionSize * 0.32,
+    fontWeight: "900",
     color: "#111",
-    marginTop: 1,
+    marginTop: 2,
+    flex: 1,
+    textAlignVertical: "center",
   },
 
   homeButton: {

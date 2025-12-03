@@ -58,7 +58,7 @@ export default function MedioCampoView({
   const renderPosicion = (pos: string) => (
     <View key={pos} style={styles.posicion}>
       <Text style={styles.label}>{pos}</Text>
-      <Text style={[styles.input, { textAlign: "center", paddingVertical: 10 }]}>
+      <Text style={styles.input}>
         {valoresQR[pos] ?? "-"}
       </Text>
     </View>
