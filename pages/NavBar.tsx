@@ -2,6 +2,7 @@ import React from "react";
 import { View, TouchableOpacity, Text, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
+import { useCommunity } from "../context/CommunityContext";
 
 type NavBarProps = {
   modo: "6x6" | "4x4";
@@ -11,11 +12,14 @@ type NavBarProps = {
 export default function NavBar({ modo, toggleModo }: NavBarProps) {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
+  const { theme, assets } = useCommunity();
 
   const icons = {
     home: require("../assets/icons/home.png"),
     swap: require("../assets/icons/swap.png"),
   };
+
+  if (!theme || !assets) return null;
 
   return (
     <View
@@ -27,7 +31,7 @@ export default function NavBar({ modo, toggleModo }: NavBarProps) {
         paddingHorizontal: 20,
         paddingTop: insets.top + 10,
         paddingBottom: 10,
-        backgroundColor: "#3b82f6",
+        backgroundColor: theme.primaryDark,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.15,
@@ -50,7 +54,7 @@ export default function NavBar({ modo, toggleModo }: NavBarProps) {
       >
         
         <Text style={{ color: "#fff", fontSize: 16, fontWeight: "600", marginRight: 5 }}>
-          {modo === "6x6" ? "Voleibol 6x6" : "MiniVoley 4x4"}
+          {modo === "6x6" ? "VOLEIBOL 6x6" : "MINIVOLEY 4x4"}
         </Text>
         <Image
           source={icons.swap}

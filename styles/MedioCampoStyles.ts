@@ -1,4 +1,5 @@
 import { StyleSheet, Dimensions } from "react-native";
+import { Theme } from "../config/themes";
 
 const { width, height } = Dimensions.get("window");
 
@@ -13,7 +14,12 @@ const smallFactor = isSmallScreen ? 0.85 : 1;
 const campoSize = Math.min(width * 0.85, 420) * smallFactor;
 const posicionSize = Math.min(campoSize * 0.28, 100) * smallFactor;
 
-export const MedioCampoStyles = StyleSheet.create({
+/**
+ * 🎨 DYNAMIC MEDIOCAMPO STYLES FACTORY
+ * ====================================
+ * Genera estilos dinámicos basados en el tema de la comunidad
+ */
+export const createMedioCampoStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f9fafc",
@@ -26,9 +32,9 @@ export const MedioCampoStyles = StyleSheet.create({
     width: campoSize,
     padding: 8 * smallFactor,
     borderRadius: 10 * smallFactor,
-    backgroundColor: "#F5A623AA",
+    backgroundColor: theme.accent + "AA",
     borderWidth: 1.5 * smallFactor,
-    borderColor: "#D17F1A",
+    borderColor: theme.accentDark,
     marginBottom: 8 * smallFactor,
     alignItems: "center",
     maxWidth: 420,
@@ -47,10 +53,10 @@ export const MedioCampoStyles = StyleSheet.create({
   campo: {
     width: campoSize,
     aspectRatio: 1,
-    backgroundColor: "#ffedd5",
+    backgroundColor: theme.fieldBackground,
     borderRadius: 14 * smallFactor,
     borderWidth: 2,
-    borderColor: "#fb923c",
+    borderColor: theme.fieldBorder,
     justifyContent: "space-around",
     paddingVertical: 8 * smallFactor,
     marginVertical: 8 * smallFactor,
@@ -72,7 +78,7 @@ export const MedioCampoStyles = StyleSheet.create({
 
   lineaSeparadora: {
     height: 2 * smallFactor,
-    backgroundColor: "#fb923c",
+    backgroundColor: theme.fieldLine,
     width: "90%",
     alignSelf: "center",
   },
@@ -83,7 +89,7 @@ export const MedioCampoStyles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 2,
-    borderColor: "#fb923c",
+    borderColor: theme.fieldBorder,
     borderRadius: 10 * smallFactor,
     backgroundColor: "#fff",
     elevation: 2,
@@ -109,12 +115,12 @@ export const MedioCampoStyles = StyleSheet.create({
     fontSize: Math.min(14 * scale * smallFactor, 16),
     fontWeight: "bold",
     color: "#000",
-    backgroundColor: "#fde047",
+    backgroundColor: theme.accent,
     paddingHorizontal: 8 * smallFactor,
     paddingVertical: 3 * smallFactor,
     borderRadius: 6 * smallFactor,
     borderWidth: 1,
-    borderColor: "#d97706",
+    borderColor: theme.accentDark,
   },
 
   labelCodigo: {
@@ -125,18 +131,18 @@ export const MedioCampoStyles = StyleSheet.create({
     fontSize: Math.min(14 * scale * smallFactor, 16),
     fontWeight: "bold",
     color: "#000",
-    backgroundColor: "#fff176",
+    backgroundColor: theme.accent + "BB",
     paddingHorizontal: 6 * smallFactor,
     paddingVertical: 2 * smallFactor,
     borderRadius: 5 * smallFactor,
     borderWidth: 1,
-    borderColor: "#d97706",
+    borderColor: theme.accentDark,
     minWidth: 36 * smallFactor,
     textAlign: "center",
   },
 
   qrButton: {
-    backgroundColor: "#fb923c",
+    backgroundColor: theme.buttonSecondary,
     paddingVertical: 10 * smallFactor,
     alignItems: "center",
     justifyContent: "center",

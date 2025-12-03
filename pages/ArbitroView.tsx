@@ -6,7 +6,8 @@ import {
   Image,
   ScrollView,
 } from "react-native";
-import { ArbitroStyles as styles } from "../styles/ArbitroStyles";
+import { createArbitroStyles } from "../styles/ArbitroStyles";
+import { useCommunity } from "../context/CommunityContext";
 import SwipeIndicatorNav from "./SwipeIndicatorNav";
 import NavBar from "./NavBar";
 
@@ -43,9 +44,14 @@ export default function ArbitroView({
   swapLados = false,
   setSwapLados,
 }: Props) {
+  const { theme, assets, communityId } = useCommunity();
   const [modoLocal, setModoLocal] = useState<"6x6" | "4x4">("6x6");
   const modo = modoProp ?? modoLocal;
   const setModo = setModoProp ?? setModoLocal;
+
+  if (!theme) return null;
+  
+  const styles = createArbitroStyles(theme);
 
   const TOTAL_SETS = modo === "6x6" ? 5 : 3;
   const [setActualLocal, setSetActualLocal] = useState<number>(1);
@@ -142,7 +148,7 @@ if ((modo === "6x6" && setActual === 5) || (modo === "4x4" && setActual === 3)) 
             />
           </TouchableOpacity>
           <View style={styles.setDisplay}>
-            <Text style={styles.setText}>{`Set ${setActual}`}</Text>
+            <Text style={styles.setText}>{`SET ${setActual}`}</Text>
           </View>
           <TouchableOpacity onPress={avanzarSet} style={styles.setButton}>
             <Image
@@ -151,6 +157,18 @@ if ((modo === "6x6" && setActual === 5) || (modo === "4x4" && setActual === 3)) 
             />
           </TouchableOpacity>
         </View>
+
+        {/* Fondo de logo (dependiente de comunidad) */}
+        <Image
+          source={
+            communityId === 'baleares'
+              ? assets?.topRightLogo
+              : assets?.appLogoWithLetters
+          }
+          style={styles.backgroundLogo}
+          accessible={false}
+          importantForAccessibility="no-hide-descendants"
+        />
 
         {/* Campo con etiquetas */}
         <View style={{ marginBottom: 20 }}>
@@ -313,7 +331,7 @@ if ((modo === "6x6" && setActual === 5) || (modo === "4x4" && setActual === 3)) 
             onPress={() => onEscanear?.(equipoIzq)}
           >
             <Image source={icons.qr} style={styles.qrIcon} />
-            <Text style={styles.qrButtonText}>{`Escanear\nEquipo ${equipoIzq}`}</Text>
+            <Text style={styles.qrButtonText}>{`ESCANEAR\nEQUIPO ${equipoIzq}`}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -321,7 +339,7 @@ if ((modo === "6x6" && setActual === 5) || (modo === "4x4" && setActual === 3)) 
             onPress={() => onEscanear?.(equipoDer)}
           >
             <Image source={icons.qr} style={styles.qrIcon} />
-            <Text style={styles.qrButtonText}>{`Escanear\nEquipo ${equipoDer}`}</Text>
+            <Text style={styles.qrButtonText}>{`ESCANEAR\nEQUIPO ${equipoDer}`}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

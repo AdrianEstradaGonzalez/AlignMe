@@ -1,9 +1,17 @@
 import { StyleSheet, Dimensions, Platform } from "react-native";
+import { Theme } from "../config/themes";
 
 const { width, height } = Dimensions.get("window");
 const scaleHeight = height / 800;
+const sponsorLogoHeight = 56 * scaleHeight;
+const sponsorBarHeight = sponsorLogoHeight + 12 * scaleHeight;
 
-export const AppStyles = StyleSheet.create({
+/**
+ * 🎨 DYNAMIC STYLES FACTORY
+ * =========================
+ * Genera estilos dinámicos basados en el tema de la comunidad seleccionada
+ */
+export const createAppStyles = (theme: Theme) => StyleSheet.create({
   background: {
     flex: 1,
     resizeMode: "cover",
@@ -17,7 +25,7 @@ export const AppStyles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
     paddingHorizontal: 20,
-    backgroundColor: "rgba(15, 23, 42, 0.55)",
+    backgroundColor: theme.overlayDark,
     minHeight: height, 
   },
 
@@ -54,6 +62,26 @@ export const AppStyles = StyleSheet.create({
     marginBottom: 12,
   },
 
+  logosRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+    gap: 16,
+  },
+
+  secondaryLogo: {
+    width: width * 0.25,
+    height: width * 0.25,
+    resizeMode: "contain",
+  },
+
+  balearesSecondaryLogo: {
+    width: width * 0.175,
+    height: width * 0.175,
+    resizeMode: "contain",
+  },
+
   title: {
     fontFamily: Platform.select({
       ios: "Avenir-Heavy",
@@ -63,19 +91,19 @@ export const AppStyles = StyleSheet.create({
     fontSize: 28,
     textAlign: "center",
     marginBottom: 16,
-    color: "#0f172a",
+    color: theme.textPrimary,
     letterSpacing: 0.8,
     lineHeight: 32,
   },
 
   button: {
     borderRadius: 16,
-    backgroundColor: "#7c3aed",
+    backgroundColor: theme.buttonPrimary,
     marginVertical: 6,
     minWidth: "100%",
     paddingVertical: 12,
 
-    shadowColor: "#7c3aed",
+    shadowColor: theme.buttonPrimary,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 6,
@@ -97,7 +125,7 @@ export const AppStyles = StyleSheet.create({
     bottom: 30,
     alignSelf: "center",
     fontSize: 11,
-    color: "#e2e8f0",
+    color: theme.textOnPrimary,
     opacity: 0.85,
     letterSpacing: 0.5,
   },
@@ -110,7 +138,7 @@ export const AppStyles = StyleSheet.create({
   },
 
   actionCard: {
-    backgroundColor: "#1d2841",
+    backgroundColor: theme.actionCardBg,
     borderRadius: 16,
     overflow: "hidden",
     marginVertical: 8,
@@ -134,7 +162,7 @@ export const AppStyles = StyleSheet.create({
     top: 0,
     bottom: 0,
     width: 6,
-    backgroundColor: "#3b82f6",
+    backgroundColor: theme.actionCardLeftBar,
     borderTopLeftRadius: 16,
     borderBottomLeftRadius: 16,
   },
@@ -147,19 +175,47 @@ export const AppStyles = StyleSheet.create({
     bottom: 0,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(59,130,246,0.12)",
+    borderColor: theme.actionCardBorderSubtle,
   },
 
   actionText: {
-    color: "#ffffff",
+    color: theme.actionCardText,
     fontWeight: "800",
     fontSize: 18,
     
   },
 
   actionArrow: {
-    color: "#3b82f6",
+    color: theme.actionCardArrow,
     fontSize: 26,
     fontWeight: "600",
+  },
+
+  // Styles específicos para Baleares
+  topRightLogo: {
+    position: "absolute",
+    top: 30 * scaleHeight,
+    right: 8,
+    width: Math.min(80, width * 0.25),
+    height: 60 * scaleHeight,
+    resizeMode: "contain",
+    zIndex: 100,
+  },
+
+  sponsorLogo: {
+    alignSelf: "center",
+    width: Math.min(280, width * 0.85),
+    height: sponsorLogoHeight,
+    marginTop: 0,
+    marginBottom: 0,
+    opacity: 0.95,
+  },
+
+  sponsorBelow: {
+    width: Math.min(280, width * 0.85),
+    alignSelf: "center",
+    marginTop: 12 * scaleHeight,
+    marginBottom: 8 * scaleHeight,
+    alignItems: "center",
   },
 });

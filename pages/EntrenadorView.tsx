@@ -11,7 +11,8 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
-import { EntrenadorStyles as styles } from "../styles/EntrenadorStyles";
+import { createEntrenadorStyles } from "../styles/EntrenadorStyles";
+import { useCommunity } from "../context/CommunityContext";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import type { RootStackParamList } from "../types/Navigation";
@@ -41,12 +42,17 @@ const posiciones4x4 = {
 };
 
 export default function EntrenadorView() {
+  const { theme, assets, communityId } = useCommunity();
   const [modo, setModo] = useState<"6x6" | "4x4">("6x6");
   const [codigoEquipo, setCodigoEquipo] = useState<string>("");
   const [equipo, setEquipo] = useState<"A" | "B">("A");
   const [setActual, setSetActual] = useState<number>(1);
   const [valores, setValores] = useState<{ [pos: string]: string }>({});
   const navigation = useNavigation<NavigationProp>();
+
+  if (!theme) return null;
+  
+  const styles = createEntrenadorStyles(theme);
 
   const TOTAL_SETS = modo === "6x6" ? 5 : 3;
 
@@ -174,6 +180,18 @@ export default function EntrenadorView() {
           <View style={styles.container}>
             {/* Barra superior */}
             <View style={styles.barraControl}>
+                {/* Fondo de logo (dependiente de comunidad). Se pone atrás usando zIndex y pointerEvents none */}
+                <Image
+                  source={
+                    communityId === 'baleares'
+                      ? assets?.topRightLogo
+                      : assets?.appLogoWithLetters
+                  }
+                  style={styles.backgroundLogo}
+                  // keep it purely decorative
+                  accessible={false}
+                  importantForAccessibility="no-hide-descendants"
+                />
               <View style={styles.controlItem}>
                 <Text style={styles.controlLabel} numberOfLines={1} ellipsizeMode="tail">
                   Código
@@ -209,7 +227,7 @@ export default function EntrenadorView() {
                 <Image source={icons.left} style={{ width: 20, height: 20, tintColor: "#fff" }} />
               </TouchableOpacity>
               <View style={styles.setDisplay}>
-                <Text style={styles.setText}>{`Set ${setActual}`}</Text>
+                <Text style={styles.setText}>{`SET ${setActual}`}</Text>
               </View>
               <TouchableOpacity
                 onPress={() => setSetActual(Math.min(TOTAL_SETS, setActual + 1))}
@@ -274,7 +292,7 @@ export default function EntrenadorView() {
                 source={icons.qr}
                 style={{ width: 32, height: 32, tintColor: "#fff", marginBottom: 6 }}
               />
-              <Text style={styles.qrButtonText}>Generar Código QR</Text>
+              <Text style={styles.qrButtonText}>GENERAR CÓDIGO QR</Text>
             </TouchableOpacity>
           </View>
         </View>

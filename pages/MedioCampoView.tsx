@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image, ScrollView, Dimensions } from "react-native";
-import { MedioCampoStyles as styles } from "../styles/MedioCampoStyles";
+import { createMedioCampoStyles } from "../styles/MedioCampoStyles";
+import { useCommunity } from "../context/CommunityContext";
 import SwipeIndicatorNav from "./SwipeIndicatorNav";
 import NavBarBack from "./NavBarBack";
 
@@ -32,7 +33,12 @@ export default function MedioCampoView({
   scrollRef: React.RefObject<ScrollView | null>;
   swapLados?: boolean;
 }) {
+  const { theme } = useCommunity();
   const posiciones = modo === "6x6" ? posiciones6x6 : posiciones4x4;
+
+  if (!theme) return null;
+  
+  const styles = createMedioCampoStyles(theme);
 
   let equipo: "A" | "B" =
     lado === "izq"
@@ -69,7 +75,7 @@ export default function MedioCampoView({
       {/* Contenido scrollable */}
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", padding: 16 }}>
         <View style={styles.tituloBox}>
-          <Text style={styles.tituloPrincipal}>Hoja de Rotaciones</Text>
+          <Text style={styles.tituloPrincipal}>HOJA DE ROTACIONES</Text>
           <Text style={styles.tituloSecundario}>SET {setActual}</Text>
         </View>
 
@@ -121,7 +127,7 @@ export default function MedioCampoView({
             source={icons.qr}
             style={{ width: 32, height: 32, tintColor: "#fff", marginBottom: 6 }}
           />
-          <Text style={styles.qrButtonText}>{`Escanear\nEquipo ${equipo}`}</Text>
+          <Text style={styles.qrButtonText}>{`ESCANEAR\nEQUIPO ${equipo}`}</Text>
         </TouchableOpacity>
       </View>
 

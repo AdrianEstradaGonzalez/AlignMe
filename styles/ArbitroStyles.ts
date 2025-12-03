@@ -1,4 +1,5 @@
 import { StyleSheet, Dimensions } from "react-native";
+import { Theme } from "../config/themes";
 
 const { width, height } = Dimensions.get("window");
 
@@ -27,7 +28,12 @@ scale = scale * bigFactor;
 const campoSize = width * 0.85 * scale;
 const posicionSize = (campoSize - 32) / 4;
 
-export const ArbitroStyles = StyleSheet.create({
+/**
+ * 🎨 DYNAMIC ARBITRO STYLES FACTORY
+ * ==================================
+ * Genera estilos dinámicos basados en el tema de la comunidad
+ */
+export const createArbitroStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f9fafb",
@@ -44,10 +50,10 @@ export const ArbitroStyles = StyleSheet.create({
   campo: {
     width: campoSize,
     aspectRatio: 1,
-    backgroundColor: "#ffedd5",
+    backgroundColor: theme.fieldBackground,
     borderRadius: 16 * scale,
     borderWidth: 2,
-    borderColor: "#fb923c",
+    borderColor: theme.fieldBorder,
     justifyContent: "center",
     alignItems: "center",
     padding: 4 * scale,
@@ -87,7 +93,7 @@ columna: {
     height: posicionSize,
     marginVertical: 2 * scale,
     borderWidth: 2,
-    borderColor: "#fb923c",
+    borderColor: theme.fieldBorder,
     borderRadius: 8 * scale,
     justifyContent: "center",
     alignItems: "center",
@@ -173,7 +179,7 @@ columna: {
     width: 30 * scale,
     height: 30 * scale,
     borderRadius: 6 * scale,
-    backgroundColor: "#3b82f6",
+    backgroundColor: theme.buttonSecondary,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -183,7 +189,7 @@ columna: {
     height: "85%",
     marginHorizontal: 4 * scale,
     borderRadius: 6 * scale,
-    backgroundColor: "#3b82f6",
+    backgroundColor: theme.buttonSecondary,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -195,9 +201,21 @@ columna: {
     textAlign: "center",
   },
 
+  backgroundLogo: {
+    position: "absolute",
+    width: campoSize * 0.6,
+    height: campoSize * 0.22,
+    opacity: 0.16,
+    zIndex: 0,
+    resizeMode: "contain",
+    left: (campoSize - campoSize * 0.6) / 2,
+    top: (60 * scale + 25 * scale - campoSize * 0.22) / 2,
+    pointerEvents: "none",
+  },
+
   qrButton: {
     flex: 1,
-    backgroundColor: "#fb923c",
+    backgroundColor: theme.buttonSecondary,
     paddingVertical: 10 * scale,
     alignItems: "center",
     justifyContent: "center",

@@ -1,4 +1,5 @@
 import { StyleSheet, Dimensions, Platform } from "react-native";
+import { Theme } from "../config/themes";
 
 const { width, height } = Dimensions.get("window");
 
@@ -25,7 +26,12 @@ const isLargeScreen = width > 600; // lo dejamos por si lo usas en otros cálcul
 const campoSize = Math.min(width * 0.82, height * 0.45, 420) * scale;
 const posicionSize = campoSize * 0.26 * scale;
 
-export const EntrenadorStyles = StyleSheet.create({
+/**
+ * 🎨 DYNAMIC ENTRENADOR STYLES FACTORY
+ * ====================================
+ * Genera estilos dinámicos basados en el tema de la comunidad
+ */
+export const createEntrenadorStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f9fafb",
@@ -36,10 +42,10 @@ export const EntrenadorStyles = StyleSheet.create({
   campo: {
   width: campoSize,
   aspectRatio: 1,
-  backgroundColor: "#fff7ed",
+  backgroundColor: theme.fieldBackground,
   borderRadius: 16 * scale,
   borderWidth: 1.5 * scale,
-  borderColor: "#fb923c",
+  borderColor: theme.fieldBorder,
   justifyContent: "space-between",
   padding: 6 * scale,
   marginVertical: 8 * scale,
@@ -59,7 +65,7 @@ posicion: {
   alignItems: "center",
   justifyContent: "center",
   borderWidth: 1.5 * scale,
-  borderColor: "#fb923c",
+  borderColor: theme.fieldBorder,
   borderRadius: 12 * scale,
   backgroundColor: "#fff",
   shadowColor: "#000",
@@ -71,7 +77,7 @@ posicion: {
 
   lineaSeparadora: {
     height: 1.5 * scale,
-    backgroundColor: "#fb923c",
+    backgroundColor: theme.fieldLine,
     width: "85%",
     alignSelf: "center",
     marginVertical: 2 * scale,
@@ -106,7 +112,7 @@ posicion: {
   },
 
   botonFlotante: {
-    backgroundColor: "#3b82f6",
+    backgroundColor: theme.buttonSecondary,
     width: campoSize * 0.16,
     height: campoSize * 0.16,
     borderRadius: campoSize * 0.08,
@@ -120,7 +126,7 @@ posicion: {
   },
 
   botonCentral: {
-    backgroundColor: "#ef4444",
+    backgroundColor: theme.buttonDanger,
   },
 
   barraControl: {
@@ -131,6 +137,7 @@ posicion: {
     backgroundColor: "#fff",
     borderRadius: 12 * scale,
     padding: 20 * scale,
+    position: 'relative',
     marginBottom: 8 * scale,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 1 },
@@ -143,6 +150,7 @@ posicion: {
     flex: 1,
     alignItems: "center",
     minWidth: width * 0.2 * scale,
+    zIndex: 2,
   },
 
   controlLabel: {
@@ -157,8 +165,8 @@ posicion: {
     height: Math.min(height * 0.055, 50) * scale,
     borderRadius: 8 * scale,
     borderWidth: 1.2 * scale,
-    borderColor: "#f59e0b",
-    backgroundColor: "#fef9c3",
+    borderColor: theme.accent,
+    backgroundColor: theme.accent + "33",
     textAlign: "center",
     fontSize: Math.min(width * 0.055, 20),
     fontWeight: "bold",
@@ -171,8 +179,8 @@ posicion: {
     height: Math.min(height * 0.055, 50) * scale,
     borderRadius: 8 * scale,
     borderWidth: 1.2 * scale,
-    borderColor: "#f59e0b",
-    backgroundColor: "#fef9c3",
+    borderColor: theme.accent,
+    backgroundColor: theme.accent + "33",
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: width * 0.012 * scale,
@@ -207,7 +215,7 @@ posicion: {
     width: Math.min(height * 0.045, 40) * scale,
     height: Math.min(height * 0.045, 40) * scale,
     borderRadius: 8 * scale,
-    backgroundColor: "#3b82f6",
+    backgroundColor: theme.buttonSecondary,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -217,7 +225,7 @@ posicion: {
     height: "85%",
     marginHorizontal: 4 * scale,
     borderRadius: 8 * scale,
-    backgroundColor: "#3b82f6",
+    backgroundColor: theme.buttonSecondary,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -277,7 +285,7 @@ posicion: {
 
   qrButton: {
     width: campoSize,
-    backgroundColor: "#fb923c",
+    backgroundColor: theme.buttonSecondary,
     paddingVertical: 10 * scale,
     alignItems: "center",
     justifyContent: "center",
@@ -295,5 +303,18 @@ posicion: {
     fontSize: Math.min(width * 0.05, 18),
     fontWeight: "600",
     textAlign: "center",
+  },
+  backgroundLogo: {
+    position: 'absolute',
+    zIndex: 0,
+    opacity: 0.16,
+    width: campoSize * 0.6,
+    height: campoSize * 0.22,
+    resizeMode: 'contain',
+    // Center horizontally and vertically using calculated offsets
+    left: (campoSize - campoSize * 0.6) / 2,
+    top: (Math.min(height * 0.055, 50) * scale + 40 * scale - campoSize * 0.22) / 2,
+    // ensure it stays behind and doesn't block touches
+    pointerEvents: 'none',
   },
 });

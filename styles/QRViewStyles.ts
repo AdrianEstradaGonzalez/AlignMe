@@ -1,9 +1,15 @@
 // QRViewStyles.ts
 import { StyleSheet, Dimensions } from "react-native";
+import { Theme } from "../config/themes";
 
 const { width, height } = Dimensions.get("window");
 
-export const QRViewStyles = StyleSheet.create({
+/**
+ * 🎨 DYNAMIC QRVIEW STYLES FACTORY
+ * =================================
+ * Genera estilos dinámicos basados en el tema de la comunidad
+ */
+export const createQRViewStyles = (theme: Theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -29,7 +35,7 @@ export const QRViewStyles = StyleSheet.create({
   bottom: height * 0.03,   // margen inferior adaptativo
   left: width * 0.05,      // margen lateral adaptativo
   right: width * 0.05,
-  backgroundColor: "#007AFF",
+  backgroundColor: theme.buttonPrimary,
   paddingVertical: height * 0.05,  // más alto que antes
   paddingHorizontal: width * 0.05,  // un poco más ancho
   alignItems: "center",
