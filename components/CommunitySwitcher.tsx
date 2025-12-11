@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
     left: Dimensions.get('window').width * 0.05,
     paddingHorizontal: 16,
     paddingVertical: 10,
+    borderRadius: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,

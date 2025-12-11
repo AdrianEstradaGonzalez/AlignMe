@@ -50,14 +50,18 @@ function HomeScreen({ navigation }: any) {
         <CommunitySwitcher onPress={handleChangeCommunity} />
 
         <View style={AppStyles.overlay}>
-          {/* Logo principal */}
-          <Image
-            source={assets.headerLogo}
-            style={AppStyles.logoHeader}
-            resizeMode="contain"
-          />
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            {/* Sección 1: Logo Header */}
+            <View style={{ alignItems: 'center', marginBottom: 16 }}>
+              <Image
+                source={assets.headerLogo}
+                style={AppStyles.logoHeader}
+                resizeMode="contain"
+              />
+            </View>
 
-          <Card style={AppStyles.card} mode="elevated">
+            {/* Sección 2: Contenedor Principal */}
+            <Card style={AppStyles.card} mode="elevated">
             <Card.Content style={AppStyles.cardContent}>
               {/* Logos horizontalmente centrados */}
               <View style={AppStyles.logosRow}>
@@ -107,19 +111,20 @@ function HomeScreen({ navigation }: any) {
             </Card.Content>
           </Card>
 
-          {/* Logo patrocinador (solo Baleares) */}
-          {assets.sponsorLogo && (
-            <View style={AppStyles.sponsorBelow}>
-              <Image
-                source={assets.sponsorLogo}
-                style={AppStyles.sponsorLogo}
-                resizeMode="contain"
-              />
+            {/* Sección 3: Logo Footer (Patrocinador) */}
+            <View style={{ height: 80, marginTop: 12, alignItems: 'center', justifyContent: 'center' }}>
+              {assets.sponsorLogo && (
+                <Image
+                  source={assets.sponsorLogo}
+                  style={AppStyles.sponsorLogo}
+                  resizeMode="contain"
+                />
+              )}
             </View>
-          )}
+          </View>
 
           <Text style={AppStyles.copyright}>
-            © Copyright 2025 - Adrián Estrada González
+            © Copyright 2025 - BlueDeBug
           </Text>
         </View>
       </ImageBackground>
@@ -136,14 +141,18 @@ function HomeScreen({ navigation }: any) {
       <CommunitySwitcher onPress={handleChangeCommunity} />
 
       <View style={AppStyles.overlay}>
-        {/* Logo pegado al borde superior interno del Card */}
-        <Image
-          source={ assets.headerLogo}
-          style={AppStyles.logoHeader}
-          resizeMode="contain"
-        />
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          {/* Sección 1: Logo Header */}
+          <View style={{ alignItems: 'center', marginBottom: 16 }}>
+            <Image
+              source={assets.headerLogo}
+              style={AppStyles.logoHeader}
+              resizeMode="contain"
+            />
+          </View>
 
-        <Card style={AppStyles.card} mode="elevated">
+          {/* Sección 2: Contenedor Principal */}
+          <Card style={AppStyles.card} mode="elevated">
           <Card.Content style={AppStyles.cardContent}>
             {/* Logos horizontalmente centrados */}
             <View style={AppStyles.logosRow}>
@@ -191,9 +200,15 @@ function HomeScreen({ navigation }: any) {
           </Card.Content>
         </Card>
 
+          {/* Sección 3: Logo Footer (Espacio reservado, sin contenido en Asturias) */}
+          <View style={{ height: 80, marginTop: 12, alignItems: 'center', justifyContent: 'center' }}>
+            {/* Espacio reservado para mantener consistencia con Baleares */}
+          </View>
+        </View>
+
         {/* Marca de CopyRight */}
         <Text style={AppStyles.copyright}>
-          © Copyright 2025 - Adrián Estrada González
+          © Copyright 2025 - BlueDeBug
         </Text>
       </View>
     </ImageBackground>

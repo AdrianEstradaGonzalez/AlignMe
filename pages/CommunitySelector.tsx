@@ -94,7 +94,7 @@ export const CommunitySelector: React.FC<CommunitySelectorProps> = ({ onSelect }
 
         {/* Copyright */}
         <Text style={styles.copyright}>
-          © Copyright 2025 - Adrián Estrada González
+          © Copyright 2025 - BlueDeBug
         </Text>
       </View>
     </ImageBackground>
@@ -112,10 +112,9 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(15, 23, 42, 0.75)',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 20,
   },
   container: {
-    width: '100%',
+    width: '90%',
     maxWidth: 500,
     alignItems: 'center',
   },

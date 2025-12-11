@@ -49,8 +49,8 @@ export const createAppStyles = (theme: Theme) => StyleSheet.create({
 
   logoHeader: {
     alignSelf: "center",
-    width: "100%",
-    height: 60 * scaleHeight,
+    width: Math.min(480, width * 0.75),
+    height: 64 * scaleHeight,
     resizeMode: "contain",
     marginBottom: 16,
   },
