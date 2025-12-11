@@ -11,6 +11,7 @@ export interface Theme {
   // Identificación
   id: CommunityId;
   name: string;
+  federationTitle: string;
   
   // 🎯 COLORES PRINCIPALES
   primary: string;
@@ -79,6 +80,7 @@ export interface Theme {
 export const AsturiasTheme: Theme = {
   id: 'asturias',
   name: 'Asturias',
+  federationTitle: 'FVBPA LINE UP',
   
   // Colores principales - tonos azulados/morados
   primary: "#1e40af",
@@ -146,6 +148,7 @@ export const AsturiasTheme: Theme = {
 export const BalearesTheme: Theme = {
   id: 'baleares',
   name: 'Islas Baleares',
+  federationTitle: 'COTABAL LINE UP',
   
   // Colores principales - morado COTABAL
   primary: "#590660",

@@ -9,14 +9,21 @@ import {
   Text,
   TouchableOpacity,
 } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Camera, CameraType } from "react-native-camera-kit";
 
 import ArbitroView from "./ArbitroView";
 import MedioCampoView from "./MedioCampoView";
+import { useCommunity } from "../context/CommunityContext";
 
 const { width } = Dimensions.get("window");
 
+const STORAGE_KEY_ALINEACIONES = '@alignme_alineaciones';
+const STORAGE_KEY_MODO = '@alignme_modo';
+const STORAGE_KEY_SWAP = '@alignme_swap';
+
 export default function ArbitroPager() {
+  const { theme } = useCommunity();
   const [modo, setModo] = useState<"6x6" | "4x4">("6x6");
   const [setActual, setSetActual] = useState<number>(1);
   const [swapLados, setSwapLados] = useState(false); 
@@ -34,12 +41,60 @@ export default function ArbitroPager() {
   const [scannerVisible, setScannerVisible] = useState(false);
   const [equipoEscanear, setEquipoEscanear] = useState<"A" | "B">("A");
 
+  // 🔹 Cargar datos guardados al iniciar
   useEffect(() => {
+    loadSavedData();
     // Siempre arrancamos mostrando al árbitro (pantalla central)
     setTimeout(() => {
       scrollRef.current?.scrollTo({ x: width, animated: false });
     }, 0);
   }, []);
+
+  // 🔹 Guardar automáticamente cuando cambian las alineaciones, modo o swap
+  useEffect(() => {
+    saveData();
+  }, [valoresEquipos, modo, swapLados]);
+
+  const loadSavedData = async () => {
+    try {
+      const savedAlineaciones = await AsyncStorage.getItem(STORAGE_KEY_ALINEACIONES);
+      const savedModo = await AsyncStorage.getItem(STORAGE_KEY_MODO);
+      const savedSwap = await AsyncStorage.getItem(STORAGE_KEY_SWAP);
+
+      if (savedAlineaciones) {
+        setValoresEquipos(JSON.parse(savedAlineaciones));
+      }
+      if (savedModo) {
+        setModo(savedModo as "6x6" | "4x4");
+      }
+      if (savedSwap) {
+        setSwapLados(JSON.parse(savedSwap));
+      }
+    } catch (error) {
+      console.error('Error cargando datos guardados:', error);
+    }
+  };
+
+  const saveData = async () => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY_ALINEACIONES, JSON.stringify(valoresEquipos));
+      await AsyncStorage.setItem(STORAGE_KEY_MODO, modo);
+      await AsyncStorage.setItem(STORAGE_KEY_SWAP, JSON.stringify(swapLados));
+    } catch (error) {
+      console.error('Error guardando datos:', error);
+    }
+  };
+
+  const clearAllRotations = async () => {
+    setValoresEquipos({});
+    setSwapLados(false);
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEY_ALINEACIONES);
+      await AsyncStorage.removeItem(STORAGE_KEY_SWAP);
+    } catch (error) {
+      console.error('Error limpiando rotaciones:', error);
+    }
+  };
 
   const openScanner = (eq: "A" | "B") => {
     setEquipoEscanear(eq);
@@ -140,6 +195,7 @@ if ((modo === "6x6" && setActual === 5) || (modo === "4x4" && setActual === 3)) 
             onEscanear={openScanner}
             swapLados={swapLados}       // 👈 se lo pasamos
             setSwapLados={setSwapLados} // 👈 para que ArbitroView lo pueda modificar
+            onClearRotations={clearAllRotations}
           />
         </View>
 
@@ -198,12 +254,12 @@ if ((modo === "6x6" && setActual === 5) || (modo === "4x4" && setActual === 3)) 
               alignSelf: "center",
               paddingVertical: 12,
               paddingHorizontal: 24,
-              backgroundColor: "orange",
+              backgroundColor: theme?.primaryDark || "#f59e0b",
               borderRadius: 8,
             }}
             onPress={() => setScannerVisible(false)}
           >
-            <Text style={{ color: "#fff", fontSize: 18 }}>Cancelar</Text>
+            <Text style={{ color: "#fff", fontSize: 18, fontWeight: "600" }}>Cancelar</Text>
           </TouchableOpacity>
         </View>
       </Modal>

@@ -1,4 +1,4 @@
-import { View, ImageBackground, Image, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, ImageBackground, Image, TouchableOpacity, ActivityIndicator, Dimensions, Platform } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Text, Provider as PaperProvider, Card } from "react-native-paper";
@@ -9,7 +9,10 @@ import { CommunityProvider, useCommunity } from "./context/CommunityContext";
 import { CommunitySelector } from "./pages/CommunitySelector";
 import { CommunitySwitcher } from "./components/CommunitySwitcher";
 import { createAppStyles } from "./styles/AppStyles";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+
+const { height: screenHeight } = Dimensions.get('window');
 
 type RootStackParamList = {
   Home: undefined;
@@ -50,7 +53,7 @@ function HomeScreen({ navigation }: any) {
         <CommunitySwitcher onPress={handleChangeCommunity} />
 
         <View style={AppStyles.overlay}>
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: screenHeight * 0.15 }}>
             {/* Sección 1: Logo Header */}
             <View style={{ alignItems: 'center', marginBottom: 16 }}>
               <Image
@@ -141,7 +144,7 @@ function HomeScreen({ navigation }: any) {
       <CommunitySwitcher onPress={handleChangeCommunity} />
 
       <View style={AppStyles.overlay}>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: screenHeight * 0.15 }}>
           {/* Sección 1: Logo Header */}
           <View style={{ alignItems: 'center', marginBottom: 16 }}>
             <Image
@@ -227,6 +230,27 @@ export default function App() {
 
 function AppContent() {
   const { communityId, isLoading } = useCommunity();
+
+  // Solicitar permisos de cámara al iniciar la app
+  useEffect(() => {
+    const requestCameraPermission = async () => {
+      try {
+        const permission = Platform.OS === 'ios' 
+          ? PERMISSIONS.IOS.CAMERA 
+          : PERMISSIONS.ANDROID.CAMERA;
+        
+        const result = await request(permission);
+        
+        if (result !== RESULTS.GRANTED) {
+          console.log('Permiso de cámara no concedido:', result);
+        }
+      } catch (error) {
+        console.error('Error solicitando permiso de cámara:', error);
+      }
+    };
+
+    requestCameraPermission();
+  }, []);
 
   // Mostrar loading mientras se carga la comunidad guardada
   if (isLoading) {

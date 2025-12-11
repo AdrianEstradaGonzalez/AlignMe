@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   TextInput,
@@ -11,6 +11,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
 } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createEntrenadorStyles } from "../styles/EntrenadorStyles";
 import { useCommunity } from "../context/CommunityContext";
 import { useNavigation } from "@react-navigation/native";
@@ -41,6 +42,10 @@ const posiciones4x4 = {
   traseras: ["I"],
 };
 
+const STORAGE_KEY_ENTRENADOR_MODO = '@alignme_entrenador_modo';
+const STORAGE_KEY_ENTRENADOR_CODIGO = '@alignme_entrenador_codigo';
+const STORAGE_KEY_ENTRENADOR_VALORES = '@alignme_entrenador_valores';
+
 export default function EntrenadorView() {
   const { theme, assets, communityId } = useCommunity();
   const [modo, setModo] = useState<"6x6" | "4x4">("6x6");
@@ -49,6 +54,57 @@ export default function EntrenadorView() {
   const [setActual, setSetActual] = useState<number>(1);
   const [valores, setValores] = useState<{ [pos: string]: string }>({});
   const navigation = useNavigation<NavigationProp>();
+
+  // Cargar datos guardados al iniciar
+  useEffect(() => {
+    loadSavedData();
+  }, []);
+
+  // Guardar automáticamente cuando cambian los datos
+  useEffect(() => {
+    saveData();
+  }, [modo, codigoEquipo, valores]);
+
+  const loadSavedData = async () => {
+    try {
+      const savedModo = await AsyncStorage.getItem(STORAGE_KEY_ENTRENADOR_MODO);
+      const savedCodigo = await AsyncStorage.getItem(STORAGE_KEY_ENTRENADOR_CODIGO);
+      const savedValores = await AsyncStorage.getItem(STORAGE_KEY_ENTRENADOR_VALORES);
+
+      if (savedModo) {
+        setModo(savedModo as "6x6" | "4x4");
+      }
+      if (savedCodigo) {
+        setCodigoEquipo(savedCodigo);
+      }
+      if (savedValores) {
+        setValores(JSON.parse(savedValores));
+      }
+    } catch (error) {
+      console.error('Error cargando datos guardados:', error);
+    }
+  };
+
+  const saveData = async () => {
+    try {
+      await AsyncStorage.setItem(STORAGE_KEY_ENTRENADOR_MODO, modo);
+      await AsyncStorage.setItem(STORAGE_KEY_ENTRENADOR_CODIGO, codigoEquipo);
+      await AsyncStorage.setItem(STORAGE_KEY_ENTRENADOR_VALORES, JSON.stringify(valores));
+    } catch (error) {
+      console.error('Error guardando datos:', error);
+    }
+  };
+
+  const clearRotation = async () => {
+    setValores({});
+    setCodigoEquipo("");
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEY_ENTRENADOR_VALORES);
+      await AsyncStorage.removeItem(STORAGE_KEY_ENTRENADOR_CODIGO);
+    } catch (error) {
+      console.error('Error limpiando rotación:', error);
+    }
+  };
 
   if (!theme) return null;
   
@@ -175,7 +231,14 @@ export default function EntrenadorView() {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View style={{ flex: 1, backgroundColor: "#f9fafb" }}>
-          <NavBar modo={modo} toggleModo={toggleModo} />
+          <NavBar 
+            modo={modo} 
+            toggleModo={toggleModo}
+            valoresEquipos={{ 1: { A: valores } }}
+            onClearRotations={clearRotation}
+            showResetButton={false}
+            alertMessage="¿Está seguro de que quiere salir? Se perderá la rotación."
+          />
 
           <View style={styles.container}>
             {/* Barra superior */}

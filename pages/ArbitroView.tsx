@@ -25,6 +25,7 @@ type Props = {
   onEscanear?: (eq: "A" | "B") => void;
   swapLados?: boolean;
   setSwapLados?: (s: boolean) => void;
+  onClearRotations?: () => void;
 };
 
 const icons = {
@@ -43,6 +44,7 @@ export default function ArbitroView({
   onEscanear,
   swapLados = false,
   setSwapLados,
+  onClearRotations,
 }: Props) {
   const { theme, assets, communityId } = useCommunity();
   const [modoLocal, setModoLocal] = useState<"6x6" | "4x4">("6x6");
@@ -132,6 +134,8 @@ if ((modo === "6x6" && setActual === 5) || (modo === "4x4" && setActual === 3)) 
           setModo(modo === "6x6" ? "4x4" : "6x6");
           setSetActual(1); // 👈 Reinicia set al 1 al cambiar de modo
         }}
+        valoresEquipos={valoresEquipos}
+        onClearRotations={onClearRotations}
       />
 
 
