@@ -1,4 +1,4 @@
-import { View, ImageBackground, Image, TouchableOpacity, ActivityIndicator, Dimensions, Platform } from "react-native";
+import { View, ImageBackground, Image, TouchableOpacity, ActivityIndicator, Dimensions, Platform, BackHandler, Linking } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Text, Provider as PaperProvider, Card } from "react-native-paper";
@@ -6,11 +6,14 @@ import EntrenadorView from "./pages/EntrenadorView";
 import QRView from "./pages/QRView";
 import ArbitroPager from "./pages/ArbitroPager";
 import { CommunityProvider, useCommunity } from "./context/CommunityContext";
-import { CommunitySelector } from "./pages/CommunitySelector";
-import { CommunitySwitcher } from "./components/CommunitySwitcher";
 import { createAppStyles } from "./styles/AppStyles";
 import { useState, useEffect } from "react";
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import AccessDeniedAlert from "./components/AccessDeniedAlert";
+import LocationRequiredAlert from "./components/LocationRequiredAlert";
+import { detectUserCommunity } from "./services/geolocation";
+import { isCommunityAllowed } from "./config/allowedCommunities";
+import { getTheme } from "./config/themes";
 
 const { height: screenHeight } = Dimensions.get('window');
 
@@ -24,23 +27,13 @@ type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function HomeScreen({ navigation }: any) {
-  const { theme, assets, communityId, clearCommunity } = useCommunity();
-  const [showSelector, setShowSelector] = useState(false);
+  const { theme, assets, communityId } = useCommunity();
 
   if (!theme || !assets || !communityId) {
     return null; // o un loading spinner
   }
 
   const AppStyles = createAppStyles(theme);
-
-  const handleChangeCommunity = async () => {
-    await clearCommunity();
-    setShowSelector(true);
-  };
-
-  if (showSelector) {
-    return <CommunitySelector onSelect={() => setShowSelector(false)} />;
-  }
 
   // Renderizado específico para Baleares
   if (communityId === 'baleares') {
@@ -49,9 +42,6 @@ function HomeScreen({ navigation }: any) {
         source={assets.background}
         style={AppStyles.background}
       >
-        {/* Botón para cambiar comunidad */}
-        <CommunitySwitcher onPress={handleChangeCommunity} />
-
         <View style={AppStyles.overlay}>
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: screenHeight * 0.15 }}>
             {/* Sección 1: Logo Header */}
@@ -140,9 +130,6 @@ function HomeScreen({ navigation }: any) {
       source={assets.background}
       style={AppStyles.background}
     >
-      {/* Botón para cambiar comunidad */}
-      <CommunitySwitcher onPress={handleChangeCommunity} />
-
       <View style={AppStyles.overlay}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: screenHeight * 0.15 }}>
           {/* Sección 1: Logo Header */}
@@ -229,7 +216,55 @@ export default function App() {
 }
 
 function AppContent() {
-  const { communityId, isLoading } = useCommunity();
+  const { communityId, isLoading, setCommunity } = useCommunity();
+  const [isCheckingLocation, setIsCheckingLocation] = useState(false);
+  const [showAccessDenied, setShowAccessDenied] = useState(false);
+  const [detectedCommunityName, setDetectedCommunityName] = useState<string>('');
+  const [showLocationRequired, setShowLocationRequired] = useState(false);
+
+  // Verificar geolocalización y permisos SIEMPRE al iniciar
+  useEffect(() => {
+    const checkLocationAndAccess = async () => {
+      setIsCheckingLocation(true);
+
+      try {
+        // Detectar la comunidad basándose en la ubicación GPS actual
+        const { community, error } = await detectUserCommunity();
+
+        if (community) {
+          // Verificar si la comunidad detectada tiene acceso
+          if (isCommunityAllowed(community)) {
+            // Comunidad permitida, establecerla (o actualizarla si cambió)
+            await setCommunity(community);
+          } else {
+            // Comunidad no permitida, mostrar alerta
+            const theme = getTheme(community);
+            setDetectedCommunityName(theme.name);
+            setShowAccessDenied(true);
+          }
+        } else {
+          // No se pudo detectar la comunidad (fuera de área, sin permisos, etc.)
+          console.log('No se pudo detectar la comunidad:', error);
+          // Si los permisos fueron denegados, bloquear acceso
+          if (error === 'Permisos de ubicación denegados') {
+            setShowLocationRequired(true);
+          } else {
+            // Fuera de área o error: denegar acceso
+            setDetectedCommunityName('tu ubicación');
+            setShowAccessDenied(true);
+          }
+        }
+      } catch (error) {
+        console.error('Error en verificación de ubicación:', error);
+        setDetectedCommunityName('tu ubicación');
+        setShowAccessDenied(true);
+      } finally {
+        setIsCheckingLocation(false);
+      }
+    };
+
+    checkLocationAndAccess();
+  }, []); // Solo al montar, sin depender de communityId
 
   // Solicitar permisos de cámara al iniciar la app
   useEffect(() => {
@@ -252,22 +287,76 @@ function AppContent() {
     requestCameraPermission();
   }, []);
 
-  // Mostrar loading mientras se carga la comunidad guardada
-  if (isLoading) {
+  // Cerrar la app si el acceso es denegado
+  const handleAccessDeniedClose = () => {
+    setShowAccessDenied(false);
+    // Cerrar la aplicación
+    BackHandler.exitApp();
+  };
+
+  const handleOpenSettings = async () => {
+    try {
+      await Linking.openSettings();
+    } catch (e) {
+      console.error('Error opening settings:', e);
+    }
+  };
+
+  const handleLocationRequiredExit = () => {
+    setShowLocationRequired(false);
+    BackHandler.exitApp();
+  };
+
+  // Mostrar loading mientras se carga la comunidad guardada o se verifica ubicación
+  if (isLoading || isCheckingLocation) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f172a' }}>
         <ActivityIndicator size="large" color="#3b82f6" />
-        <Text style={{ color: '#fff', marginTop: 16, fontSize: 16 }}>Cargando...</Text>
+        <Text style={{ color: '#fff', marginTop: 16, fontSize: 16 }}>
+          {isCheckingLocation ? 'Verificando ubicación...' : 'Cargando...'}
+        </Text>
       </View>
     );
   }
 
-  // Si no hay comunidad seleccionada, mostrar selector
-  if (!communityId) {
-    return <CommunitySelector />;
+  // Mostrar alerta de acceso denegado
+  if (showAccessDenied) {
+    return (
+      <AccessDeniedAlert
+        visible={showAccessDenied}
+        communityName={detectedCommunityName}
+        onClose={handleAccessDeniedClose}
+      />
+    );
   }
 
-  // Si ya hay comunidad, mostrar navegación normal
+  // Mostrar alerta cuando falten permisos de ubicación
+  if (showLocationRequired) {
+    return (
+      <LocationRequiredAlert
+        visible={showLocationRequired}
+        onOpenSettings={handleOpenSettings}
+        onExit={handleLocationRequiredExit}
+      />
+    );
+  }
+
+  // Si no hay comunidad después de verificar, significa que hubo un error
+  // Las alertas ya se muestran arriba
+
+  // Verificación adicional de seguridad
+  if (!isCommunityAllowed(communityId)) {
+    const theme = getTheme(communityId);
+    return (
+      <AccessDeniedAlert
+        visible={true}
+        communityName={theme.name}
+        onClose={handleAccessDeniedClose}
+      />
+    );
+  }
+
+  // Si ya hay comunidad y está permitida, mostrar navegación normal
   return (
     <NavigationContainer>
       <Stack.Navigator
