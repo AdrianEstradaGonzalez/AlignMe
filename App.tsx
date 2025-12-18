@@ -1,4 +1,4 @@
-import { View, ImageBackground, Image, TouchableOpacity, ActivityIndicator, Dimensions, Platform } from "react-native";
+import { View, ImageBackground, Image, TouchableOpacity, ActivityIndicator, Dimensions, Platform, Linking } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Text, Provider as PaperProvider, Card } from "react-native-paper";
@@ -8,9 +8,11 @@ import ArbitroPager from "./pages/ArbitroPager";
 import { CommunityProvider, useCommunity } from "./context/CommunityContext";
 import { CommunitySelector } from "./pages/CommunitySelector";
 import { CommunitySwitcher } from "./components/CommunitySwitcher";
+import CustomAlert from "./components/CustomAlert";
 import { createAppStyles } from "./styles/AppStyles";
 import { useState, useEffect } from "react";
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import { checkAppVersion } from './services/versionCheck';
 
 const { height: screenHeight } = Dimensions.get('window');
 
@@ -219,17 +221,77 @@ function HomeScreen({ navigation }: any) {
 }
 
 export default function App() {
+  const [showUpdateAlert, setShowUpdateAlert] = useState(false);
+  const [updateInfo, setUpdateInfo] = useState<{
+    forceUpdate: boolean;
+    message: string;
+    storeUrl: string;
+  } | null>(null);
+
+  // Verificar versión al iniciar
+  useEffect(() => {
+    const checkVersion = async () => {
+      try {
+        const result = await checkAppVersion();
+        
+        if (result.needsUpdate) {
+          setUpdateInfo({
+            forceUpdate: result.forceUpdate,
+            message: result.forceUpdate 
+              ? "¡Actualización obligatoria! Debes actualizar AlignMe para continuar usando la app."
+              : "Hay una nueva versión disponible de AlignMe. Te recomendamos actualizar para disfrutar de las últimas mejoras.",
+            storeUrl: result.storeUrl
+          });
+          setShowUpdateAlert(true);
+        }
+      } catch (error) {
+        console.error('Error verificando versión:', error);
+      }
+    };
+
+    checkVersion();
+  }, []);
+
+  const handleUpdatePress = () => {
+    if (updateInfo?.storeUrl) {
+      Linking.openURL(updateInfo.storeUrl);
+    }
+  };
+
+  const handleDismissUpdate = () => {
+    if (!updateInfo?.forceUpdate) {
+      setShowUpdateAlert(false);
+    }
+  };
+
   return (
     <PaperProvider>
       <CommunityProvider>
-        <AppContent />
+        <AppContent 
+          showUpdateAlert={showUpdateAlert}
+          updateInfo={updateInfo}
+          onUpdatePress={handleUpdatePress}
+          onDismissUpdate={handleDismissUpdate}
+        />
       </CommunityProvider>
     </PaperProvider>
   );
 }
 
-function AppContent() {
+interface AppContentProps {
+  showUpdateAlert: boolean;
+  updateInfo: {
+    forceUpdate: boolean;
+    message: string;
+    storeUrl: string;
+  } | null;
+  onUpdatePress: () => void;
+  onDismissUpdate: () => void;
+}
+
+function AppContent({ showUpdateAlert, updateInfo, onUpdatePress, onDismissUpdate }: AppContentProps) {
   const { communityId, isLoading } = useCommunity();
+  const { theme, assets } = useCommunity();
 
   // Solicitar permisos de cámara al iniciar la app
   useEffect(() => {
@@ -269,28 +331,43 @@ function AppContent() {
 
   // Si ya hay comunidad, mostrar navegación normal
   return (
-    <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName="Home"
-        screenOptions={{ headerShown: false }}
-      >
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen
-          name="Entrenador"
-          component={EntrenadorView}
-          options={{ title: "Modo Entrenador" }}
+    <>
+      <NavigationContainer>
+        <Stack.Navigator
+          initialRouteName="Home"
+          screenOptions={{ headerShown: false }}
+        >
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen
+            name="Entrenador"
+            component={EntrenadorView}
+            options={{ title: "Modo Entrenador" }}
+          />
+          <Stack.Screen
+            name="Arbitro"
+            component={ArbitroPager}
+            options={{ title: "Modo Arbitro" }}
+          />
+          <Stack.Screen
+            name="QRView"
+            component={QRView}
+            options={{ title: "Código QR" }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+
+      {/* Alert de actualización */}
+      {theme && assets && updateInfo && (
+        <CustomAlert
+          visible={showUpdateAlert}
+          theme={theme}
+          assets={assets}
+          message={updateInfo.message}
+          onCancel={onDismissUpdate}
+          onAccept={onUpdatePress}
+          showResetButton={false}
         />
-        <Stack.Screen
-          name="Arbitro"
-          component={ArbitroPager}
-          options={{ title: "Modo Arbitro" }}
-        />
-        <Stack.Screen
-          name="QRView"
-          component={QRView}
-          options={{ title: "Código QR" }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+      )}
+    </>
   );
 }

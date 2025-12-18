@@ -1,26 +1,31 @@
+import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+const BACKEND_URL = 'https://alignme-backend.onrender.com'; // Actualiza con tu URL de Render
 const VERSION_CHECK_KEY = '@last_version_check';
-const CHECK_INTERVAL = 24 * 60 * 60 * 1000; // 24 horas en milisegundos
+const CHECK_INTERVAL = 24 * 60 * 60 * 1000; // 24 horas
 
-export interface VersionInfo {
+interface VersionConfig {
   minVersion: string;
   currentVersion: string;
+  forceUpdate: boolean;
   storeLinks: {
     android: string;
     ios: string;
   };
-  updateRequired: boolean;
-  message: {
-    es: string;
-  };
+}
+
+interface VersionCheckResult {
+  needsUpdate: boolean;
+  forceUpdate: boolean;
+  storeUrl: string;
 }
 
 /**
  * Compara dos versiones en formato semántico (X.Y.Z)
- * @returns -1 si v1 < v2, 0 si son iguales, 1 si v1 > v2
+ * @returns -1 si v1 < v2, 0 si iguales, 1 si v1 > v2
  */
-export const compareVersions = (v1: string, v2: string): number => {
+const compareVersions = (v1: string, v2: string): number => {
   const parts1 = v1.split('.').map(Number);
   const parts2 = v2.split('.').map(Number);
 
@@ -36,7 +41,7 @@ export const compareVersions = (v1: string, v2: string): number => {
 };
 
 /**
- * Verifica si necesita hacer una nueva comprobación de versión
+ * Verifica si debe hacer nueva comprobación de versión
  */
 const shouldCheckVersion = async (): Promise<boolean> => {
   try {
@@ -65,32 +70,26 @@ const saveLastCheckTime = async (): Promise<void> => {
 };
 
 /**
- * Verifica la versión de la app contra el servidor
- * @param currentVersion Versión actual de la app (del package.json)
- * @param apiUrl URL del servidor de versiones
- * @returns Información de la versión o null si hay error
+ * Verifica la versión de la app contra el backend
  */
-export const checkAppVersion = async (
-  currentVersion: string,
-  apiUrl: string = 'https://alignme-version-server.onrender.com/api/version'
-): Promise<VersionInfo | null> => {
+export const checkAppVersion = async (): Promise<VersionCheckResult> => {
+  const currentVersion = '2.2.0'; // Sincronizado con package.json
+  
   try {
     // Verificar si debe hacer la comprobación
     const shouldCheck = await shouldCheckVersion();
     if (!shouldCheck) {
       console.log('Version check skipped - checked recently');
-      return null;
+      return { needsUpdate: false, forceUpdate: false, storeUrl: '' };
     }
 
-    // Hacer la petición con timeout
+    // Hacer petición con timeout (Render puede tardar en despertar)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 segundos timeout
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 segundos
 
-    const response = await fetch(apiUrl, {
+    const response = await fetch(`${BACKEND_URL}/api/version`, {
       method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
+      headers: { 'Accept': 'application/json' },
       signal: controller.signal,
     });
 
@@ -98,57 +97,38 @@ export const checkAppVersion = async (
 
     if (!response.ok) {
       console.error('Version check failed:', response.status);
-      return null;
+      return { needsUpdate: false, forceUpdate: false, storeUrl: '' };
     }
 
-    const versionInfo: VersionInfo = await response.json();
-
-    // Guardar el timestamp de esta comprobación
+    const config: VersionConfig = await response.json();
     await saveLastCheckTime();
 
-    return versionInfo;
+    // Determinar si necesita actualizar
+    const needsUpdate = 
+      config.forceUpdate || 
+      compareVersions(currentVersion, config.minVersion) < 0 ||
+      compareVersions(currentVersion, config.currentVersion) < 0;
+
+    const forceUpdate = 
+      config.forceUpdate || 
+      compareVersions(currentVersion, config.minVersion) < 0;
+
+    const storeUrl = Platform.OS === 'ios' 
+      ? config.storeLinks.ios 
+      : config.storeLinks.android;
+
+    return {
+      needsUpdate,
+      forceUpdate,
+      storeUrl
+    };
+
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
-      console.warn('Version check timeout - server may be sleeping');
+      console.warn('Version check timeout - backend sleeping on Render');
     } else {
-      console.error('Error checking app version:', error);
+      console.error('Error checking version:', error);
     }
-    return null;
+    return { needsUpdate: false, forceUpdate: false, storeUrl: '' };
   }
-};
-
-/**
- * Determina si se debe mostrar la alerta de actualización
- * @param currentVersion Versión actual de la app
- * @param versionInfo Información del servidor
- * @returns true si debe mostrar la alerta
- */
-export const shouldShowUpdateAlert = (
-  currentVersion: string,
-  versionInfo: VersionInfo
-): boolean => {
-  // Si updateRequired es true, siempre mostrar
-  if (versionInfo.updateRequired) {
-    return true;
-  }
-
-  // Si la versión actual es menor que la mínima requerida
-  if (compareVersions(currentVersion, versionInfo.minVersion) < 0) {
-    return true;
-  }
-
-  return false;
-};
-
-/**
- * Determina si la actualización es obligatoria
- * @param currentVersion Versión actual de la app
- * @param versionInfo Información del servidor
- * @returns true si la actualización es obligatoria
- */
-export const isUpdateMandatory = (
-  currentVersion: string,
-  versionInfo: VersionInfo
-): boolean => {
-  return compareVersions(currentVersion, versionInfo.minVersion) < 0;
 };
