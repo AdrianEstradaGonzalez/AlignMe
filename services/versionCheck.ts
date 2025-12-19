@@ -42,7 +42,7 @@ const compareVersions = (v1: string, v2: string): number => {
  * SIEMPRE verifica en cada inicio - no usa caché de timestamp
  */
 export const checkAppVersion = async (): Promise<VersionCheckResult> => {
-  const currentVersion = '2.2.0'; // Sincronizado con package.json
+  const currentVersion = '2.2.1'; // Sincronizado con build.gradle versionName
   
   try {
     // Hacer petición con timeout (Render puede tardar en despertar)
@@ -64,15 +64,13 @@ export const checkAppVersion = async (): Promise<VersionCheckResult> => {
 
     const config: VersionConfig = await response.json();
 
-    // Determinar si necesita actualizar
-    const needsUpdate = 
-      config.forceUpdate || 
-      compareVersions(currentVersion, config.minVersion) < 0 ||
-      compareVersions(currentVersion, config.currentVersion) < 0;
+    // Actualización OBLIGATORIA: si la versión actual es menor que la mínima
+    const forceUpdate = compareVersions(currentVersion, config.minVersion) < 0;
 
-    const forceUpdate = 
-      config.forceUpdate || 
-      compareVersions(currentVersion, config.minVersion) < 0;
+    // Actualización OPCIONAL: si hay una nueva versión disponible (currentVersion en servidor > versión app)
+    const hasNewVersion = compareVersions(currentVersion, config.currentVersion) < 0;
+
+    const needsUpdate = forceUpdate || hasNewVersion;
 
     const storeUrl = Platform.OS === 'ios' 
       ? config.storeLinks.ios 
