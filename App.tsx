@@ -220,7 +220,27 @@ function HomeScreen({ navigation }: any) {
   );
 }
 
+// Pantalla de bloqueo para actualización obligatoria
+function UpdateBlockScreen({ message, onUpdatePress }: { message: string; onUpdatePress: () => void }) {
+  const { theme, assets } = useCommunity();
+
+  return (
+    <View style={{ flex: 1, backgroundColor: '#0f172a' }}>
+      <CustomAlert
+        visible={true}
+        theme={theme || { primary: '#007AFF', actionCardBg: '#007AFF', actionCardText: '#fff' }}
+        assets={assets || { appLogo: require('./assets/asturias/appLogo.png') }}
+        message={message}
+        onCancel={() => {}} // No hace nada
+        onAccept={onUpdatePress}
+        showResetButton={false}
+      />
+    </View>
+  );
+}
+
 export default function App() {
+  const [isCheckingVersion, setIsCheckingVersion] = useState(true);
   const [showUpdateAlert, setShowUpdateAlert] = useState(false);
   const [updateInfo, setUpdateInfo] = useState<{
     forceUpdate: boolean;
@@ -228,7 +248,7 @@ export default function App() {
     storeUrl: string;
   } | null>(null);
 
-  // Verificar versión al iniciar
+  // Verificar versión SIEMPRE al iniciar - bloquea la app hasta tener respuesta
   useEffect(() => {
     const checkVersion = async () => {
       try {
@@ -243,9 +263,17 @@ export default function App() {
             storeUrl: result.storeUrl
           });
           setShowUpdateAlert(true);
+          // NO cambiar isCheckingVersion si es obligatorio - mantiene bloqueada la app
+          if (!result.forceUpdate) {
+            setIsCheckingVersion(false);
+          }
+        } else {
+          setIsCheckingVersion(false);
         }
       } catch (error) {
         console.error('Error verificando versión:', error);
+        // En caso de error, permitir usar la app
+        setIsCheckingVersion(false);
       }
     };
 
@@ -255,19 +283,36 @@ export default function App() {
   const handleUpdatePress = () => {
     if (updateInfo?.storeUrl) {
       Linking.openURL(updateInfo.storeUrl);
+      // No cerrar la alerta - el usuario debe actualizar
     }
   };
 
   const handleDismissUpdate = () => {
+    // Solo permitir cerrar si NO es obligatoria
     if (!updateInfo?.forceUpdate) {
       setShowUpdateAlert(false);
     }
   };
 
+  // Mostrar alerta de actualización ANTES que todo lo demás
+  if (showUpdateAlert && updateInfo?.forceUpdate) {
+    return (
+      <PaperProvider>
+        <CommunityProvider>
+          <UpdateBlockScreen 
+            message={updateInfo.message}
+            onUpdatePress={handleUpdatePress}
+          />
+        </CommunityProvider>
+      </PaperProvider>
+    );
+  }
+
   return (
     <PaperProvider>
       <CommunityProvider>
         <AppContent 
+          isCheckingVersion={isCheckingVersion}
           showUpdateAlert={showUpdateAlert}
           updateInfo={updateInfo}
           onUpdatePress={handleUpdatePress}
@@ -279,6 +324,7 @@ export default function App() {
 }
 
 interface AppContentProps {
+  isCheckingVersion: boolean;
   showUpdateAlert: boolean;
   updateInfo: {
     forceUpdate: boolean;
@@ -289,9 +335,19 @@ interface AppContentProps {
   onDismissUpdate: () => void;
 }
 
-function AppContent({ showUpdateAlert, updateInfo, onUpdatePress, onDismissUpdate }: AppContentProps) {
+function AppContent({ isCheckingVersion, showUpdateAlert, updateInfo, onUpdatePress, onDismissUpdate }: AppContentProps) {
   const { communityId, isLoading } = useCommunity();
   const { theme, assets } = useCommunity();
+
+  // Mostrar loading mientras se verifica la versión
+  if (isCheckingVersion) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f172a' }}>
+        <ActivityIndicator size="large" color="#3b82f6" />
+        <Text style={{ color: '#fff', marginTop: 16, fontSize: 16 }}>Verificando versión...</Text>
+      </View>
+    );
+  }
 
   // Solicitar permisos de cámara al iniciar la app
   useEffect(() => {
