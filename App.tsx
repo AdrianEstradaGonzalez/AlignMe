@@ -243,7 +243,6 @@ function UpdateBlockScreen({ message, onUpdatePress }: { message: string; onUpda
 
 export default function App() {
   const [isCheckingVersion, setIsCheckingVersion] = useState(true);
-  const [isCheckingVersion, setIsCheckingVersion] = useState(true);
   const [showUpdateAlert, setShowUpdateAlert] = useState(false);
   const [updateInfo, setUpdateInfo] = useState<{
     forceUpdate: boolean;
@@ -257,23 +256,16 @@ export default function App() {
     const checkVersion = async () => {
       try {
         const result = await checkAppVersion();
-        
+
         if (result.needsUpdate) {
           setUpdateInfo({
             forceUpdate: result.forceUpdate,
-            message: result.forceUpdate 
-              ? "¡Actualización disponible! Debes actualizar AlignMe para continuar usando la app."
+            message: result.forceUpdate
+              ? "¡Actualización obligatoria! Debes actualizar AlignMe para continuar usando la app."
               : "Hay una nueva versión disponible de AlignMe. Te recomendamos actualizar para disfrutar de las últimas mejoras.",
-            storeUrl: result.storeUrl
+            storeUrl: result.storeUrl,
           });
           setShowUpdateAlert(true);
-          // NO cambiar isCheckingVersion si es obligatorio - mantiene bloqueada la app
-          if (!result.forceUpdate) {
-            setIsCheckingVersion(false);
-          }
-        } else {
-          setIsCheckingVersion(false);
-          // NO cambiar isCheckingVersion si es obligatorio - mantiene bloqueada la app
           if (!result.forceUpdate) {
             setIsCheckingVersion(false);
           }
@@ -282,9 +274,6 @@ export default function App() {
         }
       } catch (error) {
         console.error('Error verificando versión:', error);
-        // En caso de error, permitir usar la app
-        setIsCheckingVersion(false);
-        // En caso de error, permitir usar la app
         setIsCheckingVersion(false);
       }
     };
@@ -313,21 +302,7 @@ export default function App() {
     return (
       <PaperProvider>
         <CommunityProvider>
-          <UpdateBlockScreen 
-            message={updateInfo.message}
-            onUpdatePress={handleUpdatePress}
-          />
-        </CommunityProvider>
-      </PaperProvider>
-    );
-  }
-
-  // Mostrar alerta de actualización ANTES que todo lo demás
-  if (showUpdateAlert && updateInfo?.forceUpdate) {
-    return (
-      <PaperProvider>
-        <CommunityProvider>
-          <UpdateBlockScreen 
+          <UpdateBlockScreen
             message={updateInfo.message}
             onUpdatePress={handleUpdatePress}
           />
@@ -339,8 +314,7 @@ export default function App() {
   return (
     <PaperProvider>
       <CommunityProvider>
-        <AppContent 
-          isCheckingVersion={isCheckingVersion}
+        <AppContent
           isCheckingVersion={isCheckingVersion}
           showUpdateAlert={showUpdateAlert}
           updateInfo={updateInfo}
@@ -354,7 +328,6 @@ export default function App() {
 
 interface AppContentProps {
   isCheckingVersion: boolean;
-  isCheckingVersion: boolean;
   showUpdateAlert: boolean;
   updateInfo: {
     forceUpdate: boolean;
@@ -366,19 +339,7 @@ interface AppContentProps {
 }
 
 function AppContent({ isCheckingVersion, showUpdateAlert, updateInfo, onUpdatePress, onDismissUpdate }: AppContentProps) {
-function AppContent({ isCheckingVersion, showUpdateAlert, updateInfo, onUpdatePress, onDismissUpdate }: AppContentProps) {
-  const { communityId, isLoading } = useCommunity();
-  const { theme, assets } = useCommunity();
-
-  // Mostrar loading mientras se verifica la versión
-  if (isCheckingVersion) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f172a' }}>
-        <ActivityIndicator size="large" color="#3b82f6" />
-        <Text style={{ color: '#fff', marginTop: 16, fontSize: 16 }}>Verificando versión...</Text>
-      </View>
-    );
-  }
+  const { communityId, isLoading, theme, assets } = useCommunity();
 
   // Mostrar loading mientras se verifica la versión
   if (isCheckingVersion) {
