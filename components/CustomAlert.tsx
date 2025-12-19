@@ -19,6 +19,7 @@ interface CustomAlertProps {
   onCancel: () => void;
   onAccept: () => void;
   showResetButton?: boolean;
+  showCancelButton?: boolean;
 }
 
 export default function CustomAlert({
@@ -30,6 +31,7 @@ export default function CustomAlert({
   onCancel,
   onAccept,
   showResetButton = true,
+  showCancelButton = true,
 }: CustomAlertProps) {
   return (
     <Modal
@@ -77,16 +79,18 @@ export default function CustomAlert({
               </TouchableOpacity>
             )}
 
-            {/* Cancelar */}
-            <TouchableOpacity
-              style={[styles.button, styles.buttonOutline]}
-              onPress={onCancel}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.buttonText, styles.buttonOutlineText]}>
-                Cancelar
-              </Text>
-            </TouchableOpacity>
+            {/* Cancelar - Solo si showCancelButton es true */}
+            {showCancelButton && (
+              <TouchableOpacity
+                style={[styles.button, styles.buttonOutline]}
+                onPress={onCancel}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.buttonText, styles.buttonOutlineText]}>
+                  Cancelar
+                </Text>
+              </TouchableOpacity>
+            )}
 
             {/* Aceptar */}
             <TouchableOpacity

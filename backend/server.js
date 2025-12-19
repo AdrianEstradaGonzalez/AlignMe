@@ -10,8 +10,8 @@ app.use(express.json());
 
 // Configuración de versiones
 const versionConfig = {
-  minVersion: '2.3.0',      // Versión mínima requerida
-  currentVersion: '2.3.0',  // Versión actual en tiendas
+  minVersion: '2.2.1',      // Versión mínima requerida
+  currentVersion: '2.2.1',  // Versión actual en tiendas
   storeLinks: {
     android: 'https://play.google.com/store/apps/details?id=com.alignme',
     ios: 'https://apps.apple.com/us/app/alignme/id6753316011'

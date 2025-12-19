@@ -236,6 +236,7 @@ function UpdateBlockScreen({ message, onUpdatePress }: { message: string; onUpda
         onCancel={() => {}} // No hace nada
         onAccept={onUpdatePress}
         showResetButton={false}
+        showCancelButton={false}
       />
     </View>
   );
@@ -341,16 +342,6 @@ interface AppContentProps {
 function AppContent({ isCheckingVersion, showUpdateAlert, updateInfo, onUpdatePress, onDismissUpdate }: AppContentProps) {
   const { communityId, isLoading, theme, assets } = useCommunity();
 
-  // Mostrar loading mientras se verifica la versión
-  if (isCheckingVersion) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f172a' }}>
-        <ActivityIndicator size="large" color="#3b82f6" />
-        <Text style={{ color: '#fff', marginTop: 16, fontSize: 16 }}>Verificando versión...</Text>
-      </View>
-    );
-  }
-
   // Solicitar permisos de cámara al iniciar la app
   useEffect(() => {
     const requestCameraPermission = async () => {
@@ -371,6 +362,16 @@ function AppContent({ isCheckingVersion, showUpdateAlert, updateInfo, onUpdatePr
 
     requestCameraPermission();
   }, []);
+
+  // Mostrar loading mientras se verifica la versión
+  if (isCheckingVersion) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f172a' }}>
+        <ActivityIndicator size="large" color="#3b82f6" />
+        <Text style={{ color: '#fff', marginTop: 16, fontSize: 16 }}>Verificando versión...</Text>
+      </View>
+    );
+  }
 
   // Mostrar loading mientras se carga la comunidad guardada
   if (isLoading) {
