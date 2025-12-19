@@ -4,35 +4,38 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Configuración CORS para permitir peticiones desde la app
 app.use(cors());
 app.use(express.json());
 
 // Configuración de versiones
 const versionConfig = {
-  minVersion: '2.2.0',      // Versión mínima requerida
-  currentVersion: '2.2.0',  // Versión actual recomendada
-  forceUpdate: false,       // Si es true, obliga a actualizar
+  minVersion: '2.3.0',      // Versión mínima requerida
+  currentVersion: '2.3.0',  // Versión actual en tiendas
   storeLinks: {
     android: 'https://play.google.com/store/apps/details?id=com.alignme',
-    ios: 'https://apps.apple.com/app/id6753316011'
+    ios: 'https://apps.apple.com/us/app/alignme/id6753316011'
+  },
+  updateRequired: true,    // Cambiar a true cuando subas v3.0
+  message: {
+    es: 'Hay una nueva versión disponible con nuevas funcionalidades. ¡Actualiza ahora!'
   }
 };
 
-// Endpoint de verificación de versión
+// Endpoint principal de versiones
 app.get('/api/version', (req, res) => {
   res.json(versionConfig);
 });
 
-// Health check
+// Health check para Render
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Ruta raíz
+// Endpoint raíz
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'AlignMe Backend API',
+  res.json({
+    service: 'AlignMe Version Control Server',
     version: '1.0.0',
     endpoints: {
       version: '/api/version',
@@ -42,8 +45,7 @@ app.get('/', (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 AlignMe Backend corriendo en puerto ${PORT}`);
-  console.log(`📱 Versión actual: ${versionConfig.currentVersion}`);
-  console.log(`⚠️  Versión mínima: ${versionConfig.minVersion}`);
-  console.log(`🔒 Actualización forzada: ${versionConfig.forceUpdate ? 'SÍ' : 'NO'}`);
+  console.log(`🚀 AlignMe Version Server running on port ${PORT}`);
+  console.log(`📱 Min version: ${versionConfig.minVersion}`);
+  console.log(`📱 Current version: ${versionConfig.currentVersion}`);
 });
