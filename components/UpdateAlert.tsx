@@ -32,10 +32,7 @@ const UpdateAlert: React.FC<UpdateAlertProps> = ({
       animationType="fade"
       visible={visible}
       onRequestClose={() => {
-        // Si es obligatoria, no permitir cerrar
-        if (!mandatory) {
-          // Aquí podrías añadir lógica para cerrar si fuera opcional
-        }
+        // Bloquear completamente el cierre si es obligatoria
       }}
     >
       <View style={styles.overlay}>
@@ -57,15 +54,6 @@ const UpdateAlert: React.FC<UpdateAlertProps> = ({
             >
               Actualizar Ahora
             </Button>
-            
-            {!mandatory && (
-              <TouchableOpacity 
-                onPress={() => {}}
-                style={styles.laterButton}
-              >
-                <Text style={styles.laterText}>Más tarde</Text>
-              </TouchableOpacity>
-            )}
           </View>
         </View>
       </View>
