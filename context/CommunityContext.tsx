@@ -1,24 +1,22 @@
 /**
  * 🌍 COMMUNITY CONTEXT
  * ====================
- * Context para gestionar la comunidad seleccionada en toda la app.
- * Incluye persistencia en AsyncStorage.
+ * Context para gestionar la comunidad según ubicación GPS.
+ * Ya no requiere persistencia manual - se detecta automáticamente.
  */
 
 import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommunityId, Theme, getTheme } from '../config/themes';
 import { CommunityAssets, getCommunityAssets } from '../config/assets';
-
-const STORAGE_KEY = '@alignme_community';
 
 interface CommunityContextType {
   communityId: CommunityId | null;
   theme: Theme | null;
   assets: CommunityAssets | null;
   isLoading: boolean;
-  setCommunity: (communityId: CommunityId) => Promise<void>;
-  clearCommunity: () => Promise<void>;
+  isLocationAllowed: boolean;
+  setCommunity: (communityId: CommunityId) => void;
+  setLocationAllowed: (allowed: boolean) => void;
 }
 
 const CommunityContext = createContext<CommunityContextType | undefined>(undefined);
@@ -28,47 +26,20 @@ interface CommunityProviderProps {
 }
 
 export const CommunityProvider: React.FC<CommunityProviderProps> = ({ children }) => {
-  const [communityId, setCommunityId] = useState<CommunityId | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [communityId, setCommunityIdState] = useState<CommunityId | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isLocationAllowed, setIsLocationAllowed] = useState(false);
 
-  // Cargar comunidad guardada al iniciar
-  useEffect(() => {
-    loadCommunity();
-  }, []);
-
-  const loadCommunity = async () => {
-    try {
-      const saved = await AsyncStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        setCommunityId(saved as CommunityId);
-      }
-    } catch (error) {
-      console.error('Error loading community:', error);
-    } finally {
-      setIsLoading(false);
-    }
+  const setCommunity = (newCommunityId: CommunityId) => {
+    setCommunityIdState(newCommunityId);
   };
 
-  const setCommunity = async (newCommunityId: CommunityId) => {
-    try {
-      await AsyncStorage.setItem(STORAGE_KEY, newCommunityId);
-      setCommunityId(newCommunityId);
-    } catch (error) {
-      console.error('Error saving community:', error);
-    }
+  const setLocationAllowed = (allowed: boolean) => {
+    setIsLocationAllowed(allowed);
   };
 
-  const clearCommunity = async () => {
-    try {
-      await AsyncStorage.removeItem(STORAGE_KEY);
-      setCommunityId(null);
-    } catch (error) {
-      console.error('Error clearing community:', error);
-    }
-  };
-
-  const theme = communityId ? getTheme(communityId) : null;
-  const assets = communityId ? getCommunityAssets(communityId) : null;
+  const theme = communityId ? getTheme(communityId) : getTheme('asturias'); // Default Asturias
+  const assets = communityId ? getCommunityAssets(communityId) : getCommunityAssets('asturias');
 
   return (
     <CommunityContext.Provider
@@ -77,8 +48,9 @@ export const CommunityProvider: React.FC<CommunityProviderProps> = ({ children }
         theme,
         assets,
         isLoading,
+        isLocationAllowed,
         setCommunity,
-        clearCommunity,
+        setLocationAllowed,
       }}
     >
       {children}

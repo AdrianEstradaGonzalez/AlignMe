@@ -6,13 +6,15 @@ import EntrenadorView from "./pages/EntrenadorView";
 import QRView from "./pages/QRView";
 import ArbitroPager from "./pages/ArbitroPager";
 import { CommunityProvider, useCommunity } from "./context/CommunityContext";
-import { CommunitySelector } from "./pages/CommunitySelector";
 import { CommunitySwitcher } from "./components/CommunitySwitcher";
 import CustomAlert from "./components/CustomAlert";
+import { LocationBlockScreen } from "./components/LocationBlockScreen";
 import { createAppStyles } from "./styles/AppStyles";
 import { useState, useEffect } from "react";
-import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import { request, PERMISSIONS, RESULTS, check } from 'react-native-permissions';
 import { checkAppVersion } from './services/versionCheck';
+import { detectCommunityByLocation } from './services/locationService';
+import Geolocation from 'react-native-geolocation-service';
 import { AsturiasTheme } from './config/themes';
 import { getCommunityAssets } from './config/assets';
 
@@ -28,23 +30,13 @@ type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 function HomeScreen({ navigation }: any) {
-  const { theme, assets, communityId, clearCommunity } = useCommunity();
-  const [showSelector, setShowSelector] = useState(false);
+  const { theme, assets, communityId } = useCommunity();
 
   if (!theme || !assets || !communityId) {
-    return null; // o un loading spinner
+    return null;
   }
 
   const AppStyles = createAppStyles(theme);
-
-  const handleChangeCommunity = async () => {
-    await clearCommunity();
-    setShowSelector(true);
-  };
-
-  if (showSelector) {
-    return <CommunitySelector onSelect={() => setShowSelector(false)} />;
-  }
 
   // Renderizado específico para Baleares
   if (communityId === 'baleares') {
@@ -53,9 +45,6 @@ function HomeScreen({ navigation }: any) {
         source={assets.background}
         style={AppStyles.background}
       >
-        {/* Botón para cambiar comunidad */}
-        <CommunitySwitcher onPress={handleChangeCommunity} />
-
         <View style={AppStyles.overlay}>
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: screenHeight * 0.15 }}>
             {/* Sección 1: Logo Header */}
@@ -144,9 +133,6 @@ function HomeScreen({ navigation }: any) {
       source={assets.background}
       style={AppStyles.background}
     >
-      {/* Botón para cambiar comunidad */}
-      <CommunitySwitcher onPress={handleChangeCommunity} />
-
       <View style={AppStyles.overlay}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: screenHeight * 0.15 }}>
           {/* Sección 1: Logo Header */}
@@ -244,61 +230,193 @@ function UpdateBlockScreen({ message, onUpdatePress }: { message: string; onUpda
 
 export default function App() {
   const [isCheckingVersion, setIsCheckingVersion] = useState(true);
+  const [isCheckingLocation, setIsCheckingLocation] = useState(true);
+  const [isRequestingPermissions, setIsRequestingPermissions] = useState(true);
   const [showUpdateAlert, setShowUpdateAlert] = useState(false);
+  const [locationBlocked, setLocationBlocked] = useState(false);
+  const [permissionsGranted, setPermissionsGranted] = useState(false);
+  const [initialCommunityId, setInitialCommunityId] = useState<string | null>(null);
   const [updateInfo, setUpdateInfo] = useState<{
     forceUpdate: boolean;
     message: string;
     storeUrl: string;
   } | null>(null);
 
-  // Verificar versión SIEMPRE al iniciar - bloquea la app hasta tener respuesta
-  // Verificar versión SIEMPRE al iniciar - bloquea la app hasta tener respuesta
+  // PASO 1: Solicitar permisos al iniciar
   useEffect(() => {
-    const checkVersion = async () => {
+    const requestPermissions = async () => {
       try {
-        const result = await checkAppVersion();
+        console.log('🔐 Solicitando permisos...');
+        
+        // Solicitar permisos de cámara
+        const cameraPermission = Platform.OS === 'ios' 
+          ? PERMISSIONS.IOS.CAMERA 
+          : PERMISSIONS.ANDROID.CAMERA;
+        
+        await request(cameraPermission);
 
-        if (result.needsUpdate) {
+        // Solicitar permisos de ubicación - primero intentamos precisa, pero aceptamos aproximada
+        let locationPermission;
+        let result;
+        
+        if (Platform.OS === 'ios') {
+          locationPermission = PERMISSIONS.IOS.LOCATION_WHEN_IN_USE;
+          result = await request(locationPermission);
+        } else {
+          // Android: intentar primero ubicación precisa
+          locationPermission = PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
+          result = await request(locationPermission);
+          
+          // Si no se concedió ubicación precisa, verificar si hay ubicación aproximada
+          if (result !== RESULTS.GRANTED) {
+            console.log('⚠️ Ubicación precisa no concedida, verificando aproximada...');
+            const coarsePermission = PERMISSIONS.ANDROID.ACCESS_COARSE_LOCATION;
+            const coarseResult = await check(coarsePermission);
+            
+            if (coarseResult === RESULTS.GRANTED) {
+              console.log('✅ Ubicación aproximada disponible');
+              result = RESULTS.GRANTED; // Aceptar ubicación aproximada
+            }
+          }
+        }
+        
+        if (result === RESULTS.GRANTED) {
+          console.log('✅ Permisos de ubicación concedidos');
+          setPermissionsGranted(true);
+        } else {
+          console.log('❌ Permisos de ubicación denegados');
+          setLocationBlocked(true);
+          setPermissionsGranted(false);
+        }
+      } catch (error) {
+        console.error('Error solicitando permisos:', error);
+        setLocationBlocked(true);
+        setPermissionsGranted(false);
+      } finally {
+        setIsRequestingPermissions(false);
+      }
+    };
+
+    requestPermissions();
+  }, []);
+
+  // PASO 2: Una vez concedidos los permisos, verificar ubicación y versión
+  useEffect(() => {
+    if (!permissionsGranted || isRequestingPermissions) {
+      return; // Esperar a que se concedan los permisos
+    }
+
+    const initializeApp = async () => {
+      try {
+        console.log('🌍 Verificando ubicación...');
+        
+        // Verificar ubicación
+        const locationResult = await checkLocationAndCommunity();
+        
+        if (!locationResult.isAllowed) {
+          console.log('🚫 Ubicación no permitida');
+          setLocationBlocked(true);
+          setIsCheckingLocation(false);
+          setIsCheckingVersion(false);
+          return;
+        }
+
+        console.log('✅ Ubicación permitida');
+        setInitialCommunityId(locationResult.communityId ?? null);
+        setIsCheckingLocation(false);
+
+        // Si la ubicación es válida, verificar versión
+        console.log('📱 Verificando versión...');
+        const versionResult = await checkAppVersion();
+
+        if (versionResult.needsUpdate) {
           setUpdateInfo({
-            forceUpdate: result.forceUpdate,
-            message: result.forceUpdate
+            forceUpdate: versionResult.forceUpdate,
+            message: versionResult.forceUpdate
               ? "¡Actualización obligatoria! Debes actualizar AlignMe para continuar usando la app."
               : "Hay una nueva versión disponible de AlignMe. Te recomendamos actualizar para disfrutar de las últimas mejoras.",
-            storeUrl: result.storeUrl,
+            storeUrl: versionResult.storeUrl,
           });
           setShowUpdateAlert(true);
-          if (!result.forceUpdate) {
+          if (!versionResult.forceUpdate) {
             setIsCheckingVersion(false);
           }
         } else {
           setIsCheckingVersion(false);
         }
       } catch (error) {
-        console.error('Error verificando versión:', error);
+        console.error('Error en inicialización:', error);
         setIsCheckingVersion(false);
+        setIsCheckingLocation(false);
       }
     };
 
-    checkVersion();
-  }, []);
+    initializeApp();
+  }, [permissionsGranted, isRequestingPermissions]);
+
+  const checkLocationAndCommunity = async (): Promise<{ isAllowed: boolean; communityId: string | null }> => {
+    try {
+      // Obtener ubicación actual (los permisos ya fueron concedidos)
+      return new Promise((resolve) => {
+        Geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude, accuracy } = position.coords;
+            const locationResult = detectCommunityByLocation(latitude, longitude);
+            
+            console.log('📍 Ubicación detectada:', { 
+              latitude, 
+              longitude, 
+              accuracy: accuracy ? `${accuracy.toFixed(0)}m` : 'N/A',
+              communityId: locationResult.communityId 
+            });
+            
+            resolve({
+              isAllowed: locationResult.isAllowed,
+              communityId: locationResult.communityId,
+            });
+          },
+          (error) => {
+            console.error('Error obteniendo ubicación:', error);
+            resolve({ isAllowed: false, communityId: null });
+          },
+          { 
+            // Intentar alta precisión, pero aceptar baja precisión también
+            enableHighAccuracy: false, // Cambiado a false para aceptar ubicación aproximada
+            timeout: 20000, 
+            maximumAge: 10000 
+          }
+        );
+      });
+    } catch (error) {
+      console.error('Error verificando ubicación:', error);
+      return { isAllowed: false, communityId: null };
+    }
+  };
 
   const handleUpdatePress = () => {
     if (updateInfo?.storeUrl) {
       Linking.openURL(updateInfo.storeUrl);
-      // No cerrar la alerta - el usuario debe actualizar
-      // No cerrar la alerta - el usuario debe actualizar
     }
   };
 
   const handleDismissUpdate = () => {
-    // Solo permitir cerrar si NO es obligatoria
-    // Solo permitir cerrar si NO es obligatoria
     if (!updateInfo?.forceUpdate) {
       setShowUpdateAlert(false);
     }
   };
 
-  // Mostrar alerta de actualización ANTES que todo lo demás
+  // Prioridad: ubicación > versión
+  if (locationBlocked) {
+    return (
+      <PaperProvider>
+        <CommunityProvider>
+          <LocationBlockScreen />
+        </CommunityProvider>
+      </PaperProvider>
+    );
+  }
+
+  // Pantalla de actualización obligatoria
   if (showUpdateAlert && updateInfo?.forceUpdate) {
     return (
       <PaperProvider>
@@ -316,7 +434,11 @@ export default function App() {
     <PaperProvider>
       <CommunityProvider>
         <AppContent
+          isRequestingPermissions={isRequestingPermissions}
           isCheckingVersion={isCheckingVersion}
+          isCheckingLocation={isCheckingLocation}
+          permissionsGranted={permissionsGranted}
+          initialCommunityId={initialCommunityId}
           showUpdateAlert={showUpdateAlert}
           updateInfo={updateInfo}
           onUpdatePress={handleUpdatePress}
@@ -328,7 +450,11 @@ export default function App() {
 }
 
 interface AppContentProps {
+  isRequestingPermissions: boolean;
   isCheckingVersion: boolean;
+  isCheckingLocation: boolean;
+  permissionsGranted: boolean;
+  initialCommunityId: string | null;
   showUpdateAlert: boolean;
   updateInfo: {
     forceUpdate: boolean;
@@ -339,56 +465,58 @@ interface AppContentProps {
   onDismissUpdate: () => void;
 }
 
-function AppContent({ isCheckingVersion, showUpdateAlert, updateInfo, onUpdatePress, onDismissUpdate }: AppContentProps) {
-  const { communityId, isLoading, theme, assets } = useCommunity();
+function AppContent({ 
+  isRequestingPermissions,
+  isCheckingVersion, 
+  isCheckingLocation,
+  permissionsGranted,
+  initialCommunityId,
+  showUpdateAlert, 
+  updateInfo, 
+  onUpdatePress, 
+  onDismissUpdate 
+}: AppContentProps) {
+  const { communityId, theme, assets, setCommunity, setLocationAllowed } = useCommunity();
 
-  // Solicitar permisos de cámara al iniciar la app
+  // Fijar comunidad detectada por App cuando ya hay permisos
   useEffect(() => {
-    const requestCameraPermission = async () => {
-      try {
-        const permission = Platform.OS === 'ios' 
-          ? PERMISSIONS.IOS.CAMERA 
-          : PERMISSIONS.ANDROID.CAMERA;
-        
-        const result = await request(permission);
-        
-        if (result !== RESULTS.GRANTED) {
-          console.log('Permiso de cámara no concedido:', result);
-        }
-      } catch (error) {
-        console.error('Error solicitando permiso de cámara:', error);
-      }
-    };
+    if (permissionsGranted && initialCommunityId) {
+      console.log('📍 Comunidad recibida desde App:', initialCommunityId);
+      setCommunity(initialCommunityId as any);
+      setLocationAllowed(true);
+    }
+  }, [permissionsGranted, initialCommunityId, setCommunity, setLocationAllowed]);
 
-    requestCameraPermission();
-  }, []);
-
-  // Mostrar loading mientras se verifica la versión
-  if (isCheckingVersion) {
+  // Mostrar loading mientras se solicitan permisos, verifica versión o ubicación
+  if (isRequestingPermissions || isCheckingVersion || isCheckingLocation) {
+    
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f172a' }}>
-        <ActivityIndicator size="large" color="#3b82f6" />
-        <Text style={{ color: '#fff', marginTop: 16, fontSize: 16 }}>Verificando versión...</Text>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
+        <Image 
+          source={require('./assets/asturias/258.png')} 
+          style={{ width: 200, height: 200, marginBottom: 24 }}
+          resizeMode="contain"
+        />
       </View>
     );
   }
 
-  // Mostrar loading mientras se carga la comunidad guardada
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0f172a' }}>
-        <ActivityIndicator size="large" color="#3b82f6" />
-        <Text style={{ color: '#fff', marginTop: 16, fontSize: 16 }}>Cargando...</Text>
-      </View>
-    );
-  }
-
-  // Si no hay comunidad seleccionada, mostrar selector
+  // Si no hay comunidad, mostrar loading (mientras se detecta)
   if (!communityId) {
-    return <CommunitySelector />;
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
+        <Image 
+          source={require('./assets/asturias/258.png')} 
+          style={{ width: 200, height: 200, marginBottom: 24 }}
+          resizeMode="contain"
+        />
+        <ActivityIndicator size="large" color="#3b82f6" />
+        <Text style={{ color: '#0f172a', marginTop: 16, fontSize: 16 }}>Detectando comunidad...</Text>
+      </View>
+    );
   }
 
-  // Si ya hay comunidad, mostrar navegación normal
+  // Navegación normal
   return (
     <>
       <NavigationContainer>

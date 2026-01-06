@@ -20,6 +20,7 @@ interface CustomAlertProps {
   onAccept: () => void;
   showResetButton?: boolean;
   showCancelButton?: boolean;
+  acceptButtonText?: string;
 }
 
 export default function CustomAlert({
@@ -32,6 +33,7 @@ export default function CustomAlert({
   onAccept,
   showResetButton = true,
   showCancelButton = true,
+  acceptButtonText = 'Aceptar',
 }: CustomAlertProps) {
   return (
     <Modal
@@ -99,7 +101,7 @@ export default function CustomAlert({
               activeOpacity={0.8}
             >
               <Text style={[styles.buttonText, styles.buttonPrimaryText]}>
-                Aceptar
+                {acceptButtonText}
               </Text>
             </TouchableOpacity>
           </View>
