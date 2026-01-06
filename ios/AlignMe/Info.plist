@@ -35,6 +35,8 @@
 	<string>Necesitamos la cámara para escanear códigos QR.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>AlignMe necesita tu ubicación para verificar que te encuentras en una comunidad autónoma autorizada.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>AlignMe necesita tu ubicación para verificar que te encuentras en una comunidad autónoma autorizada.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
