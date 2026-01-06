@@ -255,27 +255,37 @@ export default function App() {
         
         await request(cameraPermission);
 
-        // Solicitar permisos de ubicación - primero intentamos precisa, pero aceptamos aproximada
-        let locationPermission;
+        // Solicitar permisos de ubicación
         let result;
 
         if (Platform.OS === 'ios') {
-          locationPermission = PERMISSIONS.IOS.LOCATION_WHEN_IN_USE;
-          result = await request(locationPermission);
-
-          // Asegurar que la autorización de CoreLocation está concedida
-          const geoAuth = await Geolocation.requestAuthorization('whenInUse');
-          if (result !== RESULTS.GRANTED) {
-            if (geoAuth === 'granted') {
-              result = RESULTS.GRANTED;
-            } else if (geoAuth === 'limited') {
-              result = RESULTS.LIMITED;
-            }
+          // En iOS, usar Geolocation directamente para solicitar permisos
+          console.log('📍 iOS: Solicitando autorización de ubicación...');
+          
+          // requestAuthorization devuelve: 'granted', 'denied', 'disabled', 'restricted'
+          const authStatus = await Geolocation.requestAuthorization('whenInUse');
+          console.log('📍 Estado de autorización iOS:', authStatus);
+          
+          if (authStatus === 'granted') {
+            result = RESULTS.GRANTED;
+          } else if (authStatus === 'denied') {
+            result = RESULTS.DENIED;
+          } else if (authStatus === 'disabled') {
+            // Location services deshabilitados en el dispositivo
+            result = RESULTS.BLOCKED;
+          } else {
+            result = RESULTS.BLOCKED;
           }
         } else {
-          // Android: intentar primero ubicación precisa
-          locationPermission = PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
-          result = await request(locationPermission);
+          // Android: usar react-native-permissions
+          const locationPermission = PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
+          const currentStatus = await check(locationPermission);
+          
+          if (currentStatus === RESULTS.GRANTED) {
+            result = currentStatus;
+          } else {
+            result = await request(locationPermission);
+          }
           
           // Si no se concedió ubicación precisa, verificar si hay ubicación aproximada
           if (result !== RESULTS.GRANTED) {
@@ -285,7 +295,7 @@ export default function App() {
             
             if (coarseResult === RESULTS.GRANTED) {
               console.log('✅ Ubicación aproximada disponible');
-              result = RESULTS.GRANTED; // Aceptar ubicación aproximada
+              result = RESULTS.GRANTED;
             }
           }
         }
@@ -294,7 +304,7 @@ export default function App() {
           console.log('✅ Permisos de ubicación concedidos');
           setPermissionsGranted(true);
         } else {
-          console.log('❌ Permisos de ubicación denegados');
+          console.log('❌ Permisos de ubicación denegados:', result);
           setLocationBlocked(true);
           setPermissionsGranted(false);
         }
