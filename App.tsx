@@ -258,10 +258,20 @@ export default function App() {
         // Solicitar permisos de ubicación - primero intentamos precisa, pero aceptamos aproximada
         let locationPermission;
         let result;
-        
+
         if (Platform.OS === 'ios') {
           locationPermission = PERMISSIONS.IOS.LOCATION_WHEN_IN_USE;
           result = await request(locationPermission);
+
+          // Asegurar que la autorización de CoreLocation está concedida
+          const geoAuth = await Geolocation.requestAuthorization('whenInUse');
+          if (result !== RESULTS.GRANTED) {
+            if (geoAuth === 'granted') {
+              result = RESULTS.GRANTED;
+            } else if (geoAuth === 'limited') {
+              result = RESULTS.LIMITED;
+            }
+          }
         } else {
           // Android: intentar primero ubicación precisa
           locationPermission = PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
@@ -280,7 +290,7 @@ export default function App() {
           }
         }
         
-        if (result === RESULTS.GRANTED) {
+        if (result === RESULTS.GRANTED || result === RESULTS.LIMITED) {
           console.log('✅ Permisos de ubicación concedidos');
           setPermissionsGranted(true);
         } else {
