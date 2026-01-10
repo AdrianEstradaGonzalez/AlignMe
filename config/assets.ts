@@ -30,12 +30,11 @@ export interface CommunityAssets {
  * 🔵 ASSETS ASTURIAS
  */
 const AsturiasAssets: CommunityAssets = {
-  headerLogo: require('../assets/asturias/logo_fvbpa.png'),
+  headerLogo: require('../assets/asturias/258.png'),
   appLogo: require('../assets/asturias/258.png'),
-  appLogoWithLetters: require('../assets/asturias/logo_sinletras.png'),
   background: require('../assets/fondo.jpeg'),
-  flag: require('../assets/asturias/bandera.png'),
-  appTitle: 'FVBPA LINE UP',
+  flag: require('../assets/asturias/258.png'),
+  appTitle: 'AlignMe',
 };
 
 /**

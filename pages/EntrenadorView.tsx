@@ -245,11 +245,7 @@ export default function EntrenadorView() {
             <View style={styles.barraControl}>
                 {/* Fondo de logo (dependiente de comunidad). Se pone atrás usando zIndex y pointerEvents none */}
                 <Image
-                  source={
-                    communityId === 'baleares'
-                      ? assets?.topRightLogo
-                      : assets?.appLogoWithLetters
-                  }
+                  source={communityId === 'baleares' ? assets?.topRightLogo : assets?.appLogo}
                   style={styles.backgroundLogo}
                   // keep it purely decorative
                   accessible={false}

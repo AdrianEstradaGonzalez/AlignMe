@@ -42,7 +42,7 @@ const compareVersions = (v1: string, v2: string): number => {
  * SIEMPRE verifica en cada inicio - no usa caché de timestamp
  */
 export const checkAppVersion = async (): Promise<VersionCheckResult> => {
-  const currentVersion = '3.0.0'; // Sincronizado con build.gradle versionName
+  const currentVersion = '3.0.1'; // Sincronizado con build.gradle versionName
   
   try {
     // Hacer petición con timeout (Render puede tardar en despertar)

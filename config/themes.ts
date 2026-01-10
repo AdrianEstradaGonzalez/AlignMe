@@ -80,7 +80,7 @@ export interface Theme {
 export const AsturiasTheme: Theme = {
   id: 'asturias',
   name: 'Asturias',
-  federationTitle: 'FVBPA LINE UP',
+  federationTitle: 'AlignMe',
   
   // Colores principales - tonos azulados/morados
   primary: "#1e40af",

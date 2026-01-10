@@ -7,16 +7,31 @@
 import React from 'react';
 import { View, Linking } from 'react-native';
 import CustomAlert from './CustomAlert';
-import { AsturiasTheme } from '../config/themes';
-import { getCommunityAssets } from '../config/assets';
+import { Theme } from '../config/themes';
+import { CommunityAssets } from '../config/assets';
 
 interface LocationBlockScreenProps {
   onContactPress?: () => void;
 }
 
 export function LocationBlockScreen({ onContactPress }: LocationBlockScreenProps) {
-  const theme = AsturiasTheme;
-  const assets = getCommunityAssets('asturias');
+  // Theme personalizado para el bloqueo (solo usa AlignMe)
+  const theme: Theme = {
+    primaryColor: '#3b82f6',
+    primaryDark: '#2563eb',
+    secondaryColor: '#64748b',
+    federationTitle: 'AlignMe',
+    appTitle: 'AlignMe',
+  };
+
+  // Assets personalizados para el bloqueo (usa el icono 258 en lugar de la bandera)
+  const assets: CommunityAssets = {
+    headerLogo: require('../assets/asturias/258.png'),
+    appLogo: require('../assets/asturias/258.png'),
+    background: require('../assets/fondo.jpeg'),
+    flag: require('../assets/asturias/258.png'), // Usa el icono 258 en lugar de la bandera
+    appTitle: 'AlignMe',
+  };
 
   const handleContactPress = () => {
     const url = 'https://bluedebug.com';

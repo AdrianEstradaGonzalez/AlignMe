@@ -135,27 +135,18 @@ function HomeScreen({ navigation }: any) {
     >
       <View style={AppStyles.overlay}>
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', paddingTop: screenHeight * 0.15 }}>
-          {/* Sección 1: Logo Header */}
+          {/* Sección 1: Logo Header - Oculto en Asturias */}
           <View style={{ alignItems: 'center', marginBottom: 16 }}>
-            <Image
-              source={assets.headerLogo}
-              style={AppStyles.logoHeader}
-              resizeMode="contain"
-            />
+            {/* Sin headerLogo para Asturias */}
           </View>
 
           {/* Sección 2: Contenedor Principal */}
           <Card style={AppStyles.card} mode="elevated">
           <Card.Content style={AppStyles.cardContent}>
-            {/* Logos horizontalmente centrados */}
+            {/* Logo único centrado - Solo 258.png */}
             <View style={AppStyles.logosRow}>
               <Image
                 source={assets.appLogo}
-                style={AppStyles.secondaryLogo}
-                resizeMode="contain"
-              />
-              <Image
-                source={assets.appLogoWithLetters}
                 style={AppStyles.secondaryLogo}
                 resizeMode="contain"
               />

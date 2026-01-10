@@ -164,11 +164,7 @@ if ((modo === "6x6" && setActual === 5) || (modo === "4x4" && setActual === 3)) 
 
         {/* Fondo de logo (dependiente de comunidad) */}
         <Image
-          source={
-            communityId === 'baleares'
-              ? assets?.topRightLogo
-              : assets?.appLogoWithLetters
-          }
+          source={communityId === 'baleares' ? assets?.topRightLogo : assets?.appLogo}
           style={styles.backgroundLogo}
           accessible={false}
           importantForAccessibility="no-hide-descendants"
