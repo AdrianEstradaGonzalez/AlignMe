@@ -9,6 +9,7 @@ import { CommunityProvider, useCommunity } from "./context/CommunityContext";
 import { CommunitySwitcher } from "./components/CommunitySwitcher";
 import CustomAlert from "./components/CustomAlert";
 import { LocationBlockScreen } from "./components/LocationBlockScreen";
+import { LocationPermissionScreen } from "./components/LocationPermissionScreen";
 import { createAppStyles } from "./styles/AppStyles";
 import { useState, useEffect } from "react";
 import { request, PERMISSIONS, RESULTS, check } from 'react-native-permissions';
@@ -20,6 +21,10 @@ import { getCommunityAssets } from './config/assets';
 
 const { height: screenHeight } = Dimensions.get('window');
 
+// ====== DEBUG / TESTING FLAG ======
+// Mantener en false para activar el control de ubicación.
+// Solo poner a true temporalmente cuando se pruebe en emulador.
+const SKIP_LOCATION_FOR_EMULATOR = false;
 type RootStackParamList = {
   Home: undefined;
   Entrenador: undefined;
@@ -226,6 +231,7 @@ export default function App() {
   const [showUpdateAlert, setShowUpdateAlert] = useState(false);
   const [locationBlocked, setLocationBlocked] = useState(false);
   const [permissionsGranted, setPermissionsGranted] = useState(false);
+  const [locationPermissionRequired, setLocationPermissionRequired] = useState(false);
   const [initialCommunityId, setInitialCommunityId] = useState<string | null>(null);
   const [updateInfo, setUpdateInfo] = useState<{
     forceUpdate: boolean;
@@ -238,6 +244,17 @@ export default function App() {
     const requestPermissions = async () => {
       try {
         console.log('🔐 Solicitando permisos...');
+        // Bypass temporal (emulador): marcar permisos concedidos y fijar comunidad por defecto
+        if (SKIP_LOCATION_FOR_EMULATOR) {
+          console.log('⚠️ SKIP_LOCATION_FOR_EMULATOR activo: saltando solicitudes de ubicación (modo test).');
+          setPermissionsGranted(true);
+          setLocationPermissionRequired(false);
+          setIsRequestingPermissions(false);
+          setIsCheckingLocation(false);
+          setIsCheckingVersion(false);
+          setInitialCommunityId('asturias');
+          return;
+        }
         
         // Solicitar permisos de cámara
         const cameraPermission = Platform.OS === 'ios' 
@@ -294,14 +311,17 @@ export default function App() {
         if (result === RESULTS.GRANTED || result === RESULTS.LIMITED) {
           console.log('✅ Permisos de ubicación concedidos');
           setPermissionsGranted(true);
+          setLocationPermissionRequired(false);
         } else {
           console.log('❌ Permisos de ubicación denegados:', result);
-          setLocationBlocked(true);
+          setLocationPermissionRequired(true);
+          setLocationBlocked(false);
           setPermissionsGranted(false);
         }
       } catch (error) {
         console.error('Error solicitando permisos:', error);
-        setLocationBlocked(true);
+        setLocationPermissionRequired(true);
+        setLocationBlocked(false);
         setPermissionsGranted(false);
       } finally {
         setIsRequestingPermissions(false);
@@ -324,6 +344,15 @@ export default function App() {
         // Verificar ubicación
         const locationResult = await checkLocationAndCommunity();
         
+        if (locationResult.reason === 'location_error') {
+          console.log('⚠️ No se pudo obtener ubicación, se requieren permisos/ubicación activa');
+          setLocationPermissionRequired(true);
+          setLocationBlocked(false);
+          setIsCheckingLocation(false);
+          setIsCheckingVersion(false);
+          return;
+        }
+
         if (!locationResult.isAllowed) {
           console.log('🚫 Ubicación no permitida');
           setLocationBlocked(true);
@@ -365,8 +394,13 @@ export default function App() {
     initializeApp();
   }, [permissionsGranted, isRequestingPermissions]);
 
-  const checkLocationAndCommunity = async (): Promise<{ isAllowed: boolean; communityId: string | null }> => {
+  const checkLocationAndCommunity = async (): Promise<{ isAllowed: boolean; communityId: string | null; reason?: 'location_error' | 'out_of_area' }> => {
     try {
+      // Si está activo el bypass para emulador, devolver comunidad por defecto
+      if (SKIP_LOCATION_FOR_EMULATOR) {
+        console.log('⚠️ SKIP_LOCATION_FOR_EMULATOR activo: devolviendo ubicación simulada.');
+        return { isAllowed: true, communityId: 'asturias' };
+      }
       // Obtener ubicación actual (los permisos ya fueron concedidos)
       return new Promise((resolve) => {
         Geolocation.getCurrentPosition(
@@ -384,11 +418,12 @@ export default function App() {
             resolve({
               isAllowed: locationResult.isAllowed,
               communityId: locationResult.communityId,
+              reason: locationResult.isAllowed ? undefined : 'out_of_area',
             });
           },
           (error) => {
             console.error('Error obteniendo ubicación:', error);
-            resolve({ isAllowed: false, communityId: null });
+            resolve({ isAllowed: false, communityId: null, reason: 'location_error' });
           },
           { 
             // Intentar alta precisión, pero aceptar baja precisión también
@@ -400,7 +435,7 @@ export default function App() {
       });
     } catch (error) {
       console.error('Error verificando ubicación:', error);
-      return { isAllowed: false, communityId: null };
+      return { isAllowed: false, communityId: null, reason: 'location_error' };
     }
   };
 
@@ -415,6 +450,17 @@ export default function App() {
       setShowUpdateAlert(false);
     }
   };
+
+  // Prioridad: permisos/ubicación > ubicación > versión
+  if (locationPermissionRequired) {
+    return (
+      <PaperProvider>
+        <CommunityProvider>
+          <LocationPermissionScreen />
+        </CommunityProvider>
+      </PaperProvider>
+    );
+  }
 
   // Prioridad: ubicación > versión
   if (locationBlocked) {
