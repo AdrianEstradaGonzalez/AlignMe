@@ -25,6 +25,20 @@ const { height: screenHeight } = Dimensions.get('window');
 // Mantener en false para activar el control de ubicación.
 // Solo poner a true temporalmente cuando se pruebe en emulador.
 const SKIP_LOCATION_FOR_EMULATOR = false;
+
+// Coordenadas por defecto del simulador de iOS (San Francisco)
+const IOS_SIMULATOR_DEFAULT_LOCATION = {
+  latitude: 37.785834,
+  longitude: -122.406417,
+  tolerance: 0.05,
+};
+
+const isLikelySimulatorLocation = (latitude: number, longitude: number): boolean => {
+  return (
+    Math.abs(latitude - IOS_SIMULATOR_DEFAULT_LOCATION.latitude) <= IOS_SIMULATOR_DEFAULT_LOCATION.tolerance &&
+    Math.abs(longitude - IOS_SIMULATOR_DEFAULT_LOCATION.longitude) <= IOS_SIMULATOR_DEFAULT_LOCATION.tolerance
+  );
+};
 type RootStackParamList = {
   Home: undefined;
   Entrenador: undefined;
@@ -406,6 +420,16 @@ export default function App() {
         Geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude, accuracy } = position.coords;
+
+            if (Platform.OS === 'ios' && isLikelySimulatorLocation(latitude, longitude)) {
+              console.log('⚠️ Ubicación de simulador iOS detectada: permitiendo acceso temporal.');
+              resolve({
+                isAllowed: true,
+                communityId: 'asturias',
+              });
+              return;
+            }
+
             const locationResult = detectCommunityByLocation(latitude, longitude);
             
             console.log('📍 Ubicación detectada:', { 
