@@ -7,7 +7,7 @@
 import React from 'react';
 import { View, Linking } from 'react-native';
 import CustomAlert from './CustomAlert';
-import { AsturiasTheme, Theme } from '../config/themes';
+import { Theme } from '../config/themes';
 import { CommunityAssets } from '../config/assets';
 
 interface LocationBlockScreenProps {
@@ -16,13 +16,13 @@ interface LocationBlockScreenProps {
 
 export function LocationBlockScreen({ onContactPress }: LocationBlockScreenProps) {
   // Theme personalizado para el bloqueo (solo usa AlignMe)
-    const theme: Theme = {
-      ...AsturiasTheme,
-      primary: '#3b82f6',
-      primaryDark: '#2563eb',
-      secondary: '#64748b',
-      federationTitle: 'AlignMe',
-    };
+  const theme: Theme = {
+    primaryColor: '#3b82f6',
+    primaryDark: '#2563eb',
+    secondaryColor: '#64748b',
+    federationTitle: 'AlignMe',
+    appTitle: 'AlignMe',
+  };
 
   // Assets personalizados para el bloqueo (usa el icono 258 en lugar de la bandera)
   const assets: CommunityAssets = {

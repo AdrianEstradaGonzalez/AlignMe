@@ -18,7 +18,6 @@ import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
 import type { RootStackParamList } from "../types/Navigation";
 import NavBar from "./NavBar";
-import { encodeQrPayload } from "../services/qrCodec";
 
 type NavigationProp = StackNavigationProp<RootStackParamList, "Entrenador">;
 
@@ -126,8 +125,7 @@ export default function EntrenadorView() {
     }
 
     const datos = { modo, codigoEquipo, valores };
-    const encryptedData = encodeQrPayload(datos);
-    navigation.navigate("QRView", { data: encryptedData });
+    navigation.navigate("QRView", { data: JSON.stringify(datos) });
   };
 
 

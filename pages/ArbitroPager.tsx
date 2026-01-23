@@ -15,7 +15,6 @@ import { Camera, CameraType } from "react-native-camera-kit";
 import ArbitroView from "./ArbitroView";
 import MedioCampoView from "./MedioCampoView";
 import { useCommunity } from "../context/CommunityContext";
-import { decodeQrPayload } from "../services/qrCodec";
 
 const { width } = Dimensions.get("window");
 
@@ -107,47 +106,48 @@ export default function ArbitroPager() {
   }) => {
     setScannerVisible(false);
 
+    let datosQR: any = {};
     try {
-      const datosQR = decodeQrPayload(event.nativeEvent.codeStringValue);
-
-      // 🔹 Guardar modo si viene en el QR
-      if (datosQR.modo && (datosQR.modo === "6x6" || datosQR.modo === "4x4")) {
-        setModo(datosQR.modo);
-      }
-
-      // 🔹 Alineación directamente en datosQR.valores
-      const alineacion: { [pos: string]: string } =
-        datosQR.valores && typeof datosQR.valores === "object"
-          ? datosQR.valores
-          : {};
-
-      const codigo = datosQR.codigoEquipo || null;
-
-      // 🔹 Guardar SIEMPRE en el set actual
-      setValoresEquipos((prev) => ({
-        ...prev,
-        [setActual]: {
-          ...(prev[setActual] || {}),
-          [equipoEscanear]: {
-            ...(alineacion || {}),
-            codigo,
-          },
-        },
-      }));
-
-      // 🔹 Scroll automático al lado correcto
-      const isAOnLeft = setActual % 2 === 1 ? !swapLados : swapLados;
-      const xPos =
-        (equipoEscanear === "A" && isAOnLeft) ||
-        (equipoEscanear === "B" && !isAOnLeft)
-          ? 0
-          : width * 2;
-      scrollRef.current?.scrollTo({ x: xPos, animated: true });
-      return;
+      datosQR = JSON.parse(event.nativeEvent.codeStringValue);
     } catch {
       Alert.alert("QR inválido", "No se pudo leer el QR correctamente");
       return;
     }
+
+    // 🔹 Guardar modo si viene en el QR
+    if (datosQR.modo && (datosQR.modo === "6x6" || datosQR.modo === "4x4")) {
+      setModo(datosQR.modo);
+    }
+
+    // 🔹 Alineación directamente en datosQR.valores
+    const alineacion: { [pos: string]: string } =
+      datosQR.valores && typeof datosQR.valores === "object"
+        ? datosQR.valores
+        : {};
+
+    const codigo = datosQR.codigoEquipo || null;
+
+    // 🔹 Guardar SIEMPRE en el set actual
+    setValoresEquipos((prev) => ({
+      ...prev,
+      [setActual]: {
+        ...(prev[setActual] || {}),
+        [equipoEscanear]: {
+          ...(alineacion || {}),
+          codigo,
+        },
+      },
+    }));
+
+    // 🔹 Scroll automático al lado correcto
+const isAOnLeft = setActual % 2 === 1 ? !swapLados : swapLados;
+const xPos =
+  (equipoEscanear === "A" && isAOnLeft) ||
+  (equipoEscanear === "B" && !isAOnLeft)
+    ? 0
+    : width * 2;
+scrollRef.current?.scrollTo({ x: xPos, animated: true });
+
   };
 
   // 🔹 Determinar qué equipo va en cada lado (con swap en set 5 ó set 3 según modo)

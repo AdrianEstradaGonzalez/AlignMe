@@ -9,7 +9,6 @@ import { CommunityProvider, useCommunity } from "./context/CommunityContext";
 import { CommunitySwitcher } from "./components/CommunitySwitcher";
 import CustomAlert from "./components/CustomAlert";
 import { LocationBlockScreen } from "./components/LocationBlockScreen";
-import { LocationPermissionScreen } from "./components/LocationPermissionScreen";
 import { createAppStyles } from "./styles/AppStyles";
 import { useState, useEffect } from "react";
 import { request, PERMISSIONS, RESULTS, check } from 'react-native-permissions';
@@ -21,24 +20,6 @@ import { getCommunityAssets } from './config/assets';
 
 const { height: screenHeight } = Dimensions.get('window');
 
-// ====== DEBUG / TESTING FLAG ======
-// Mantener en false para activar el control de ubicación.
-// Solo poner a true temporalmente cuando se pruebe en emulador.
-const SKIP_LOCATION_FOR_EMULATOR = false;
-
-// Coordenadas por defecto del simulador de iOS (San Francisco)
-const IOS_SIMULATOR_DEFAULT_LOCATION = {
-  latitude: 37.785834,
-  longitude: -122.406417,
-  tolerance: 0.05,
-};
-
-const isLikelySimulatorLocation = (latitude: number, longitude: number): boolean => {
-  return (
-    Math.abs(latitude - IOS_SIMULATOR_DEFAULT_LOCATION.latitude) <= IOS_SIMULATOR_DEFAULT_LOCATION.tolerance &&
-    Math.abs(longitude - IOS_SIMULATOR_DEFAULT_LOCATION.longitude) <= IOS_SIMULATOR_DEFAULT_LOCATION.tolerance
-  );
-};
 type RootStackParamList = {
   Home: undefined;
   Entrenador: undefined;
@@ -245,7 +226,6 @@ export default function App() {
   const [showUpdateAlert, setShowUpdateAlert] = useState(false);
   const [locationBlocked, setLocationBlocked] = useState(false);
   const [permissionsGranted, setPermissionsGranted] = useState(false);
-  const [locationPermissionRequired, setLocationPermissionRequired] = useState(false);
   const [initialCommunityId, setInitialCommunityId] = useState<string | null>(null);
   const [updateInfo, setUpdateInfo] = useState<{
     forceUpdate: boolean;
@@ -258,17 +238,6 @@ export default function App() {
     const requestPermissions = async () => {
       try {
         console.log('🔐 Solicitando permisos...');
-        // Bypass temporal (emulador): marcar permisos concedidos y fijar comunidad por defecto
-        if (SKIP_LOCATION_FOR_EMULATOR) {
-          console.log('⚠️ SKIP_LOCATION_FOR_EMULATOR activo: saltando solicitudes de ubicación (modo test).');
-          setPermissionsGranted(true);
-          setLocationPermissionRequired(false);
-          setIsRequestingPermissions(false);
-          setIsCheckingLocation(false);
-          setIsCheckingVersion(false);
-          setInitialCommunityId('asturias');
-          return;
-        }
         
         // Solicitar permisos de cámara
         const cameraPermission = Platform.OS === 'ios' 
@@ -277,37 +246,17 @@ export default function App() {
         
         await request(cameraPermission);
 
-        // Solicitar permisos de ubicación
+        // Solicitar permisos de ubicación - primero intentamos precisa, pero aceptamos aproximada
+        let locationPermission;
         let result;
-
+        
         if (Platform.OS === 'ios') {
-          // En iOS, usar Geolocation directamente para solicitar permisos
-          console.log('📍 iOS: Solicitando autorización de ubicación...');
-          
-          // requestAuthorization devuelve: 'granted', 'denied', 'disabled', 'restricted'
-          const authStatus = await Geolocation.requestAuthorization('whenInUse');
-          console.log('📍 Estado de autorización iOS:', authStatus);
-          
-          if (authStatus === 'granted') {
-            result = RESULTS.GRANTED;
-          } else if (authStatus === 'denied') {
-            result = RESULTS.DENIED;
-          } else if (authStatus === 'disabled') {
-            // Location services deshabilitados en el dispositivo
-            result = RESULTS.BLOCKED;
-          } else {
-            result = RESULTS.BLOCKED;
-          }
+          locationPermission = PERMISSIONS.IOS.LOCATION_WHEN_IN_USE;
+          result = await request(locationPermission);
         } else {
-          // Android: usar react-native-permissions
-          const locationPermission = PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
-          const currentStatus = await check(locationPermission);
-          
-          if (currentStatus === RESULTS.GRANTED) {
-            result = currentStatus;
-          } else {
-            result = await request(locationPermission);
-          }
+          // Android: intentar primero ubicación precisa
+          locationPermission = PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
+          result = await request(locationPermission);
           
           // Si no se concedió ubicación precisa, verificar si hay ubicación aproximada
           if (result !== RESULTS.GRANTED) {
@@ -317,25 +266,22 @@ export default function App() {
             
             if (coarseResult === RESULTS.GRANTED) {
               console.log('✅ Ubicación aproximada disponible');
-              result = RESULTS.GRANTED;
+              result = RESULTS.GRANTED; // Aceptar ubicación aproximada
             }
           }
         }
         
-        if (result === RESULTS.GRANTED || result === RESULTS.LIMITED) {
+        if (result === RESULTS.GRANTED) {
           console.log('✅ Permisos de ubicación concedidos');
           setPermissionsGranted(true);
-          setLocationPermissionRequired(false);
         } else {
-          console.log('❌ Permisos de ubicación denegados:', result);
-          setLocationPermissionRequired(true);
-          setLocationBlocked(false);
+          console.log('❌ Permisos de ubicación denegados');
+          setLocationBlocked(true);
           setPermissionsGranted(false);
         }
       } catch (error) {
         console.error('Error solicitando permisos:', error);
-        setLocationPermissionRequired(true);
-        setLocationBlocked(false);
+        setLocationBlocked(true);
         setPermissionsGranted(false);
       } finally {
         setIsRequestingPermissions(false);
@@ -358,15 +304,6 @@ export default function App() {
         // Verificar ubicación
         const locationResult = await checkLocationAndCommunity();
         
-        if (locationResult.reason === 'location_error') {
-          console.log('⚠️ No se pudo obtener ubicación, se requieren permisos/ubicación activa');
-          setLocationPermissionRequired(true);
-          setLocationBlocked(false);
-          setIsCheckingLocation(false);
-          setIsCheckingVersion(false);
-          return;
-        }
-
         if (!locationResult.isAllowed) {
           console.log('🚫 Ubicación no permitida');
           setLocationBlocked(true);
@@ -408,28 +345,13 @@ export default function App() {
     initializeApp();
   }, [permissionsGranted, isRequestingPermissions]);
 
-  const checkLocationAndCommunity = async (): Promise<{ isAllowed: boolean; communityId: string | null; reason?: 'location_error' | 'out_of_area' }> => {
+  const checkLocationAndCommunity = async (): Promise<{ isAllowed: boolean; communityId: string | null }> => {
     try {
-      // Si está activo el bypass para emulador, devolver comunidad por defecto
-      if (SKIP_LOCATION_FOR_EMULATOR) {
-        console.log('⚠️ SKIP_LOCATION_FOR_EMULATOR activo: devolviendo ubicación simulada.');
-        return { isAllowed: true, communityId: 'asturias' };
-      }
       // Obtener ubicación actual (los permisos ya fueron concedidos)
       return new Promise((resolve) => {
         Geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude, accuracy } = position.coords;
-
-            if (Platform.OS === 'ios' && isLikelySimulatorLocation(latitude, longitude)) {
-              console.log('⚠️ Ubicación de simulador iOS detectada: permitiendo acceso temporal.');
-              resolve({
-                isAllowed: true,
-                communityId: 'asturias',
-              });
-              return;
-            }
-
             const locationResult = detectCommunityByLocation(latitude, longitude);
             
             console.log('📍 Ubicación detectada:', { 
@@ -442,12 +364,11 @@ export default function App() {
             resolve({
               isAllowed: locationResult.isAllowed,
               communityId: locationResult.communityId,
-              reason: locationResult.isAllowed ? undefined : 'out_of_area',
             });
           },
           (error) => {
             console.error('Error obteniendo ubicación:', error);
-            resolve({ isAllowed: false, communityId: null, reason: 'location_error' });
+            resolve({ isAllowed: false, communityId: null });
           },
           { 
             // Intentar alta precisión, pero aceptar baja precisión también
@@ -459,7 +380,7 @@ export default function App() {
       });
     } catch (error) {
       console.error('Error verificando ubicación:', error);
-      return { isAllowed: false, communityId: null, reason: 'location_error' };
+      return { isAllowed: false, communityId: null };
     }
   };
 
@@ -474,17 +395,6 @@ export default function App() {
       setShowUpdateAlert(false);
     }
   };
-
-  // Prioridad: permisos/ubicación > ubicación > versión
-  if (locationPermissionRequired) {
-    return (
-      <PaperProvider>
-        <CommunityProvider>
-          <LocationPermissionScreen />
-        </CommunityProvider>
-      </PaperProvider>
-    );
-  }
 
   // Prioridad: ubicación > versión
   if (locationBlocked) {
