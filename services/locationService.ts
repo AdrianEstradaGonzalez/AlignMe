@@ -14,6 +14,11 @@ export interface LocationResult {
   longitude: number;
 }
 
+// Testing helper: cuando se activa, permitirá toda la continental USA
+let ALLOW_ALL_US = false;
+export function enableAllowAllUSForTesting() {
+  ALLOW_ALL_US = true;
+}
 /**
  * Polígonos aproximados de las comunidades autónomas permitidas.
  * Cada polígono es un array de coordenadas [lat, lon].
@@ -70,6 +75,22 @@ export function detectCommunityByLocation(
   latitude: number,
   longitude: number
 ): LocationResult {
+  // Si está activo el modo de pruebas, permitir cualquier punto dentro de la continental USA
+  if (ALLOW_ALL_US) {
+    const latMin = 24.52; // sur de continental US
+    const latMax = 49.38; // norte de continental US
+    const lonMin = -124.77; // oeste
+    const lonMax = -66.95;  // este
+
+    if (latitude >= latMin && latitude <= latMax && longitude >= lonMin && longitude <= lonMax) {
+      return {
+        communityId: 'asturias',
+        isAllowed: true,
+        latitude,
+        longitude,
+      };
+    }
+  }
   // Buscar en qué comunidad se encuentra el punto
   for (const [communityId, polygon] of Object.entries(COMMUNITY_POLYGONS)) {
     if (isPointInPolygon(latitude, longitude, polygon)) {

@@ -14,7 +14,7 @@ import { createAppStyles } from "./styles/AppStyles";
 import { useState, useEffect } from "react";
 import { request, PERMISSIONS, RESULTS, check } from 'react-native-permissions';
 import { checkAppVersion } from './services/versionCheck';
-import { detectCommunityByLocation } from './services/locationService';
+import { detectCommunityByLocation, enableAllowAllUSForTesting } from './services/locationService';
 import Geolocation from 'react-native-geolocation-service';
 import { AsturiasTheme } from './config/themes';
 import { getCommunityAssets } from './config/assets';
@@ -22,9 +22,9 @@ import { getCommunityAssets } from './config/assets';
 const { height: screenHeight } = Dimensions.get('window');
 
 // ====== DEBUG / TESTING FLAG ======
-// Mantener en false para activar el control de ubicación.
-// Solo poner a true temporalmente cuando se pruebe en emulador.
-const SKIP_LOCATION_FOR_EMULATOR = false;
+// Activar automáticamente en iOS __DEV__ (simulador/desarrollo) para permitir pruebas
+// en Xcode Simulator sin bloqueo por ubicación.
+const SKIP_LOCATION_FOR_EMULATOR = Platform.OS === 'ios' && __DEV__;
 
 // Coordenadas por defecto del simulador de iOS (San Francisco)
 const IOS_SIMULATOR_DEFAULT_LOCATION = {
@@ -255,6 +255,11 @@ export default function App() {
 
   // PASO 1: Solicitar permisos al iniciar
   useEffect(() => {
+    // Si estamos en modo emulador de iOS, ampliar permisos de prueba (permite toda USA)
+    if (SKIP_LOCATION_FOR_EMULATOR) {
+      console.log('⚠️ Modo emulador detectado: activando bypass de ubicación y permitiendo continental USA para pruebas.');
+      enableAllowAllUSForTesting();
+    }
     const requestPermissions = async () => {
       try {
         console.log('🔐 Solicitando permisos...');
