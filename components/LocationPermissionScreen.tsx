@@ -27,9 +27,10 @@ const alignMeAssets: CommunityAssets = {
 };
 
 export function LocationPermissionScreen() {
-  const handleOpenSettings = () => {
-    Linking.openSettings().catch((err) =>
-      console.error("Error al abrir ajustes:", err)
+  const handleContactPress = () => {
+    const url = "https://bluedebug.com";
+    Linking.openURL(url).catch((err) =>
+      console.error("Error al abrir el enlace:", err)
     );
   };
 
@@ -40,13 +41,13 @@ export function LocationPermissionScreen() {
         theme={alignMeTheme}
         assets={alignMeAssets}
         message={
-          "Para comprobar que tu federación tiene los derechos de AlignMe, debes activar la ubicación y conceder permisos de ubicación mientras se usa la app.\nAlignMe no almacena ni utiliza tu ubicación."
+          "La federación de la comunidad en la que te encuentras no dispone de los derechos de AlignMe.\nContacte a través de bluedebug.com para adquirirlos"
         }
         onCancel={() => {}}
-        onAccept={handleOpenSettings}
+        onAccept={handleContactPress}
         showResetButton={false}
         showCancelButton={false}
-        acceptButtonText="Abrir ajustes"
+        acceptButtonText="Contactar"
       />
     </View>
   );
