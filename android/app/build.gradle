@@ -82,8 +82,8 @@ android {
         applicationId "com.alignme"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 17
-        versionName "4.1.0"
+        versionCode 18
+        versionName "5.0"
     }
     signingConfigs {
     release {
