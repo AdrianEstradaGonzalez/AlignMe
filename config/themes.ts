@@ -5,7 +5,13 @@
  * Cada comunidad tiene su propia paleta de colores personalizada.
  */
 
-export type CommunityId = 'asturias' | 'baleares';
+export type CommunityId = 'generic' | 'asturias' | 'baleares';
+
+/**
+ * Comunidades con personalización propia (federaciones con licencia).
+ * El resto del territorio usa la versión básica ('generic').
+ */
+export type CustomizedCommunityId = Exclude<CommunityId, 'generic'>;
 
 export interface Theme {
   // Identificación
@@ -72,6 +78,74 @@ export interface Theme {
   actionCardArrow: string;
   actionCardLeftBar: string;
 }
+
+/**
+ * ⚪ TEMA GENÉRICO (VERSIÓN BÁSICA)
+ * Versión sin personalizar de AlignMe, para cualquier ubicación sin federación licenciada.
+ */
+export const GenericTheme: Theme = {
+  id: 'generic',
+  name: 'AlignMe',
+  federationTitle: 'AlignMe',
+
+  // Colores principales - azul AlignMe
+  primary: "#1e40af",
+  primaryDark: "#1e40af",
+  primaryLight: "#60a5fa",
+
+  secondary: "#1e40af",
+  secondaryLight: "#a78bfa",
+
+  accent: "#fbdc09",
+  accentDark: "#d97706",
+
+  // Fondos y superficies
+  background: "#f9fafb",
+  surface: "#ffffff",
+  surfaceDark: "#1d2841",
+
+  // Textos
+  textPrimary: "#0f172a",
+  textSecondary: "#374151",
+  textLight: "#6b7280",
+  textOnPrimary: "#ffffff",
+
+  // Bordes
+  border: "#e5e7eb",
+  borderAccent: "#3b82f6",
+  divider: "#d1d5db",
+
+  // Campo
+  fieldBackground: "#fff7ed",
+  fieldBorder: "#3b82f6",
+  fieldLine: "#3b82f6",
+
+  // Overlays
+  overlayDark: "rgba(15, 23, 42, 0.55)",
+  overlayLight: "rgba(59, 130, 246, 0.1)",
+  shadow: "#000000",
+
+  // Estados
+  success: "#10b981",
+  warning: "#f59e0b",
+  error: "#ef4444",
+  info: "#1e40af",
+
+  // Botones
+  buttonPrimary: "#1e40af",
+  buttonSecondary: "#3b82f6",
+  buttonAccent: "#f59e0b",
+  buttonInfo: "#1e40af",
+  buttonDanger: "#ef4444",
+
+  // Tarjetas de acción
+  actionCardBg: "#1d2841",
+  actionCardBorder: "#3b82f6",
+  actionCardBorderSubtle: "rgba(59, 130, 246, 0.12)",
+  actionCardText: "#ffffff",
+  actionCardArrow: "#3b82f6",
+  actionCardLeftBar: "#3b82f6",
+};
 
 /**
  * 🔵 TEMA ASTURIAS
@@ -217,6 +291,7 @@ export const BalearesTheme: Theme = {
  * Aquí se registran todos los temas disponibles
  */
 export const THEMES: Record<CommunityId, Theme> = {
+  generic: GenericTheme,
   asturias: AsturiasTheme,
   baleares: BalearesTheme,
 };
@@ -229,8 +304,15 @@ export const getTheme = (communityId: CommunityId): Theme => {
 };
 
 /**
+ * 🎯 COMUNIDAD POR DEFECTO
+ * Se usa cuando la ubicación no corresponde a una federación con licencia,
+ * o cuando no se puede determinar (sin permiso de ubicación, GPS sin señal...).
+ */
+export const DEFAULT_COMMUNITY_ID: CommunityId = 'generic';
+
+/**
  * 📝 INSTRUCCIONES PARA AÑADIR NUEVA COMUNIDAD:
- * 
+ *
  * 1. Añade el nuevo ID al tipo CommunityId (ej: 'galicia')
  * 2. Crea el objeto de tema siguiendo la estructura de Theme
  * 3. Añade el tema al objeto THEMES

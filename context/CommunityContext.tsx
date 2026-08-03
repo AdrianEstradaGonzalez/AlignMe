@@ -3,10 +3,11 @@
  * ====================
  * Context para gestionar la comunidad según ubicación GPS.
  * Ya no requiere persistencia manual - se detecta automáticamente.
+ * Si no hay comunidad detectada se usa la versión básica ('generic').
  */
 
-import React, { createContext, useState, useEffect, useContext, ReactNode } from 'react';
-import { CommunityId, Theme, getTheme } from '../config/themes';
+import React, { createContext, useState, useContext, ReactNode } from 'react';
+import { CommunityId, Theme, getTheme, DEFAULT_COMMUNITY_ID } from '../config/themes';
 import { CommunityAssets, getCommunityAssets } from '../config/assets';
 
 interface CommunityContextType {
@@ -14,9 +15,7 @@ interface CommunityContextType {
   theme: Theme | null;
   assets: CommunityAssets | null;
   isLoading: boolean;
-  isLocationAllowed: boolean;
   setCommunity: (communityId: CommunityId) => void;
-  setLocationAllowed: (allowed: boolean) => void;
 }
 
 const CommunityContext = createContext<CommunityContextType | undefined>(undefined);
@@ -27,19 +26,15 @@ interface CommunityProviderProps {
 
 export const CommunityProvider: React.FC<CommunityProviderProps> = ({ children }) => {
   const [communityId, setCommunityIdState] = useState<CommunityId | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLocationAllowed, setIsLocationAllowed] = useState(false);
+  const [isLoading] = useState(false);
 
   const setCommunity = (newCommunityId: CommunityId) => {
     setCommunityIdState(newCommunityId);
   };
 
-  const setLocationAllowed = (allowed: boolean) => {
-    setIsLocationAllowed(allowed);
-  };
-
-  const theme = communityId ? getTheme(communityId) : getTheme('asturias'); // Default Asturias
-  const assets = communityId ? getCommunityAssets(communityId) : getCommunityAssets('asturias');
+  // Sin comunidad detectada todavía: versión básica como fallback
+  const theme = getTheme(communityId ?? DEFAULT_COMMUNITY_ID);
+  const assets = getCommunityAssets(communityId ?? DEFAULT_COMMUNITY_ID);
 
   return (
     <CommunityContext.Provider
@@ -48,9 +43,7 @@ export const CommunityProvider: React.FC<CommunityProviderProps> = ({ children }
         theme,
         assets,
         isLoading,
-        isLocationAllowed,
         setCommunity,
-        setLocationAllowed,
       }}
     >
       {children}
