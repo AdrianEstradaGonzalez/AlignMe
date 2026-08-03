@@ -6,6 +6,10 @@ const scaleHeight = height / 800;
 const sponsorLogoHeight = 56 * scaleHeight;
 const sponsorBarHeight = sponsorLogoHeight + 12 * scaleHeight;
 
+// Patrocinadores de la app (VBStats y BlueDeBug)
+export const APP_SPONSOR_LOGO_SIZE = Math.max(26, 34 * scaleHeight);
+export const APP_SPONSOR_LOGO_SIZE_COMPACT = Math.max(22, 26 * scaleHeight);
+
 /**
  * 🎨 DYNAMIC STYLES FACTORY
  * =========================
@@ -209,6 +213,61 @@ export const createAppStyles = (theme: Theme) => StyleSheet.create({
     marginTop: 0,
     marginBottom: 0,
     opacity: 0.95,
+  },
+
+  // Barra de patrocinadores de la app (VBStats + BlueDeBug)
+  appSponsors: {
+    alignItems: "center",
+    alignSelf: "center",
+  },
+
+  appSponsorsLabel: {
+    fontSize: 9,
+    fontWeight: "700",
+    letterSpacing: 1.6,
+    color: theme.textOnPrimary,
+    opacity: 0.75,
+    marginBottom: 6,
+  },
+
+  appSponsorsPill: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 14,
+    paddingVertical: 8,
+    paddingHorizontal: 18,
+    borderRadius: 999,
+    backgroundColor: "rgba(255, 255, 255, 0.94)",
+
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+
+  appSponsorsPillCompact: {
+    gap: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+  },
+
+  appSponsorDivider: {
+    width: 1,
+    height: 22,
+    backgroundColor: theme.divider,
+  },
+
+  appSponsorLogo: {
+    width: APP_SPONSOR_LOGO_SIZE,
+    height: APP_SPONSOR_LOGO_SIZE,
+    resizeMode: "contain",
+  },
+
+  appSponsorLogoCompact: {
+    width: APP_SPONSOR_LOGO_SIZE_COMPACT,
+    height: APP_SPONSOR_LOGO_SIZE_COMPACT,
   },
 
   sponsorBelow: {
