@@ -8,37 +8,18 @@ import ArbitroPager from "./pages/ArbitroPager";
 import { CommunityProvider, useCommunity } from "./context/CommunityContext";
 import { CommunitySwitcher } from "./components/CommunitySwitcher";
 import CustomAlert from "./components/CustomAlert";
-import { LocationBlockScreen } from "./components/LocationBlockScreen";
-import { LocationPermissionScreen } from "./components/LocationPermissionScreen";
+import { AppSponsors } from "./components/AppSponsors";
 import { createAppStyles } from "./styles/AppStyles";
 import { useState, useEffect } from "react";
 import { request, PERMISSIONS, RESULTS, check } from 'react-native-permissions';
 import { checkAppVersion } from './services/versionCheck';
-import { detectCommunityByLocation, enableAllowAllUSForTesting } from './services/locationService';
+import { detectCommunityByLocation } from './services/locationService';
 import Geolocation from 'react-native-geolocation-service';
-import { AsturiasTheme } from './config/themes';
+import { CommunityId, GenericTheme, DEFAULT_COMMUNITY_ID } from './config/themes';
 import { getCommunityAssets } from './config/assets';
 
 const { height: screenHeight } = Dimensions.get('window');
 
-// ====== DEBUG / TESTING FLAG ======
-// Activar automáticamente en iOS __DEV__ (simulador/desarrollo) para permitir pruebas
-// en Xcode Simulator sin bloqueo por ubicación.
-const SKIP_LOCATION_FOR_EMULATOR = Platform.OS === 'ios' && __DEV__;
-
-// Coordenadas por defecto del simulador de iOS (San Francisco)
-const IOS_SIMULATOR_DEFAULT_LOCATION = {
-  latitude: 37.785834,
-  longitude: -122.406417,
-  tolerance: 0.05,
-};
-
-const isLikelySimulatorLocation = (latitude: number, longitude: number): boolean => {
-  return (
-    Math.abs(latitude - IOS_SIMULATOR_DEFAULT_LOCATION.latitude) <= IOS_SIMULATOR_DEFAULT_LOCATION.tolerance &&
-    Math.abs(longitude - IOS_SIMULATOR_DEFAULT_LOCATION.longitude) <= IOS_SIMULATOR_DEFAULT_LOCATION.tolerance
-  );
-};
 type RootStackParamList = {
   Home: undefined;
   Entrenador: undefined;
@@ -126,7 +107,7 @@ function HomeScreen({ navigation }: any) {
             </Card.Content>
           </Card>
 
-            {/* Sección 3: Logo Footer (Patrocinador) */}
+            {/* Sección 3: Logo Footer (Patrocinador de la federación) */}
             <View style={{ height: 80, marginTop: 12, alignItems: 'center', justifyContent: 'center' }}>
               {assets.sponsorLogo && (
                 <Image
@@ -135,6 +116,11 @@ function HomeScreen({ navigation }: any) {
                   resizeMode="contain"
                 />
               )}
+            </View>
+
+            {/* Sección 4: Patrocinadores de la app */}
+            <View style={{ marginTop: 4 }}>
+              <AppSponsors compact />
             </View>
           </View>
 
@@ -203,9 +189,9 @@ function HomeScreen({ navigation }: any) {
           </Card.Content>
         </Card>
 
-          {/* Sección 3: Logo Footer (Espacio reservado, sin contenido en Asturias) */}
+          {/* Sección 3: Patrocinadores de la app */}
           <View style={{ height: 80, marginTop: 12, alignItems: 'center', justifyContent: 'center' }}>
-            {/* Espacio reservado para mantener consistencia con Baleares */}
+            <AppSponsors />
           </View>
         </View>
 
@@ -226,8 +212,8 @@ function UpdateBlockScreen({ message, onUpdatePress }: { message: string; onUpda
     <View style={{ flex: 1, backgroundColor: '#0f172a' }}>
       <CustomAlert
         visible={true}
-        theme={theme ?? AsturiasTheme}
-        assets={assets ?? getCommunityAssets('asturias')}
+        theme={theme ?? GenericTheme}
+        assets={assets ?? getCommunityAssets(DEFAULT_COMMUNITY_ID)}
         message={message}
         onCancel={() => {}} // No hace nada
         onAccept={onUpdatePress}
@@ -243,10 +229,8 @@ export default function App() {
   const [isCheckingLocation, setIsCheckingLocation] = useState(true);
   const [isRequestingPermissions, setIsRequestingPermissions] = useState(true);
   const [showUpdateAlert, setShowUpdateAlert] = useState(false);
-  const [locationBlocked, setLocationBlocked] = useState(false);
-  const [permissionsGranted, setPermissionsGranted] = useState(false);
-  const [locationPermissionRequired, setLocationPermissionRequired] = useState(false);
-  const [initialCommunityId, setInitialCommunityId] = useState<string | null>(null);
+  const [hasLocationPermission, setHasLocationPermission] = useState(false);
+  const [initialCommunityId, setInitialCommunityId] = useState<CommunityId>(DEFAULT_COMMUNITY_ID);
   const [updateInfo, setUpdateInfo] = useState<{
     forceUpdate: boolean;
     message: string;
@@ -254,27 +238,12 @@ export default function App() {
   } | null>(null);
 
   // PASO 1: Solicitar permisos al iniciar
+  // La ubicación es OPCIONAL: si se deniega, la app funciona en su versión básica.
   useEffect(() => {
-    // Si estamos en modo emulador de iOS, ampliar permisos de prueba (permite toda USA)
-    if (SKIP_LOCATION_FOR_EMULATOR) {
-      console.log('⚠️ Modo emulador detectado: activando bypass de ubicación y permitiendo continental USA para pruebas.');
-      enableAllowAllUSForTesting();
-    }
     const requestPermissions = async () => {
       try {
         console.log('🔐 Solicitando permisos...');
-        // Bypass temporal (emulador): marcar permisos concedidos y fijar comunidad por defecto
-        if (SKIP_LOCATION_FOR_EMULATOR) {
-          console.log('⚠️ SKIP_LOCATION_FOR_EMULATOR activo: saltando solicitudes de ubicación (modo test).');
-          setPermissionsGranted(true);
-          setLocationPermissionRequired(false);
-          setIsRequestingPermissions(false);
-          setIsCheckingLocation(false);
-          setIsCheckingVersion(false);
-          setInitialCommunityId('asturias');
-          return;
-        }
-        
+
         // Solicitar permisos de cámara
         const cameraPermission = Platform.OS === 'ios' 
           ? PERMISSIONS.IOS.CAMERA 
@@ -329,19 +298,14 @@ export default function App() {
         
         if (result === RESULTS.GRANTED || result === RESULTS.LIMITED) {
           console.log('✅ Permisos de ubicación concedidos');
-          setPermissionsGranted(true);
-          setLocationPermissionRequired(false);
+          setHasLocationPermission(true);
         } else {
-          console.log('❌ Permisos de ubicación denegados:', result);
-          setLocationPermissionRequired(true);
-          setLocationBlocked(false);
-          setPermissionsGranted(false);
+          console.log('ℹ️ Permisos de ubicación denegados, se usará la versión básica:', result);
+          setHasLocationPermission(false);
         }
       } catch (error) {
         console.error('Error solicitando permisos:', error);
-        setLocationPermissionRequired(true);
-        setLocationBlocked(false);
-        setPermissionsGranted(false);
+        setHasLocationPermission(false);
       } finally {
         setIsRequestingPermissions(false);
       }
@@ -350,38 +314,21 @@ export default function App() {
     requestPermissions();
   }, []);
 
-  // PASO 2: Una vez concedidos los permisos, verificar ubicación y versión
+  // PASO 2: Una vez resueltos los permisos, detectar comunidad y verificar versión
   useEffect(() => {
-    if (!permissionsGranted || isRequestingPermissions) {
-      return; // Esperar a que se concedan los permisos
+    if (isRequestingPermissions) {
+      return; // Esperar a que termine la solicitud de permisos
     }
 
     const initializeApp = async () => {
       try {
-        console.log('🌍 Verificando ubicación...');
-        
-        // Verificar ubicación
-        const locationResult = await checkLocationAndCommunity();
-        
-        if (locationResult.reason === 'location_error') {
-          console.log('⚠️ No se pudo obtener ubicación, se requieren permisos/ubicación activa');
-          setLocationPermissionRequired(true);
-          setLocationBlocked(false);
-          setIsCheckingLocation(false);
-          setIsCheckingVersion(false);
-          return;
-        }
+        console.log('🌍 Detectando comunidad...');
 
-        if (!locationResult.isAllowed) {
-          console.log('🚫 Ubicación no permitida');
-          setLocationBlocked(true);
-          setIsCheckingLocation(false);
-          setIsCheckingVersion(false);
-          return;
-        }
+        // Detectar personalización según ubicación (nunca bloquea el acceso)
+        const detectedCommunityId = await detectCommunity();
 
-        console.log('✅ Ubicación permitida');
-        setInitialCommunityId(locationResult.communityId ?? null);
+        console.log('✅ Comunidad aplicada:', detectedCommunityId);
+        setInitialCommunityId(detectedCommunityId);
         setIsCheckingLocation(false);
 
         // Si la ubicación es válida, verificar versión
@@ -411,60 +358,50 @@ export default function App() {
     };
 
     initializeApp();
-  }, [permissionsGranted, isRequestingPermissions]);
+  }, [hasLocationPermission, isRequestingPermissions]);
 
-  const checkLocationAndCommunity = async (): Promise<{ isAllowed: boolean; communityId: string | null; reason?: 'location_error' | 'out_of_area' }> => {
+  /**
+   * Devuelve la comunidad cuya personalización debe aplicarse.
+   * Sin permiso, sin señal o fuera de una comunidad con licencia: versión básica.
+   */
+  const detectCommunity = async (): Promise<CommunityId> => {
+    if (!hasLocationPermission) {
+      console.log('ℹ️ Sin permiso de ubicación: versión básica');
+      return DEFAULT_COMMUNITY_ID;
+    }
+
     try {
-      // Si está activo el bypass para emulador, devolver comunidad por defecto
-      if (SKIP_LOCATION_FOR_EMULATOR) {
-        console.log('⚠️ SKIP_LOCATION_FOR_EMULATOR activo: devolviendo ubicación simulada.');
-        return { isAllowed: true, communityId: 'asturias' };
-      }
-      // Obtener ubicación actual (los permisos ya fueron concedidos)
-      return new Promise((resolve) => {
+      return await new Promise<CommunityId>((resolve) => {
         Geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude, accuracy } = position.coords;
 
-            if (Platform.OS === 'ios' && isLikelySimulatorLocation(latitude, longitude)) {
-              console.log('⚠️ Ubicación de simulador iOS detectada: permitiendo acceso temporal.');
-              resolve({
-                isAllowed: true,
-                communityId: 'asturias',
-              });
-              return;
-            }
-
             const locationResult = detectCommunityByLocation(latitude, longitude);
-            
-            console.log('📍 Ubicación detectada:', { 
-              latitude, 
-              longitude, 
+
+            console.log('📍 Ubicación detectada:', {
+              latitude,
+              longitude,
               accuracy: accuracy ? `${accuracy.toFixed(0)}m` : 'N/A',
-              communityId: locationResult.communityId 
+              communityId: locationResult.communityId
             });
-            
-            resolve({
-              isAllowed: locationResult.isAllowed,
-              communityId: locationResult.communityId,
-              reason: locationResult.isAllowed ? undefined : 'out_of_area',
-            });
+
+            resolve(locationResult.communityId);
           },
           (error) => {
-            console.error('Error obteniendo ubicación:', error);
-            resolve({ isAllowed: false, communityId: null, reason: 'location_error' });
+            console.log('ℹ️ No se pudo obtener la ubicación, versión básica:', error.message);
+            resolve(DEFAULT_COMMUNITY_ID);
           },
-          { 
+          {
             // Intentar alta precisión, pero aceptar baja precisión también
             enableHighAccuracy: false, // Cambiado a false para aceptar ubicación aproximada
-            timeout: 20000, 
-            maximumAge: 10000 
+            timeout: 20000,
+            maximumAge: 10000
           }
         );
       });
     } catch (error) {
       console.error('Error verificando ubicación:', error);
-      return { isAllowed: false, communityId: null, reason: 'location_error' };
+      return DEFAULT_COMMUNITY_ID;
     }
   };
 
@@ -479,28 +416,6 @@ export default function App() {
       setShowUpdateAlert(false);
     }
   };
-
-  // Prioridad: permisos/ubicación > ubicación > versión
-  if (locationPermissionRequired) {
-    return (
-      <PaperProvider>
-        <CommunityProvider>
-          <LocationPermissionScreen />
-        </CommunityProvider>
-      </PaperProvider>
-    );
-  }
-
-  // Prioridad: ubicación > versión
-  if (locationBlocked) {
-    return (
-      <PaperProvider>
-        <CommunityProvider>
-          <LocationBlockScreen />
-        </CommunityProvider>
-      </PaperProvider>
-    );
-  }
 
   // Pantalla de actualización obligatoria
   if (showUpdateAlert && updateInfo?.forceUpdate) {
@@ -523,7 +438,6 @@ export default function App() {
           isRequestingPermissions={isRequestingPermissions}
           isCheckingVersion={isCheckingVersion}
           isCheckingLocation={isCheckingLocation}
-          permissionsGranted={permissionsGranted}
           initialCommunityId={initialCommunityId}
           showUpdateAlert={showUpdateAlert}
           updateInfo={updateInfo}
@@ -539,8 +453,7 @@ interface AppContentProps {
   isRequestingPermissions: boolean;
   isCheckingVersion: boolean;
   isCheckingLocation: boolean;
-  permissionsGranted: boolean;
-  initialCommunityId: string | null;
+  initialCommunityId: CommunityId;
   showUpdateAlert: boolean;
   updateInfo: {
     forceUpdate: boolean;
@@ -553,25 +466,21 @@ interface AppContentProps {
 
 function AppContent({ 
   isRequestingPermissions,
-  isCheckingVersion, 
+  isCheckingVersion,
   isCheckingLocation,
-  permissionsGranted,
   initialCommunityId,
-  showUpdateAlert, 
-  updateInfo, 
-  onUpdatePress, 
-  onDismissUpdate 
+  showUpdateAlert,
+  updateInfo,
+  onUpdatePress,
+  onDismissUpdate
 }: AppContentProps) {
-  const { communityId, theme, assets, setCommunity, setLocationAllowed } = useCommunity();
+  const { communityId, theme, assets, setCommunity } = useCommunity();
 
-  // Fijar comunidad detectada por App cuando ya hay permisos
+  // Fijar la comunidad detectada por App
   useEffect(() => {
-    if (permissionsGranted && initialCommunityId) {
-      console.log('📍 Comunidad recibida desde App:', initialCommunityId);
-      setCommunity(initialCommunityId as any);
-      setLocationAllowed(true);
-    }
-  }, [permissionsGranted, initialCommunityId, setCommunity, setLocationAllowed]);
+    console.log('📍 Comunidad recibida desde App:', initialCommunityId);
+    setCommunity(initialCommunityId);
+  }, [initialCommunityId, setCommunity]);
 
   // Mostrar loading mientras se solicitan permisos, verifica versión o ubicación
   if (isRequestingPermissions || isCheckingVersion || isCheckingLocation) {
@@ -579,7 +488,7 @@ function AppContent({
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
         <Image 
-          source={require('./assets/asturias/258.png')} 
+          source={require('./assets/generic/258.png')}
           style={{ width: 200, height: 200, marginBottom: 24 }}
           resizeMode="contain"
         />
@@ -592,7 +501,7 @@ function AppContent({
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
         <Image 
-          source={require('./assets/asturias/258.png')} 
+          source={require('./assets/generic/258.png')}
           style={{ width: 200, height: 200, marginBottom: 24 }}
           resizeMode="contain"
         />

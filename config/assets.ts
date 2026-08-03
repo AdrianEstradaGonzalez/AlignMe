@@ -27,6 +27,18 @@ export interface CommunityAssets {
 }
 
 /**
+ * ⚪ ASSETS GENÉRICOS (VERSIÓN BÁSICA)
+ * Sin logos de federación ni patrocinadores.
+ */
+const GenericAssets: CommunityAssets = {
+  headerLogo: require('../assets/generic/258.png'),
+  appLogo: require('../assets/generic/258.png'),
+  background: require('../assets/fondo.jpeg'),
+  flag: require('../assets/generic/258.png'),
+  appTitle: 'AlignMe',
+};
+
+/**
  * 🔵 ASSETS ASTURIAS
  */
 const AsturiasAssets: CommunityAssets = {
@@ -54,6 +66,7 @@ const BalearesAssets: CommunityAssets = {
  * 📦 REGISTRO DE ASSETS
  */
 export const COMMUNITY_ASSETS: Record<CommunityId, CommunityAssets> = {
+  generic: GenericAssets,
   asturias: AsturiasAssets,
   baleares: BalearesAssets,
 };
