@@ -108,7 +108,7 @@ function HomeScreen({ navigation }: any) {
           </Card>
 
             {/* Sección 3: Logo Footer (Patrocinador de la federación) */}
-            <View style={{ height: 80, marginTop: 12, alignItems: 'center', justifyContent: 'center' }}>
+            <View style={AppStyles.federationSponsorSlot}>
               {assets.sponsorLogo && (
                 <Image
                   source={assets.sponsorLogo}
@@ -119,7 +119,7 @@ function HomeScreen({ navigation }: any) {
             </View>
 
             {/* Sección 4: Patrocinadores de la app */}
-            <View style={{ marginTop: 4 }}>
+            <View style={AppStyles.appSponsorsSectionCompact}>
               <AppSponsors compact />
             </View>
           </View>
@@ -190,8 +190,8 @@ function HomeScreen({ navigation }: any) {
         </Card>
 
           {/* Sección 3: Patrocinadores de la app */}
-          <View style={{ height: 80, marginTop: 12, alignItems: 'center', justifyContent: 'center' }}>
-            <AppSponsors />
+          <View style={AppStyles.appSponsorsSection}>
+            <AppSponsors compact />
           </View>
         </View>
 

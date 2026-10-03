@@ -4,11 +4,13 @@ import { Theme } from "../config/themes";
 const { width, height } = Dimensions.get("window");
 const scaleHeight = height / 800;
 const sponsorLogoHeight = 56 * scaleHeight;
-const sponsorBarHeight = sponsorLogoHeight + 12 * scaleHeight;
 
-// Patrocinadores de la app (VBStats y BlueDeBug)
-export const APP_SPONSOR_LOGO_SIZE = Math.max(26, 34 * scaleHeight);
-export const APP_SPONSOR_LOGO_SIZE_COMPACT = Math.max(22, 26 * scaleHeight);
+// Patrocinadores de la app (VBStats y BlueDebug)
+export const APP_SPONSOR_LOGO_SIZE = Math.max(34, 46 * scaleHeight);
+export const APP_SPONSOR_LOGO_SIZE_COMPACT = Math.max(28, 34 * scaleHeight);
+const appSponsorTileSize = APP_SPONSOR_LOGO_SIZE + 12;
+const appSponsorTileSizeCompact = APP_SPONSOR_LOGO_SIZE_COMPACT + 10;
+const appSponsorsCardWidth = Math.min(360, width * 0.9);
 
 /**
  * 🎨 DYNAMIC STYLES FACTORY
@@ -215,59 +217,152 @@ export const createAppStyles = (theme: Theme) => StyleSheet.create({
     opacity: 0.95,
   },
 
-  // Barra de patrocinadores de la app (VBStats + BlueDeBug)
-  appSponsors: {
+  // Hueco del patrocinador de la federación (Baleares), ajustado a su logo
+  federationSponsorSlot: {
+    height: sponsorLogoHeight + 10 * scaleHeight,
+    marginTop: 10 * scaleHeight,
     alignItems: "center",
+    justifyContent: "center",
+  },
+
+  // Patrocinadores de la app (VBStats + BlueDebug): tarjeta con logo, nombre y enlace
+  appSponsorsSection: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 16 * scaleHeight,
+  },
+
+  appSponsorsSectionCompact: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 6 * scaleHeight,
+  },
+
+  appSponsors: {
+    width: appSponsorsCardWidth,
+    alignItems: "stretch",
     alignSelf: "center",
   },
 
   appSponsorsLabel: {
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 1.6,
+    fontSize: 10,
+    lineHeight: 14,
+    fontWeight: "800",
+    letterSpacing: 2,
+    textAlign: "center",
     color: theme.textOnPrimary,
-    opacity: 0.75,
-    marginBottom: 6,
+    opacity: 0.85,
+    marginBottom: 7,
+    textShadowColor: "rgba(0, 0, 0, 0.35)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
 
-  appSponsorsPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 14,
-    paddingVertical: 8,
-    paddingHorizontal: 18,
-    borderRadius: 999,
-    backgroundColor: "rgba(255, 255, 255, 0.94)",
+  appSponsorsCard: {
+    width: "100%",
+    borderRadius: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.96)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.65)",
+    overflow: "hidden",
 
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 6,
   },
 
-  appSponsorsPillCompact: {
-    gap: 10,
-    paddingVertical: 6,
+  appSponsorsCardCompact: {
+    flexDirection: "row",
+    alignItems: "stretch",
+    borderRadius: 16,
+  },
+
+  appSponsorRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    paddingVertical: 10 * scaleHeight,
     paddingHorizontal: 14,
   },
 
-  appSponsorDivider: {
+  appSponsorRowCompact: {
+    flex: 1,
+    gap: 8,
+    paddingVertical: 7 * scaleHeight,
+    paddingHorizontal: 10,
+  },
+
+  appSponsorLogoTile: {
+    width: appSponsorTileSize,
+    height: appSponsorTileSize,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f3f4f6",
+    overflow: "hidden",
+  },
+
+  appSponsorLogoTileCompact: {
+    width: appSponsorTileSizeCompact,
+    height: appSponsorTileSizeCompact,
+    borderRadius: 12,
+  },
+
+  appSponsorLogoTileVbstats: {
+    backgroundColor: "#111827",
+  },
+
+  appSponsorTextBlock: {
+    flex: 1,
+    justifyContent: "center",
+  },
+
+  appSponsorName: {
+    fontSize: 16,
+    fontWeight: "800",
+    letterSpacing: 0.2,
+    color: theme.textPrimary,
+  },
+
+  appSponsorNameCompact: {
+    fontSize: 14,
+  },
+
+  appSponsorTagline: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: theme.textLight,
+    marginTop: 2,
+  },
+
+  appSponsorTaglineCompact: {
+    fontSize: 10.5,
+    lineHeight: 13,
+    marginTop: 1,
+  },
+
+  appSponsorArrow: {
+    fontSize: 24,
+    fontWeight: "600",
+    color: theme.borderAccent,
+    marginLeft: 2,
+  },
+
+  appSponsorSeparator: {
+    height: 1,
+    marginHorizontal: 14,
+    backgroundColor: theme.border,
+  },
+
+  appSponsorSeparatorCompact: {
     width: 1,
-    height: 22,
-    backgroundColor: theme.divider,
-  },
-
-  appSponsorLogo: {
-    width: APP_SPONSOR_LOGO_SIZE,
-    height: APP_SPONSOR_LOGO_SIZE,
-    resizeMode: "contain",
-  },
-
-  appSponsorLogoCompact: {
-    width: APP_SPONSOR_LOGO_SIZE_COMPACT,
-    height: APP_SPONSOR_LOGO_SIZE_COMPACT,
+    height: "auto",
+    marginHorizontal: 0,
+    marginVertical: 10,
   },
 
   sponsorBelow: {
